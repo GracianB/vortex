@@ -11,6 +11,7 @@ import {
   parseAppEnv,
   projectRoot,
   readAppEnv,
+  resolveCommand,
 } from "./with-app-env.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -111,6 +112,14 @@ test("a signal-killed command is never reported as success", async () => {
     ]),
     (err) => err.signal === "SIGTERM" || err.code !== 0,
   );
+});
+
+test("vite is launched via its JS entry so Windows does not need vite.cmd on PATH", () => {
+  const resolved = resolveCommand("vite", ["dev", "--host", "0.0.0.0"]);
+  assert.equal(resolved.file, process.execPath);
+  assert.equal(resolved.shell, false);
+  assert.match(resolved.argv[0], /vite\.js$/);
+  assert.deepEqual(resolved.argv.slice(1), ["dev", "--host", "0.0.0.0"]);
 });
 
 test("the CLI still runs when invoked through a symlinked path", async () => {

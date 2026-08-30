@@ -20,7 +20,7 @@
  * `process.env`, which is why the merge has to happen before Vite starts.
  */
 import { spawn } from "node:child_process";
-import { readFileSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { constants as osConstants } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -104,14 +104,57 @@ export function isMainModule(moduleUrl) {
   }
 }
 
+/**
+ * Resolve a CLI so Windows can find local binaries.
+ * `spawn("vite")` looks for `vite.exe` and misses `node_modules/.bin/vite.cmd`.
+ */
+export function resolveCommand(command, args, root = projectRoot()) {
+  if (command === "vite") {
+    const viteJs = join(root, "node_modules", "vite", "bin", "vite.js");
+    if (existsSync(viteJs)) {
+      return { file: process.execPath, argv: [viteJs, ...args], shell: false };
+    }
+  }
+
+  const binDir = join(root, "node_modules", ".bin");
+  const candidates =
+    process.platform === "win32"
+      ? [join(binDir, `${command}.cmd`), join(binDir, `${command}.exe`), join(binDir, command)]
+      : [join(binDir, command)];
+
+  for (const file of candidates) {
+    if (!existsSync(file)) continue;
+    const needsShell = file.endsWith(".cmd") || file.endsWith(".bat");
+    return { file, argv: args, shell: needsShell };
+  }
+
+  return {
+    file: command,
+    argv: args,
+    shell: process.platform === "win32",
+  };
+}
+
+function withLocalBinPath(env, root) {
+  const binDir = join(root, "node_modules", ".bin");
+  const pathKey =
+    process.platform === "win32"
+      ? Object.keys(env).find((k) => k.toLowerCase() === "path") ?? "Path"
+      : "PATH";
+  const sep = process.platform === "win32" ? ";" : ":";
+  return { ...env, [pathKey]: `${binDir}${sep}${env[pathKey] ?? ""}` };
+}
+
 function main(argv) {
   const [command, ...args] = argv;
   if (!command) {
     console.error("usage: node scripts/with-app-env.mjs <command> [args…]");
     process.exit(2);
   }
-  const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
+  const root = projectRoot();
+  const env = withLocalBinPath(mergeAppEnv(readAppEnv(root), process.env), root);
+  const { file, argv: childArgv, shell } = resolveCommand(command, args, root);
+  const child = spawn(file, childArgv, { stdio: "inherit", env, shell });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
     process.on(signal, () => child.kill(signal));
