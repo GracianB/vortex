@@ -2,6 +2,8 @@
 
 Campo de datos WebGL: miles de muestras que se arremolinan hacia el cursor, con estelas, paletas y captura de pantalla.
 
+**Live:** [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi.vercel.app/)
+
 Parte del PLAY de [Gracián Baena](https://gracianb.github.io/GracianB/#play) · [systems-lab](https://gracianb.github.io/systems-lab/)
 
 ## Probarlo en local
@@ -17,18 +19,11 @@ npm run dev
 
 Abre [http://localhost:8080](http://localhost:8080).
 
-## Publicar (Vercel Hobby = gratis)
+## Live
 
-Vórtice no cabe en GitHub Pages (SSR + WebGL). El plan **Hobby de Vercel es 0 €** para proyectos personales.
+https://vortex-gilt-xi.vercel.app/
 
-1. Entra en [vercel.com/new](https://vercel.com/new) con GitHub
-2. Importa `GracianB/vortex`
-3. Build: `npm run build` (ya es el default)
-4. Deploy
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/GracianB/vortex)
-
-Cuando tengas la URL (`algo.vercel.app`), se cambia el botón PLAY del hub.
+Vercel Hobby. Cada `git push` a `main` vuelve a publicar.
 
 ## Controles
 
