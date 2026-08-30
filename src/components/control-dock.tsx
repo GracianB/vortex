@@ -27,6 +27,7 @@ import {
 } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 import { AmbientToggle, AmbientVolume } from "@/components/ambient-audio";
+import type { ParticleCanvasHandle } from "@/components/particle-canvas";
 
 type Props = {
   canvas: RefObject<ParticleCanvasHandle | null>;
