@@ -26,7 +26,7 @@ import {
   type FieldBgId,
 } from "@/lib/settings";
 import { cn } from "@/lib/utils";
-import type { ParticleCanvasHandle } from "@/components/particle-canvas";
+import { AmbientToggle } from "@/components/ambient-audio";
 
 type Props = {
   canvas: RefObject<ParticleCanvasHandle | null>;
@@ -101,12 +101,21 @@ export function ControlDock({ canvas }: Props) {
             {fmt(count)} muestras
             {meanSpeed > 0 ? ` · ${fmt(meanSpeed, 0)} u/s` : ""}
           </p>
+          <a
+            className="mt-0.5 block text-xs leading-snug text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+            href="https://suno.com/s/Zq81WeM02AVZnhuC"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Sustained Focus · grabae
+          </a>
           <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
             {gl ? "WebGL" : "Inicializando"}
             {fps > 1 ? ` · ${Math.round(fps)} fps` : ""}
           </p>
         </div>
         <div className="pointer-events-auto flex items-center gap-2">
+          <AmbientToggle />
           <Button
             type="button"
             variant="secondary"
