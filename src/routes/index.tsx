@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ParticleCanvas, type ParticleCanvasHandle } from "@/components/particle-canvas";
 import { ControlDock } from "@/components/control-dock";
+import { AmbientEngine } from "@/components/ambient-audio";
 import { useSettings } from "@/lib/settings";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -30,6 +31,7 @@ function Home() {
     <main className="fixed inset-0 overflow-hidden bg-background text-foreground select-none">
       <h1 className="sr-only">Vórtice — visualización de datos WebGL</h1>
       <ParticleCanvas ref={canvasRef} />
+      <AmbientEngine />
       <div className="pointer-events-none absolute inset-0">
         <ControlDock canvas={canvasRef} />
         {hint ? (

@@ -26,7 +26,7 @@ import {
   type FieldBgId,
 } from "@/lib/settings";
 import { cn } from "@/lib/utils";
-import { AmbientToggle } from "@/components/ambient-audio";
+import { AmbientToggle, AmbientVolume } from "@/components/ambient-audio";
 
 type Props = {
   canvas: RefObject<ParticleCanvasHandle | null>;
@@ -235,6 +235,8 @@ export function ControlDock({ canvas }: Props) {
               data-testid="slider-force"
             />
           </Field>
+
+          <AmbientVolume />
 
           <div
             id="vortex-controls"
