@@ -94,26 +94,48 @@ export function ControlDock({ canvas }: Props) {
         data-ui="chrome"
         className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-5"
       >
-        <div className="pointer-events-auto rounded-xl bg-card/90 px-4 py-3 shadow-border">
-          <p className="font-display text-lg leading-tight tracking-display text-foreground">
-            Vórtice
-          </p>
-          <p className="mt-0.5 text-xs leading-snug text-muted-foreground tabular-nums">
+        <div className="pointer-events-auto rounded-xl border border-[color-mix(in_srgb,#7af3ff_28%,transparent)] bg-card/90 px-4 py-3 shadow-border">
+          <div className="flex items-center gap-2.5">
+            <a
+              href="https://gracianb.github.io/GracianB/"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-[4px] border border-foreground text-[10px] font-bold tracking-wide text-foreground hover:border-[#7af3ff] hover:bg-[#7af3ff] hover:text-[#06070a]"
+              aria-label="GracianB hub"
+            >
+              GB
+            </a>
+            <div>
+              <p className="font-display text-lg leading-tight tracking-display text-foreground">
+                Vórtice
+              </p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#7af3ff]">
+                PLAY · técnica
+              </p>
+            </div>
+          </div>
+          <p className="mt-1.5 text-xs leading-snug text-muted-foreground tabular-nums">
             {fmt(count)} muestras
             {meanSpeed > 0 ? ` · ${fmt(meanSpeed, 0)} u/s` : ""}
           </p>
-          <a
-            className="mt-0.5 block text-xs leading-snug text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-            href="https://suno.com/s/Zq81WeM02AVZnhuC"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Sustained Focus · grabae
-          </a>
           <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
             {gl ? "WebGL" : "Inicializando"}
             {fps > 1 ? ` · ${Math.round(fps)} fps` : ""}
           </p>
+          <nav className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+            <a className="hover:text-[#7af3ff]" href="https://gracianb.github.io/systems-lab/">
+              Lab
+            </a>
+            <a className="hover:text-[#7af3ff]" href="https://gracianb.github.io/project-ohana/">
+              Ohana
+            </a>
+            <a
+              className="hover:text-[#7af3ff]"
+              href="https://suno.com/s/Zq81WeM02AVZnhuC"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Sustained Focus
+            </a>
+          </nav>
         </div>
         <div className="pointer-events-auto flex items-center gap-2">
           <AmbientToggle />

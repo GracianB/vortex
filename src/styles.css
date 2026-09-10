@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Figtree", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Syne", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Fraunces", "Times New Roman", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 
-  --color-background: #07080b;
+  --color-background: #06070a;
   --color-foreground: #f1f0eb;
   --color-card: #12141a;
   --color-card-foreground: #f1f0eb;
@@ -18,7 +19,8 @@
   --color-accent-foreground: #f1f0eb;
   --color-border: rgb(241 240 235 / 0.12);
   --color-input: rgb(241 240 235 / 0.14);
-  --color-ring: #d7dbe2;
+  --color-ring: #7af3ff;
+  --color-ice: #7af3ff;
   --color-destructive: #b4554a;
   --color-field-void: #050506;
   --color-field-ink: #0c121c;

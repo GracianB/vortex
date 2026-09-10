@@ -35,8 +35,8 @@ function Home() {
       <div className="pointer-events-none absolute inset-0">
         <ControlDock canvas={canvasRef} />
         {hint ? (
-          <p className="absolute top-[32%] left-1/2 z-10 w-max max-w-[min(90vw,22rem)] -translate-x-1/2 rounded-md bg-card/80 px-4 py-2 text-center text-sm text-foreground shadow-border">
-            Mueve el puntero para deformar el campo. Mantén pulsado para inyectar energía.
+          <p className="absolute top-[32%] left-1/2 z-10 w-max max-w-[min(90vw,22rem)] -translate-x-1/2 rounded-md border border-[color-mix(in_srgb,#7af3ff_35%,transparent)] bg-card/80 px-4 py-2 text-center text-sm text-foreground shadow-border">
+            Mueve el cursor. Eso es todo. Mantén pulsado para inyectar energía.
           </p>
         ) : null}
       </div>
