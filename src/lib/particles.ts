@@ -263,6 +263,8 @@ export function createEngine(
     lastT: 0,
   };
   const attract = { x: 0, y: 0 };
+  const waves: { x: number; y: number; r: number; life: number }[] = [];
+  let holdAcc = 0;
 
   const pointProg = link(gl, POINT_VS, POINT_FS);
   const fadeProg = link(gl, QUAD_VS, FADE_FS);
@@ -387,13 +389,18 @@ export function createEngine(
     for (let i = 0; i < n; i++) {
       const dx = x[i] - cx;
       const dy = y[i] - cy;
-      const d = Math.hypot(dx, dy) + 10;
-      const fall = strength / d;
+      const d = Math.hypot(dx, dy) + 8;
       const nx = dx / d;
       const ny = dy / d;
-      vx[i] += -ny * fall * 52 - nx * fall * 14;
-      vy[i] += nx * fall * 52 - ny * fall * 14;
+      const fall = strength / (d * 0.28 + 36);
+      vx[i] += nx * fall * 210 - ny * fall * 95;
+      vy[i] += ny * fall * 210 + nx * fall * 95;
     }
+  }
+
+  function shock(cx: number, cy: number) {
+    waves.push({ x: cx, y: cy, r: 10, life: 1 });
+    if (waves.length > 6) waves.shift();
   }
 
   function handlePointer(e: PointerEvent, kind: "move" | "down" | "up" | "cancel") {
@@ -414,7 +421,8 @@ export function createEngine(
       pointer.active = true;
       attract.x = p.x;
       attract.y = p.y;
-      burst(p.x, p.y, 620 * getSettings().force);
+      burst(p.x, p.y, 1100 * getSettings().force);
+      shock(p.x, p.y);
     } else if (kind === "move") {
       pointer.active = true;
     } else {
@@ -432,7 +440,7 @@ export function createEngine(
     const hold = pointer.down ? 2.25 : 1;
     const pullK = 2860 * force * hold;
     const spinK = 3920 * force * (pointer.down ? 1.7 : 1);
-    const maxSp = 1480 * (0.55 + force * 0.5);
+    const maxSp = (pointer.down ? 2100 : 1480) * (0.55 + force * 0.5);
     const stirR = 210;
     const pvx = pointer.vx;
     const pvy = pointer.vy;
@@ -441,7 +449,25 @@ export function createEngine(
     attract.y += (pointer.y - attract.y) * follow;
     const ax = attract.x;
     const ay = attract.y;
-    hueShift += dt * (34 + force * 14);
+    hueShift += dt * (34 + force * 14 + (pointer.down ? 40 : 0));
+
+    if (pointer.down) {
+      holdAcc += dt;
+      if (holdAcc > 0.14) {
+        holdAcc = 0;
+        burst(ax, ay, 220 * force);
+      }
+    } else {
+      holdAcc = 0;
+    }
+
+    for (let w = waves.length - 1; w >= 0; w--) {
+      const wave = waves[w];
+      if (!wave) continue;
+      wave.r += 1080 * dt;
+      wave.life -= dt * 1.35;
+      if (wave.life <= 0) waves.splice(w, 1);
+    }
 
     const damp = Math.exp(-1.18 * dt);
     const idle = pointer.active ? 6 : 18;
@@ -501,8 +527,23 @@ export function createEngine(
         accY += pvy * fall * 4.2;
       }
       if (pointer.down) {
-        accX += nx * 420 * force * near;
-        accY += ny * 420 * force * near;
+        accX += nx * 780 * force * near;
+        accY += ny * 780 * force * near;
+      }
+
+      for (let w = 0; w < waves.length; w++) {
+        const wave = waves[w];
+        if (!wave) continue;
+        const wdx = x[i] - wave.x;
+        const wdy = y[i] - wave.y;
+        const wdist = Math.hypot(wdx, wdy);
+        const band = Math.abs(wdist - wave.r);
+        if (band < 52) {
+          const invw = 1 / Math.max(wdist, 1);
+          const kick = (1 - band / 52) * wave.life * 2800 * force;
+          accX += wdx * invw * kick;
+          accY += wdy * invw * kick;
+        }
       }
 
       const ang = hueShift * 0.12 + seed[i] * Math.PI * 2;
@@ -695,7 +736,10 @@ export function createEngine(
       clearTargets(resolveBg(getSettings()));
     },
     pulse() {
-      burst(pointer.x || cssW * 0.5, pointer.y || cssH * 0.5, 720 * getSettings().force);
+      const px = pointer.x || cssW * 0.5;
+      const py = pointer.y || cssH * 0.5;
+      burst(px, py, 1100 * getSettings().force);
+      shock(px, py);
     },
     capturePng() {
       canvas.toBlob((blob) => {

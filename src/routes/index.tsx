@@ -11,6 +11,7 @@ function Home() {
   const canvasRef = useRef<ParticleCanvasHandle>(null);
   const [hint, setHint] = useState(true);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   useEffect(() => {
     useSettings.getState().hydrate();
@@ -41,7 +42,15 @@ function Home() {
       el.classList.toggle("is-down", e.buttons === 1);
     };
     const down = (e: PointerEvent) => {
-      if (e.buttons === 1) el.classList.add("is-down");
+      if (e.buttons !== 1) return;
+      el.classList.add("is-down");
+      const ui = e.target instanceof Element && Boolean(e.target.closest("[data-ui]"));
+      if (ui) return;
+      const id = Date.now() + Math.random();
+      setRipples((prev) => [...prev.slice(-4), { id, x: e.clientX, y: e.clientY }]);
+      window.setTimeout(() => {
+        setRipples((prev) => prev.filter((r) => r.id !== id));
+      }, 700);
     };
     const up = () => el.classList.remove("is-down");
     window.addEventListener("pointermove", move, { passive: true });
@@ -61,12 +70,20 @@ function Home() {
       <div ref={cursorRef} className="vortex-cursor" aria-hidden="true">
         <i />
       </div>
+      {ripples.map((r) => (
+        <span
+          key={r.id}
+          className="vortex-ripple"
+          style={{ left: r.x, top: r.y }}
+          aria-hidden="true"
+        />
+      ))}
       <AmbientEngine />
       <div className="pointer-events-none absolute inset-0">
         <ControlDock canvas={canvasRef} />
         {hint ? (
           <p className="absolute top-[32%] left-1/2 z-10 w-max max-w-[min(90vw,22rem)] -translate-x-1/2 rounded-md border border-[color-mix(in_srgb,#7af3ff_35%,transparent)] bg-card/80 px-4 py-2 text-center text-sm text-foreground shadow-border">
-            Mueve el cursor. Eso es todo. Mantén pulsado para inyectar energía.
+            Mueve el cursor. Click = explosión. Mantén pulsado para inyectar.
           </p>
         ) : null}
       </div>
