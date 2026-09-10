@@ -38,10 +38,10 @@ Audio de práctica: [Sustained Focus (Suno)](https://suno.com/s/Zq81WeM02AVZnhuC
 
 | Modo | Qué hace |
 |:-----|:---------|
-| **Vórtice** | El campo gira hacia el puntero |
-| **Flujo** | Corriente que sigue el gesto |
-| **Órbita** | Las muestras rodean el cursor |
-| **Onda** | Pulso que se expande |
+| **Vórtice** | Gira hacia el puntero. Click: anillo de las cercanas |
+| **Flujo** | Corriente. Click: cinta que pasa por el punto |
+| **Órbita** | Rodea el centro. Click: dos anillos concéntricos |
+| **Onda** | Pulso. Click: el círculo respira |
 
 Paletas: Espectro · Aurora · Brasa · Hielo · Plata.  
 Fondos: Vacío · Tinta · Abismo · Pizarra · Niebla · Papel.

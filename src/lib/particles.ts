@@ -262,7 +262,8 @@ export function createEngine(
   };
   const attract = { x: 0, y: 0 };
   let holdAcc = 0;
-  const RING_R = 86;
+  const RING_R = 72;
+  const NEAR = 190;
 
   const pointProg = link(gl, POINT_VS, POINT_FS);
   const fadeProg = link(gl, QUAD_VS, FADE_FS);
@@ -381,20 +382,26 @@ export function createEngine(
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  function snapToRing(cx: number, cy: number) {
+  function nudgeNearby(cx: number, cy: number, mode: FieldMode) {
     const n = Math.min(CAPACITY, getSettings().count | 0);
     for (let i = 0; i < n; i++) {
-      const ang = seed[i] * Math.PI * 2 + i * 0.017;
-      const target = RING_R + (seed[i] - 0.5) * 10;
-      const tx = cx + Math.cos(ang) * target;
-      const ty = cy + Math.sin(ang) * target;
-      x[i] += (tx - x[i]) * 0.78;
-      y[i] += (ty - y[i]) * 0.78;
-      const txv = -(ty - cy);
-      const tyv = tx - cx;
-      const len = Math.hypot(txv, tyv) || 1;
-      vx[i] = (txv / len) * 520;
-      vy[i] = (tyv / len) * 520;
+      const dx = cx - x[i];
+      const dy = cy - y[i];
+      const d = Math.hypot(dx, dy);
+      if (d > NEAR || d < 1) continue;
+      const w = 1 - d / NEAR;
+      const ang = Math.atan2(-dy, -dx);
+      let tr = RING_R;
+      if (mode === "orbit") tr = seed[i] < 0.45 ? 44 : 108;
+      else if (mode === "flow") tr = 58 + seed[i] * 36;
+      else if (mode === "wave") tr = 64 + seed[i] * 28;
+      else tr = RING_R + (seed[i] - 0.5) * 12;
+      const tx = cx + Math.cos(ang) * tr;
+      const ty = cy + Math.sin(ang) * tr;
+      x[i] += (tx - x[i]) * 0.28 * w;
+      y[i] += (ty - y[i]) * 0.28 * w;
+      vx[i] += -dy * 0.9 * w;
+      vy[i] += dx * 0.9 * w;
     }
   }
 
@@ -417,7 +424,7 @@ export function createEngine(
       attract.x = p.x;
       attract.y = p.y;
       holdAcc = 0;
-      snapToRing(p.x, p.y);
+      nudgeNearby(p.x, p.y, getSettings().mode);
     } else if (kind === "move") {
       pointer.active = true;
     } else {
@@ -432,79 +439,107 @@ export function createEngine(
     const n = Math.min(CAPACITY, settings.count | 0);
     const force = settings.force;
     const mode: FieldMode = settings.mode;
-    const maxSp = (pointer.down ? 1600 : 1400) * (0.55 + force * 0.5);
+    const pullK = 2680 * force;
+    const spinK = 3400 * force;
+    const maxSp = 1280 * (0.55 + force * 0.45);
     const pvx = pointer.vx;
     const pvy = pointer.vy;
-    const follow = 1 - Math.exp(-(pointer.down ? 42 : 18) * dt);
+    const follow = 1 - Math.exp(-(pointer.down ? 26 : 14) * dt);
     attract.x += (pointer.x - attract.x) * follow;
     attract.y += (pointer.y - attract.y) * follow;
     const ax = attract.x;
     const ay = attract.y;
-    hueShift += dt * (26 + force * 10);
+    hueShift += dt * (24 + force * 9);
 
     if (pointer.down) holdAcc = Math.min(holdAcc + dt, 1.2);
     else holdAcc = 0;
 
-    const damp = Math.exp(-(pointer.down ? 2.4 : 1.35) * dt);
-    const idle = pointer.active ? 4 : 14;
+    const damp = Math.exp(-1.32 * dt);
+    const idle = pointer.active ? 6 : 16;
     const cx = cssW * 0.5;
     const cy = cssH * 0.5;
     const wide = Math.min(cssW, cssH);
+    const nearClick = pointer.down;
     let speedSum = 0;
 
     for (let i = 0; i < n; i++) {
       const dx = ax - x[i];
       const dy = ay - y[i];
       const dist = Math.hypot(dx, dy);
-      const inv = 1 / Math.max(dist, 8);
+      const inv = 1 / Math.max(dist, 22);
       const nx = dx * inv;
       const ny = dy * inv;
       const tx = -ny;
       const ty = nx;
+      const near = Math.exp(-dist / 90);
+      const local = dist < NEAR;
 
-      const rest = pointer.down
-        ? RING_R + (seed[i] - 0.5) * 10
-        : 56 + seed[i] * wide * 0.42;
-      const err = dist - rest;
-      const spring = pointer.down ? 260 * force : 36 * force;
-      const orbit = pointer.down ? 1750 * force : 980 * force;
+      let accX = 0;
+      let accY = 0;
 
-      let accX = nx * err * spring + tx * orbit;
-      let accY = ny * err * spring + ty * orbit;
-
-      if (!pointer.down) {
-        if (mode === "flow") {
-          const t = hueShift * 0.035;
-          const ang =
-            Math.sin(x[i] * 0.008 + t + seed[i]) +
-            Math.cos(y[i] * 0.0064 - t * 0.7);
-          accX = Math.cos(ang * 1.65) * 720 * force + nx * err * 18 * force + pvx * 0.9;
-          accY = Math.sin(ang * 1.65) * 720 * force + ny * err * 18 * force + pvy * 0.9;
-        } else if (mode === "orbit") {
-          const ox = x[i] - cx;
-          const oy = y[i] - cy;
-          const r = Math.max(Math.hypot(ox, oy), 18);
-          const ux = ox / r;
-          const uy = oy / r;
-          const targetR = 40 + seed[i] * wide * 0.44;
-          accX = -uy * 1100 * force + ux * (targetR - r) * 6.2 + nx * 12 * force;
-          accY = ux * 1100 * force + uy * (targetR - r) * 6.2 + ny * 12 * force;
+      if (nearClick && local) {
+        const w = 1 - dist / NEAR;
+        const w2 = w * w;
+        let rest = RING_R + (seed[i] - 0.5) * 10;
+        if (mode === "orbit") rest = (seed[i] < 0.45 ? 44 : 108) + Math.sin(hueShift * 0.2 + seed[i] * 8) * 3;
+        else if (mode === "flow") {
+          const spd = Math.hypot(pvx, pvy) + 40;
+          const fx = pvx / spd;
+          const fy = pvy / spd;
+          const side = seed[i] < 0.5 ? 1 : -1;
+          rest = 52 + seed[i] * 40;
+          const along = (seed[i] * 2 - 1) * 34;
+          const rx = ax + fx * along + -fy * side * rest;
+          const ry = ay + fy * along + fx * side * rest;
+          accX = (rx - x[i]) * (38 + force * 22) * w2;
+          accY = (ry - y[i]) * (38 + force * 22) * w2;
+          accX += fx * 420 * force * w;
+          accY += fy * 420 * force * w;
         } else if (mode === "wave") {
-          const phase = dist * 0.04 - hueShift * 0.11 + seed[i] * 2;
-          const mag = Math.sin(phase) * 520 * force;
-          accX = -nx * mag + tx * 320 * force;
-          accY = -ny * mag + ty * 320 * force;
+          rest = 70 + Math.sin(hueShift * 0.55 + seed[i] * 6.2) * 38;
         }
-        accX += pvx * Math.exp(-dist / 140) * 2.4;
-        accY += pvy * Math.exp(-dist / 140) * 2.4;
+        if (mode !== "flow") {
+          const err = dist - rest;
+          accX = nx * err * (92 + force * 70) * w2 + tx * (980 + force * 620) * (0.35 + w);
+          accY = ny * err * (92 + force * 70) * w2 + ty * (980 + force * 620) * (0.35 + w);
+          const vRad = vx[i] * nx + vy[i] * ny;
+          accX -= nx * vRad * (10 + 12 * w);
+          accY -= ny * vRad * (10 + 12 * w);
+        }
+        if (mode === "wave") {
+          accX += nx * Math.sin(hueShift * 0.55 + seed[i] * 6) * 180 * force * w;
+          accY += ny * Math.sin(hueShift * 0.55 + seed[i] * 6) * 180 * force * w;
+        }
+      } else if (mode === "flow") {
+        const t = hueShift * 0.035;
+        const ang =
+          Math.sin(x[i] * 0.008 + t + seed[i]) +
+          Math.cos(y[i] * 0.0064 - t * 0.7);
+        accX = Math.cos(ang * 1.65) * 640 * force + nx * pullK * inv * 0.28 + pvx * near * 0.7;
+        accY = Math.sin(ang * 1.65) * 640 * force + ny * pullK * inv * 0.28 + pvy * near * 0.7;
+      } else if (mode === "orbit") {
+        const ox = x[i] - cx;
+        const oy = y[i] - cy;
+        const r = Math.max(Math.hypot(ox, oy), 18);
+        const ux = ox / r;
+        const uy = oy / r;
+        const targetR = 42 + seed[i] * wide * 0.42;
+        accX = -uy * 980 * force + ux * (targetR - r) * 5.5 + nx * pullK * inv * 0.2;
+        accY = ux * 980 * force + uy * (targetR - r) * 5.5 + ny * pullK * inv * 0.2;
+      } else if (mode === "wave") {
+        const phase = dist * 0.042 - hueShift * 0.11 + seed[i] * 2;
+        const mag = Math.sin(phase) * 460 * force;
+        accX = -nx * mag + tx * 260 * force;
+        accY = -ny * mag + ty * 260 * force;
       } else {
-        const vRad = vx[i] * nx + vy[i] * ny;
-        accX -= nx * vRad * 28;
-        accY -= ny * vRad * 28;
-        const rx = ax - nx * rest;
-        const ry = ay - ny * rest;
-        x[i] += (rx - x[i]) * 0.16;
-        y[i] += (ry - y[i]) * 0.16;
+        accX = nx * pullK * inv + tx * (spinK * inv + force * 720 * near);
+        accY = ny * pullK * inv + ty * (spinK * inv + force * 720 * near);
+      }
+
+      if (pointer.active && dist < 150 && !(nearClick && local)) {
+        const fall = 1 - dist / 150;
+        accX += pvx * fall * 2.2;
+        accY += pvy * fall * 2.2;
       }
 
       const ang = hueShift * 0.12 + seed[i] * Math.PI * 2;
@@ -533,13 +568,21 @@ export function createEngine(
       const heading = Math.atan2(vy[i], vx[i]) * 57.2957795;
       let hue = heading + 180 + dist * 0.04 + seed[i] * 48 + hueShift * 0.65;
       let glowSp = sp;
-      if (pointer.active && dist < 90) {
-        glowSp += Math.exp(-dist / 40) * 28;
-      }
-      if (pointer.down) {
-        const onRing = Math.exp((-((dist - rest) * (dist - rest))) / (2 * 18 * 18));
-        glowSp += onRing * 70 + holdAcc * 18;
-        hue += onRing * 6;
+      if (pointer.active && dist < 80) glowSp += Math.exp(-dist / 36) * 22;
+      if (nearClick && local) {
+        const w = 1 - dist / NEAR;
+        if (mode === "orbit") {
+          const a = Math.abs(dist - 44);
+          const b = Math.abs(dist - 108);
+          glowSp += Math.exp(-Math.min(a, b) * Math.min(a, b) / 220) * 64 * w;
+        } else if (mode === "wave") {
+          glowSp += (0.5 + 0.5 * Math.sin(hueShift * 0.55 + seed[i] * 6)) * 52 * w;
+        } else if (mode === "flow") {
+          glowSp += 36 * w + holdAcc * 10;
+        } else {
+          glowSp += Math.exp((-((dist - RING_R) * (dist - RING_R))) / 500) * 58 * w;
+        }
+        hue += 4 * w;
       }
       const o = i * STRIDE;
       pack[o] = x[i];
@@ -706,7 +749,7 @@ export function createEngine(
       clearTargets(resolveBg(getSettings()));
     },
     pulse() {
-      snapToRing(pointer.x || cssW * 0.5, pointer.y || cssH * 0.5);
+      nudgeNearby(pointer.x || cssW * 0.5, pointer.y || cssH * 0.5, getSettings().mode);
     },
     capturePng() {
       canvas.toBlob((blob) => {

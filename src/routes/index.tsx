@@ -83,7 +83,7 @@ function Home() {
         <ControlDock canvas={canvasRef} />
         {hint ? (
           <p className="absolute top-[32%] left-1/2 z-10 w-max max-w-[min(90vw,22rem)] -translate-x-1/2 rounded-md border border-[color-mix(in_srgb,#7af3ff_35%,transparent)] bg-card/80 px-4 py-2 text-center text-sm text-foreground shadow-border">
-            Mueve el cursor. Click junta el anillo. Arrástralo.
+            Mueve el cursor. Click: solo las cercanas. Cada campo, un gesto.
           </p>
         ) : null}
       </div>
