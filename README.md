@@ -54,6 +54,9 @@ Fondos: Vacío · Tinta · Abismo · Pizarra · Niebla · Papel.
 |:--|:--|
 | Puntero | Deforma el campo |
 | Clic / hold | Inyecta energía |
+| `Espacio` | Pulso |
+| `1–4` | Vórtice / Flujo / Órbita / Onda |
+| `F` | Pantalla completa |
 | `C` | Borra estelas |
 | `R` | Reinicia |
 | `S` | Descarga una captura PNG |

@@ -6,6 +6,7 @@ export type ParticleCanvasHandle = {
   clearTrails: () => void;
   resetParticles: () => void;
   capturePng: () => void;
+  pulse: () => void;
 };
 
 type Props = {
@@ -21,6 +22,7 @@ export function ParticleCanvas({ ref }: Props) {
     clearTrails: () => engineRef.current?.clearTrails(),
     resetParticles: () => engineRef.current?.resetParticles(),
     capturePng: () => engineRef.current?.capturePng(),
+    pulse: () => engineRef.current?.pulse(),
   }));
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export function ParticleCanvas({ ref }: Props) {
       clear: () => engine.clearTrails(),
       reset: () => engine.resetParticles(),
       capture: () => engine.capturePng(),
+      pulse: () => engine.pulse(),
     };
 
     return () => {
@@ -95,6 +98,7 @@ declare global {
       clear: () => void;
       reset: () => void;
       capture: () => void;
+      pulse: () => void;
     };
   }
 }

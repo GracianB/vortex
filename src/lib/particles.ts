@@ -16,6 +16,7 @@ export type EngineApi = {
   clearTrails: () => void;
   resetParticles: () => void;
   capturePng: () => void;
+  pulse: () => void;
   pointer: (e: PointerEvent, kind: "move" | "down" | "up" | "cancel") => void;
   blur: () => void;
 };
@@ -40,8 +41,8 @@ varying float v_hue;
 void main() {
   vec2 clip = vec2((a_pos.x / u_res.x) * 2.0 - 1.0, 1.0 - (a_pos.y / u_res.y) * 2.0);
   gl_Position = vec4(clip, 0.0, 1.0);
-  float glow = clamp(a_speed * 0.0016, 0.0, 1.0);
-  gl_PointSize = mix(2.6, 9.0, glow) * u_dpr * u_scale;
+  float glow = clamp(a_speed * 0.00135, 0.0, 1.0);
+  gl_PointSize = mix(3.4, 14.0, glow) * u_dpr * u_scale;
   v_speed = a_speed;
   v_hue = a_hue;
 }
@@ -62,29 +63,29 @@ vec3 hsl2rgb(float h, float s, float l) {
 }
 
 vec3 tone() {
-  float spd = clamp(v_speed * 0.0036, 0.0, 1.0);
+  float spd = clamp(v_speed * 0.0032, 0.0, 1.0);
   float h = v_hue;
-  float s = 0.72;
-  float l = 0.56 + spd * 0.2;
+  float s = 0.78;
+  float l = 0.58 + spd * 0.22;
   if (u_palette > 0.5 && u_palette < 1.5) {
-    h = 158.0 + sin(v_hue * 0.01745) * 42.0;
-    s = u_light > 0.5 ? 0.48 : 0.62;
-    l = u_light > 0.5 ? 0.28 + spd * 0.10 : 0.54 + spd * 0.16;
+    h = 162.0 + sin(v_hue * 0.01745) * 48.0;
+    s = u_light > 0.5 ? 0.52 : 0.72;
+    l = u_light > 0.5 ? 0.30 + spd * 0.12 : 0.56 + spd * 0.22;
   } else if (u_palette > 1.5 && u_palette < 2.5) {
-    h = 8.0 + spd * 32.0;
-    s = u_light > 0.5 ? 0.72 : 0.86;
-    l = u_light > 0.5 ? 0.34 + spd * 0.08 : 0.50 + spd * 0.22;
+    h = 12.0 + spd * 36.0;
+    s = u_light > 0.5 ? 0.74 : 0.92;
+    l = u_light > 0.5 ? 0.36 + spd * 0.10 : 0.52 + spd * 0.26;
   } else if (u_palette > 2.5 && u_palette < 3.5) {
-    h = 186.0 + spd * 18.0;
-    s = u_light > 0.5 ? 0.36 : 0.48;
-    l = u_light > 0.5 ? 0.28 + spd * 0.08 : 0.64 + spd * 0.14;
+    h = 184.0 + spd * 16.0;
+    s = u_light > 0.5 ? 0.55 : 0.82;
+    l = u_light > 0.5 ? 0.32 + spd * 0.12 : 0.62 + spd * 0.22;
   } else if (u_palette > 3.5) {
-    h = 216.0;
-    s = u_light > 0.5 ? 0.06 : 0.10;
-    l = u_light > 0.5 ? 0.26 + spd * 0.08 : 0.70 + spd * 0.12;
+    h = 210.0;
+    s = u_light > 0.5 ? 0.08 : 0.14;
+    l = u_light > 0.5 ? 0.28 + spd * 0.10 : 0.74 + spd * 0.14;
   } else {
-    s = u_light > 0.5 ? 0.58 : 0.72;
-    l = u_light > 0.5 ? 0.32 + spd * 0.10 : 0.56 + spd * 0.20;
+    s = u_light > 0.5 ? 0.62 : 0.82;
+    l = u_light > 0.5 ? 0.34 + spd * 0.12 : 0.58 + spd * 0.24;
   }
   return hsl2rgb(h, s, l);
 }
@@ -93,9 +94,11 @@ void main() {
   vec2 p = gl_PointCoord * 2.0 - 1.0;
   float d = dot(p, p);
   if (d > 1.0) discard;
-  float a = exp(-d * 3.4);
+  float core = exp(-d * 9.5);
+  float halo = exp(-d * 2.15);
+  float a = core * 0.95 + halo * 0.48;
   vec3 c = tone();
-  gl_FragColor = vec4(c * a, a);
+  gl_FragColor = vec4(c * (0.55 + a * 0.85), a);
 }
 `;
 
@@ -411,7 +414,7 @@ export function createEngine(
       pointer.active = true;
       attract.x = p.x;
       attract.y = p.y;
-      burst(p.x, p.y, 420 * getSettings().force);
+      burst(p.x, p.y, 620 * getSettings().force);
     } else if (kind === "move") {
       pointer.active = true;
     } else {
@@ -426,22 +429,23 @@ export function createEngine(
     const n = Math.min(CAPACITY, settings.count | 0);
     const force = settings.force;
     const mode: FieldMode = settings.mode;
-    const hold = pointer.down ? 1.85 : 1;
-    const pullK = 2400 * force * hold;
-    const spinK = 3100 * force * (pointer.down ? 1.45 : 1);
-    const maxSp = 1280 * (0.55 + force * 0.45);
-    const stirR = 170;
+    const hold = pointer.down ? 2.25 : 1;
+    const pullK = 2860 * force * hold;
+    const spinK = 3920 * force * (pointer.down ? 1.7 : 1);
+    const maxSp = 1480 * (0.55 + force * 0.5);
+    const stirR = 210;
     const pvx = pointer.vx;
     const pvy = pointer.vy;
-    const ax = pointer.x;
-    const ay = pointer.y;
-    const follow = 1 - Math.exp(-(pointer.down ? 26 : 20) * dt);
+    const follow = 1 - Math.exp(-(pointer.down ? 22 : 14) * dt);
     attract.x += (pointer.x - attract.x) * follow;
     attract.y += (pointer.y - attract.y) * follow;
-    hueShift += dt * (28 + force * 10);
+    const ax = attract.x;
+    const ay = attract.y;
+    hueShift += dt * (34 + force * 14);
 
-    const damp = Math.exp(-1.35 * dt);
-    const idle = pointer.active ? 8 : 22;
+    const damp = Math.exp(-1.18 * dt);
+    const idle = pointer.active ? 6 : 18;
+    const holdPulse = pointer.down ? 1 + Math.sin(hueShift * 0.22) * 0.18 : 1;
     const cx = cssW * 0.5;
     const cy = cssH * 0.5;
     let speedSum = 0;
@@ -487,14 +491,18 @@ export function createEngine(
         accX = -nx * mag + tx * 260 * force;
         accY = -ny * mag + ty * 260 * force;
       } else {
-        accX = nx * pullK * inv + tx * (spinK * inv + force * 720 * near);
-        accY = ny * pullK * inv + ty * (spinK * inv + force * 720 * near);
+        accX = nx * pullK * inv * holdPulse + tx * (spinK * inv + force * 920 * near);
+        accY = ny * pullK * inv * holdPulse + ty * (spinK * inv + force * 920 * near);
       }
 
       if (pointer.active && dist < stirR) {
         const fall = 1 - dist / stirR;
-        accX += pvx * fall * 3.4;
-        accY += pvy * fall * 3.4;
+        accX += pvx * fall * 4.2;
+        accY += pvy * fall * 4.2;
+      }
+      if (pointer.down) {
+        accX += nx * 420 * force * near;
+        accY += ny * 420 * force * near;
       }
 
       const ang = hueShift * 0.12 + seed[i] * Math.PI * 2;
@@ -580,7 +588,7 @@ export function createEngine(
     gl.vertexAttribPointer(loc.aHue, 1, gl.FLOAT, false, STRIDE * 4, 12);
     gl.uniform2f(loc.uRes, cssW, cssH);
     gl.uniform1f(loc.uDpr, dpr);
-    gl.uniform1f(loc.uScale, n > 12000 ? 0.78 : n > 7000 ? 0.9 : 1);
+    gl.uniform1f(loc.uScale, n > 12000 ? 0.86 : n > 7000 ? 0.96 : 1.08);
     gl.uniform1f(loc.uPalette, PALETTE_INDEX[settings.palette] ?? 0);
     gl.uniform1f(loc.uLight, light ? 1 : 0);
     gl.drawArrays(gl.POINTS, 0, n);
@@ -685,6 +693,9 @@ export function createEngine(
       scatterAll();
       hueShift = 0;
       clearTargets(resolveBg(getSettings()));
+    },
+    pulse() {
+      burst(pointer.x || cssW * 0.5, pointer.y || cssH * 0.5, 720 * getSettings().force);
     },
     capturePng() {
       canvas.toBlob((blob) => {

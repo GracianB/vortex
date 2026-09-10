@@ -70,6 +70,16 @@
   }
 }
 
+.vortex-cursor {
+  transition: width 0.15s ease, height 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+.vortex-cursor.is-down {
+  width: 3.25rem;
+  height: 3.25rem;
+  box-shadow: 0 0 28px rgba(122, 243, 255, 0.85);
+  border-color: #7af3ff;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

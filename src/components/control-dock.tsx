@@ -3,6 +3,7 @@ import {
   ChevronDown,
   Download,
   Eraser,
+  Maximize,
   RotateCcw,
   Pipette,
 } from "lucide-react";
@@ -76,6 +77,24 @@ export function ControlDock({ canvas }: Props) {
       } else if (e.code === "KeyS" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         canvas.current?.capturePng();
+      } else if (e.code === "Space") {
+        e.preventDefault();
+        canvas.current?.pulse();
+      } else if (e.code === "Digit1") {
+        useSettings.getState().setMode("vortex");
+      } else if (e.code === "Digit2") {
+        useSettings.getState().setMode("flow");
+      } else if (e.code === "Digit3") {
+        useSettings.getState().setMode("orbit");
+      } else if (e.code === "Digit4") {
+        useSettings.getState().setMode("wave");
+      } else if (e.code === "KeyF" && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        if (!document.fullscreenElement) {
+          void document.documentElement.requestFullscreen?.();
+        } else {
+          void document.exitFullscreen?.();
+        }
       }
     };
     window.addEventListener("keydown", onKey);
@@ -172,6 +191,22 @@ export function ControlDock({ canvas }: Props) {
           >
             <Download />
           </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            aria-label="Pantalla completa"
+            title="Pantalla completa (F)"
+            onClick={() => {
+              if (!document.fullscreenElement) {
+                void document.documentElement.requestFullscreen?.();
+              } else {
+                void document.exitFullscreen?.();
+              }
+            }}
+          >
+            <Maximize />
+          </Button>
         </div>
       </header>
 
@@ -219,7 +254,7 @@ export function ControlDock({ canvas }: Props) {
                   className={cn(
                     "h-9 rounded-md px-3 text-xs font-medium shadow-border transition-[background-color,color,box-shadow] duration-150 ease-out",
                     mode === m.id
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-[#7af3ff] text-[#06070a] shadow-[0_0_18px_rgba(122,243,255,0.35)]"
                       : "bg-muted text-foreground hover:bg-muted/80",
                   )}
                   aria-pressed={mode === m.id}
@@ -290,7 +325,7 @@ export function ControlDock({ canvas }: Props) {
                     className={cn(
                       "h-9 rounded-md px-3 text-xs font-medium shadow-border transition-[background-color,color,box-shadow] duration-150 ease-out",
                       palette === p.id
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-[#7af3ff] text-[#06070a] shadow-[0_0_18px_rgba(122,243,255,0.35)]"
                         : "bg-muted text-foreground hover:bg-muted/80",
                     )}
                     aria-pressed={palette === p.id}
