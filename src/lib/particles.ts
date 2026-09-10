@@ -41,8 +41,8 @@ varying float v_hue;
 void main() {
   vec2 clip = vec2((a_pos.x / u_res.x) * 2.0 - 1.0, 1.0 - (a_pos.y / u_res.y) * 2.0);
   gl_Position = vec4(clip, 0.0, 1.0);
-  float glow = clamp(a_speed * 0.0018, 0.0, 1.0);
-  gl_PointSize = mix(3.4, 11.0, glow) * u_dpr * u_scale;
+  float glow = clamp(a_speed * 0.0016, 0.0, 1.0);
+  gl_PointSize = mix(2.2, 5.4, glow) * u_dpr * u_scale;
   v_speed = a_speed;
   v_hue = a_hue;
 }
@@ -76,9 +76,9 @@ vec3 tone() {
     s = u_light > 0.5 ? 0.74 : 0.92;
     l = u_light > 0.5 ? 0.36 + spd * 0.10 : 0.52 + spd * 0.26;
   } else if (u_palette > 2.5 && u_palette < 3.5) {
-    h = 184.0 + spd * 14.0;
-    s = u_light > 0.5 ? 0.55 : 0.78;
-    l = u_light > 0.5 ? 0.36 + spd * 0.14 : 0.68 + spd * 0.18;
+    h = 186.0 + spd * 16.0;
+    s = u_light > 0.5 ? 0.40 : 0.55;
+    l = u_light > 0.5 ? 0.30 + spd * 0.10 : 0.62 + spd * 0.14;
   } else if (u_palette > 3.5) {
     h = 210.0;
     s = u_light > 0.5 ? 0.08 : 0.14;
@@ -94,11 +94,9 @@ void main() {
   vec2 p = gl_PointCoord * 2.0 - 1.0;
   float d = dot(p, p);
   if (d > 1.0) discard;
-  float core = exp(-d * 6.2);
-  float halo = exp(-d * 2.1);
-  float a = clamp(core + halo * 0.55, 0.0, 1.0);
+  float a = exp(-d * 4.2);
   vec3 c = tone();
-  gl_FragColor = vec4(c, a);
+  gl_FragColor = vec4(c * a, a);
 }
 `;
 
@@ -534,14 +532,14 @@ export function createEngine(
 
       const heading = Math.atan2(vy[i], vx[i]) * 57.2957795;
       let hue = heading + 180 + dist * 0.04 + seed[i] * 48 + hueShift * 0.65;
-      let glowSp = sp + 80;
-      if (pointer.active && dist < 120) {
-        glowSp += Math.exp(-dist / 48) * 90;
+      let glowSp = sp;
+      if (pointer.active && dist < 90) {
+        glowSp += Math.exp(-dist / 40) * 28;
       }
       if (pointer.down) {
         const onRing = Math.exp((-((dist - rest) * (dist - rest))) / (2 * 18 * 18));
-        glowSp += 220 + onRing * 180 + holdAcc * 60;
-        hue += onRing * 10;
+        glowSp += onRing * 70 + holdAcc * 18;
+        hue += onRing * 6;
       }
       const o = i * STRIDE;
       pack[o] = x[i];
@@ -601,7 +599,7 @@ export function createEngine(
     gl.vertexAttribPointer(loc.aHue, 1, gl.FLOAT, false, STRIDE * 4, 12);
     gl.uniform2f(loc.uRes, cssW, cssH);
     gl.uniform1f(loc.uDpr, dpr);
-    gl.uniform1f(loc.uScale, 1.12);
+    gl.uniform1f(loc.uScale, n > 12000 ? 0.78 : n > 7000 ? 0.88 : 0.96);
     gl.uniform1f(loc.uPalette, PALETTE_INDEX[settings.palette] ?? 0);
     gl.uniform1f(loc.uLight, light ? 1 : 0);
     gl.drawArrays(gl.POINTS, 0, n);
