@@ -31,17 +31,25 @@ function Home() {
   useEffect(() => {
     const el = cursorRef.current;
     if (!el) return;
+    el.style.left = `${window.innerWidth / 2}px`;
+    el.style.top = `${window.innerHeight / 2}px`;
     const move = (e: PointerEvent) => {
-      const ui = e.target instanceof Element && e.target.closest("[data-ui]");
+      const ui = e.target instanceof Element && Boolean(e.target.closest("[data-ui]"));
       el.style.opacity = ui ? "0" : "1";
-      el.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      el.style.left = `${e.clientX}px`;
+      el.style.top = `${e.clientY}px`;
       el.classList.toggle("is-down", e.buttons === 1);
+    };
+    const down = (e: PointerEvent) => {
+      if (e.buttons === 1) el.classList.add("is-down");
     };
     const up = () => el.classList.remove("is-down");
     window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointerdown", down);
     window.addEventListener("pointerup", up);
     return () => {
       window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerdown", down);
       window.removeEventListener("pointerup", up);
     };
   }, []);
@@ -50,11 +58,9 @@ function Home() {
     <main className="fixed inset-0 overflow-hidden bg-background text-foreground select-none">
       <h1 className="sr-only">Vórtice — visualización de datos WebGL</h1>
       <ParticleCanvas ref={canvasRef} />
-      <div
-        ref={cursorRef}
-        className="vortex-cursor pointer-events-none fixed top-0 left-0 z-[8] h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#7af3ff]/80 opacity-0 mix-blend-screen shadow-[0_0_18px_rgba(122,243,255,0.55)]"
-        aria-hidden="true"
-      />
+      <div ref={cursorRef} className="vortex-cursor" aria-hidden="true">
+        <i />
+      </div>
       <AmbientEngine />
       <div className="pointer-events-none absolute inset-0">
         <ControlDock canvas={canvasRef} />
