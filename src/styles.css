@@ -117,10 +117,10 @@
 }
 @keyframes vortex-ripple {
   to {
-    width: 240px;
-    height: 240px;
+    width: 200px;
+    height: 200px;
     opacity: 0;
-    border-color: rgba(122, 243, 255, 0.15);
+    border-color: rgba(122, 243, 255, 0.12);
   }
 }
 

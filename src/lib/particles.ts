@@ -263,8 +263,9 @@ export function createEngine(
     lastT: 0,
   };
   const attract = { x: 0, y: 0 };
-  const waves: { x: number; y: number; r: number; life: number }[] = [];
   let holdAcc = 0;
+  const RING_R = 90;
+  const RING_CAPTURE = 320;
 
   const pointProg = link(gl, POINT_VS, POINT_FS);
   const fadeProg = link(gl, QUAD_VS, FADE_FS);
@@ -383,24 +384,30 @@ export function createEngine(
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  function burst(cx: number, cy: number, strength: number) {
+  function gather(cx: number, cy: number, strength: number) {
     const settings = getSettings();
     const n = Math.min(CAPACITY, settings.count | 0);
     for (let i = 0; i < n; i++) {
-      const dx = x[i] - cx;
-      const dy = y[i] - cy;
-      const d = Math.hypot(dx, dy) + 8;
+      const dx = cx - x[i];
+      const dy = cy - y[i];
+      const d = Math.hypot(dx, dy) + 1;
+      if (d > RING_CAPTURE) continue;
+      const w = 1 - d / RING_CAPTURE;
       const nx = dx / d;
       const ny = dy / d;
-      const fall = strength / (d * 0.28 + 36);
-      vx[i] += nx * fall * 210 - ny * fall * 95;
-      vy[i] += ny * fall * 210 + nx * fall * 95;
+      const tx = -ny;
+      const ty = nx;
+      const target = RING_R + (seed[i] - 0.5) * 20;
+      const err = d - target;
+      const k = strength * w;
+      const vRad = vx[i] * nx + vy[i] * ny;
+      vx[i] -= nx * vRad * 0.52 * w;
+      vy[i] -= ny * vRad * 0.52 * w;
+      vx[i] += nx * err * 1.15 * k;
+      vy[i] += ny * err * 1.15 * k;
+      vx[i] += tx * (420 + k * 24);
+      vy[i] += ty * (420 + k * 24);
     }
-  }
-
-  function shock(cx: number, cy: number) {
-    waves.push({ x: cx, y: cy, r: 10, life: 1 });
-    if (waves.length > 6) waves.shift();
   }
 
   function handlePointer(e: PointerEvent, kind: "move" | "down" | "up" | "cancel") {
@@ -421,8 +428,8 @@ export function createEngine(
       pointer.active = true;
       attract.x = p.x;
       attract.y = p.y;
-      burst(p.x, p.y, 1100 * getSettings().force);
-      shock(p.x, p.y);
+      holdAcc = 0;
+      gather(p.x, p.y, 16 * getSettings().force);
     } else if (kind === "move") {
       pointer.active = true;
     } else {
@@ -437,10 +444,9 @@ export function createEngine(
     const n = Math.min(CAPACITY, settings.count | 0);
     const force = settings.force;
     const mode: FieldMode = settings.mode;
-    const hold = pointer.down ? 2.25 : 1;
-    const pullK = 2860 * force * hold;
-    const spinK = 3920 * force * (pointer.down ? 1.7 : 1);
-    const maxSp = (pointer.down ? 2100 : 1480) * (0.55 + force * 0.5);
+    const pullK = 2860 * force * (pointer.down ? 0.7 : 1);
+    const spinK = 3920 * force * (pointer.down ? 1.28 : 1);
+    const maxSp = (pointer.down ? 1760 : 1480) * (0.55 + force * 0.5);
     const stirR = 210;
     const pvx = pointer.vx;
     const pvy = pointer.vy;
@@ -449,24 +455,12 @@ export function createEngine(
     attract.y += (pointer.y - attract.y) * follow;
     const ax = attract.x;
     const ay = attract.y;
-    hueShift += dt * (34 + force * 14 + (pointer.down ? 40 : 0));
+    hueShift += dt * (34 + force * 14 + (pointer.down ? 22 : 0));
 
     if (pointer.down) {
-      holdAcc += dt;
-      if (holdAcc > 0.14) {
-        holdAcc = 0;
-        burst(ax, ay, 220 * force);
-      }
+      holdAcc = Math.min(holdAcc + dt, 1.2);
     } else {
       holdAcc = 0;
-    }
-
-    for (let w = waves.length - 1; w >= 0; w--) {
-      const wave = waves[w];
-      if (!wave) continue;
-      wave.r += 1080 * dt;
-      wave.life -= dt * 1.35;
-      if (wave.life <= 0) waves.splice(w, 1);
     }
 
     const damp = Math.exp(-1.18 * dt);
@@ -523,27 +517,45 @@ export function createEngine(
 
       if (pointer.active && dist < stirR) {
         const fall = 1 - dist / stirR;
-        accX += pvx * fall * 4.2;
-        accY += pvy * fall * 4.2;
+        const stir = pointer.down ? 1.7 : 4.2;
+        accX += pvx * fall * stir;
+        accY += pvy * fall * stir;
       }
-      if (pointer.down) {
-        accX += nx * 780 * force * near;
-        accY += ny * 780 * force * near;
-      }
-
-      for (let w = 0; w < waves.length; w++) {
-        const wave = waves[w];
-        if (!wave) continue;
-        const wdx = x[i] - wave.x;
-        const wdy = y[i] - wave.y;
-        const wdist = Math.hypot(wdx, wdy);
-        const band = Math.abs(wdist - wave.r);
-        if (band < 52) {
-          const invw = 1 / Math.max(wdist, 1);
-          const kick = (1 - band / 52) * wave.life * 2800 * force;
-          accX += wdx * invw * kick;
-          accY += wdy * invw * kick;
+      if (pointer.down && dist < RING_CAPTURE) {
+        const targetR = RING_R + (seed[i] - 0.5) * 20;
+        const w = 1 - dist / RING_CAPTURE;
+        const w2 = w * w;
+        accX *= 1 - w2 * 0.72;
+        accY *= 1 - w2 * 0.72;
+        let rnx = nx;
+        let rny = ny;
+        let rtx = tx;
+        let rty = ty;
+        if (dist > 0.85) {
+          const invd = 1 / dist;
+          rnx = dx * invd;
+          rny = dy * invd;
+          rtx = -rny;
+          rty = rnx;
+        } else {
+          const a = seed[i] * Math.PI * 2;
+          rnx = Math.cos(a);
+          rny = Math.sin(a);
+          rtx = -rny;
+          rty = rnx;
         }
+        const err = dist - targetR;
+        const inner = dist < targetR ? 1.55 : 1;
+        const spring = err * (112 + force * 88) * inner * w2;
+        accX += rnx * spring;
+        accY += rny * spring;
+        const vRad = vx[i] * rnx + vy[i] * rny;
+        const dampR = 12 + 18 * w;
+        accX -= rnx * vRad * dampR;
+        accY -= rny * vRad * dampR;
+        const orbit = (1280 + force * 980) * (0.4 + w * 0.8);
+        accX += rtx * orbit;
+        accY += rty * orbit;
       }
 
       const ang = hueShift * 0.12 + seed[i] * Math.PI * 2;
@@ -570,11 +582,18 @@ export function createEngine(
       else if (y[i] > cssH + 12) y[i] -= cssH + 24;
 
       const heading = Math.atan2(vy[i], vx[i]) * 57.2957795;
-      const hue = heading + 180 + dist * 0.04 + seed[i] * 48 + hueShift * 0.65;
+      let hue = heading + 180 + dist * 0.04 + seed[i] * 48 + hueShift * 0.65;
+      let glowSp = sp;
+      if (pointer.down && dist < RING_CAPTURE) {
+        const targetR = RING_R + (seed[i] - 0.5) * 20;
+        const onRing = Math.exp((-((dist - targetR) * (dist - targetR))) / (2 * 22 * 22));
+        glowSp += onRing * (210 + holdAcc * 90);
+        hue += onRing * 14;
+      }
       const o = i * STRIDE;
       pack[o] = x[i];
       pack[o + 1] = y[i];
-      pack[o + 2] = sp;
+      pack[o + 2] = glowSp;
       pack[o + 3] = hue;
       speedSum += sp;
     }
@@ -738,8 +757,7 @@ export function createEngine(
     pulse() {
       const px = pointer.x || cssW * 0.5;
       const py = pointer.y || cssH * 0.5;
-      burst(px, py, 1100 * getSettings().force);
-      shock(px, py);
+      gather(px, py, 16 * getSettings().force);
     },
     capturePng() {
       canvas.toBlob((blob) => {

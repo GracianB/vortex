@@ -26,7 +26,7 @@
 
 ## Qué es
 
-El segundo prototipo live del mundo **PLAY**: un campo de partículas WebGL. El cursor es la fuerza. Mantén pulsado para inyectar energía.
+El segundo prototipo live del mundo **PLAY**: un campo de partículas WebGL. El cursor es la fuerza. Clic y hold reúnen un anillo.
 
 ### 👉 [**Abrir Vórtice →**](https://vortex-gilt-xi.vercel.app/)
 
@@ -53,7 +53,7 @@ Fondos: Vacío · Tinta · Abismo · Pizarra · Niebla · Papel.
 | | |
 |:--|:--|
 | Puntero | Deforma el campo |
-| Clic / hold | Inyecta energía |
+| Clic / hold | Reúne un anillo |
 | `Espacio` | Pulso |
 | `1–4` | Vórtice / Flujo / Órbita / Onda |
 | `F` | Pantalla completa |
