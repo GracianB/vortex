@@ -41,8 +41,8 @@ varying float v_hue;
 void main() {
   vec2 clip = vec2((a_pos.x / u_res.x) * 2.0 - 1.0, 1.0 - (a_pos.y / u_res.y) * 2.0);
   gl_Position = vec4(clip, 0.0, 1.0);
-  float glow = clamp(a_speed * 0.00115, 0.0, 1.0);
-  gl_PointSize = mix(2.4, 7.2, glow) * u_dpr * u_scale;
+  float glow = clamp(a_speed * 0.0018, 0.0, 1.0);
+  gl_PointSize = mix(3.4, 11.0, glow) * u_dpr * u_scale;
   v_speed = a_speed;
   v_hue = a_hue;
 }
@@ -77,8 +77,8 @@ vec3 tone() {
     l = u_light > 0.5 ? 0.36 + spd * 0.10 : 0.52 + spd * 0.26;
   } else if (u_palette > 2.5 && u_palette < 3.5) {
     h = 184.0 + spd * 14.0;
-    s = u_light > 0.5 ? 0.52 : 0.74;
-    l = u_light > 0.5 ? 0.32 + spd * 0.12 : 0.60 + spd * 0.20;
+    s = u_light > 0.5 ? 0.55 : 0.78;
+    l = u_light > 0.5 ? 0.36 + spd * 0.14 : 0.68 + spd * 0.18;
   } else if (u_palette > 3.5) {
     h = 210.0;
     s = u_light > 0.5 ? 0.08 : 0.14;
@@ -94,11 +94,11 @@ void main() {
   vec2 p = gl_PointCoord * 2.0 - 1.0;
   float d = dot(p, p);
   if (d > 1.0) discard;
-  float core = exp(-d * 8.5);
-  float halo = exp(-d * 2.8);
-  float a = core + halo * 0.32;
+  float core = exp(-d * 6.2);
+  float halo = exp(-d * 2.1);
+  float a = clamp(core + halo * 0.55, 0.0, 1.0);
   vec3 c = tone();
-  gl_FragColor = vec4(c * (0.75 + a * 0.45), a);
+  gl_FragColor = vec4(c, a);
 }
 `;
 
@@ -264,8 +264,7 @@ export function createEngine(
   };
   const attract = { x: 0, y: 0 };
   let holdAcc = 0;
-  const RING_R = 90;
-  const RING_CAPTURE = 320;
+  const RING_R = 86;
 
   const pointProg = link(gl, POINT_VS, POINT_FS);
   const fadeProg = link(gl, QUAD_VS, FADE_FS);
@@ -384,29 +383,20 @@ export function createEngine(
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  function gather(cx: number, cy: number, strength: number) {
-    const settings = getSettings();
-    const n = Math.min(CAPACITY, settings.count | 0);
+  function snapToRing(cx: number, cy: number) {
+    const n = Math.min(CAPACITY, getSettings().count | 0);
     for (let i = 0; i < n; i++) {
-      const dx = cx - x[i];
-      const dy = cy - y[i];
-      const d = Math.hypot(dx, dy) + 1;
-      if (d > RING_CAPTURE) continue;
-      const w = 1 - d / RING_CAPTURE;
-      const nx = dx / d;
-      const ny = dy / d;
-      const tx = -ny;
-      const ty = nx;
-      const target = RING_R + (seed[i] - 0.5) * 20;
-      const err = d - target;
-      const k = strength * w;
-      const vRad = vx[i] * nx + vy[i] * ny;
-      vx[i] -= nx * vRad * 0.52 * w;
-      vy[i] -= ny * vRad * 0.52 * w;
-      vx[i] += nx * err * 0.55 * k;
-      vy[i] += ny * err * 0.55 * k;
-      vx[i] += tx * (180 + k * 10);
-      vy[i] += ty * (180 + k * 10);
+      const ang = seed[i] * Math.PI * 2 + i * 0.017;
+      const target = RING_R + (seed[i] - 0.5) * 10;
+      const tx = cx + Math.cos(ang) * target;
+      const ty = cy + Math.sin(ang) * target;
+      x[i] += (tx - x[i]) * 0.42;
+      y[i] += (ty - y[i]) * 0.42;
+      const txv = -(ty - cy);
+      const tyv = tx - cx;
+      const len = Math.hypot(txv, tyv) || 1;
+      vx[i] = (txv / len) * 420;
+      vy[i] = (tyv / len) * 420;
     }
   }
 
@@ -429,7 +419,7 @@ export function createEngine(
       attract.x = p.x;
       attract.y = p.y;
       holdAcc = 0;
-      gather(p.x, p.y, 5.5 * getSettings().force);
+      snapToRing(p.x, p.y);
     } else if (kind === "move") {
       pointer.active = true;
     } else {
@@ -444,118 +434,75 @@ export function createEngine(
     const n = Math.min(CAPACITY, settings.count | 0);
     const force = settings.force;
     const mode: FieldMode = settings.mode;
-    const pullK = 2480 * force * (pointer.down ? 0.55 : 1);
-    const spinK = 3400 * force * (pointer.down ? 1.12 : 1);
-    const maxSp = (pointer.down ? 1320 : 1180) * (0.55 + force * 0.42);
-    const stirR = 160;
+    const maxSp = (pointer.down ? 1600 : 1400) * (0.55 + force * 0.5);
     const pvx = pointer.vx;
     const pvy = pointer.vy;
-    const follow = 1 - Math.exp(-(pointer.down ? 22 : 14) * dt);
+    const follow = 1 - Math.exp(-(pointer.down ? 28 : 16) * dt);
     attract.x += (pointer.x - attract.x) * follow;
     attract.y += (pointer.y - attract.y) * follow;
     const ax = attract.x;
     const ay = attract.y;
-    hueShift += dt * (22 + force * 8 + (pointer.down ? 8 : 0));
+    hueShift += dt * (26 + force * 10);
 
-    if (pointer.down) {
-      holdAcc = Math.min(holdAcc + dt, 1.2);
-    } else {
-      holdAcc = 0;
-    }
+    if (pointer.down) holdAcc = Math.min(holdAcc + dt, 1.2);
+    else holdAcc = 0;
 
-    const damp = Math.exp(-1.18 * dt);
-    const idle = pointer.active ? 6 : 18;
-    const holdPulse = pointer.down ? 1 + Math.sin(hueShift * 0.16) * 0.06 : 1;
+    const damp = Math.exp(-(pointer.down ? 2.4 : 1.35) * dt);
+    const idle = pointer.active ? 4 : 14;
     const cx = cssW * 0.5;
     const cy = cssH * 0.5;
+    const wide = Math.min(cssW, cssH);
     let speedSum = 0;
 
     for (let i = 0; i < n; i++) {
       const dx = ax - x[i];
       const dy = ay - y[i];
       const dist = Math.hypot(dx, dy);
-      const d = Math.max(dist, 28);
-      const inv = 1 / d;
+      const inv = 1 / Math.max(dist, 8);
       const nx = dx * inv;
       const ny = dy * inv;
       const tx = -ny;
       const ty = nx;
-      const near = Math.exp(-dist / 95);
 
-      let accX = 0;
-      let accY = 0;
+      const rest = pointer.down
+        ? RING_R + (seed[i] - 0.5) * 10
+        : 56 + seed[i] * wide * 0.42;
+      const err = dist - rest;
+      const spring = pointer.down ? 260 * force : 36 * force;
+      const orbit = pointer.down ? 1750 * force : 980 * force;
 
-      if (mode === "flow") {
-        const t = hueShift * 0.035;
-        const ang =
-          Math.sin(x[i] * 0.008 + t + seed[i]) +
-          Math.cos(y[i] * 0.0064 - t * 0.7);
-        accX = Math.cos(ang * 1.65) * 640 * force;
-        accY = Math.sin(ang * 1.65) * 640 * force;
-        accX += nx * pullK * inv * 0.42 + pvx * near * 0.8;
-        accY += ny * pullK * inv * 0.42 + pvy * near * 0.8;
-      } else if (mode === "orbit") {
-        const ox = x[i] - cx;
-        const oy = y[i] - cy;
-        const r = Math.max(Math.hypot(ox, oy), 18);
-        const ux = ox / r;
-        const uy = oy / r;
-        const targetR = 36 + seed[i] * Math.min(cssW, cssH) * 0.44;
-        accX = -uy * 980 * force + ux * (targetR - r) * 5.5;
-        accY = ux * 980 * force + uy * (targetR - r) * 5.5;
-        accX += nx * pullK * inv * 0.55;
-        accY += ny * pullK * inv * 0.55;
-      } else if (mode === "wave") {
-        const phase = dist * 0.042 - hueShift * 0.11 + seed[i] * 2;
-        const mag = Math.sin(phase) * 460 * force;
-        accX = -nx * mag + tx * 260 * force;
-        accY = -ny * mag + ty * 260 * force;
-      } else {
-        accX = nx * pullK * inv * holdPulse + tx * (spinK * inv + force * 920 * near);
-        accY = ny * pullK * inv * holdPulse + ty * (spinK * inv + force * 920 * near);
-      }
+      let accX = nx * err * spring + tx * orbit;
+      let accY = ny * err * spring + ty * orbit;
 
-      if (pointer.active && dist < stirR) {
-        const fall = 1 - dist / stirR;
-        const stir = pointer.down ? 0.85 : 1.65;
-        accX += pvx * fall * stir;
-        accY += pvy * fall * stir;
-      }
-      if (pointer.down && dist < RING_CAPTURE) {
-        const targetR = RING_R + (seed[i] - 0.5) * 20;
-        const w = 1 - dist / RING_CAPTURE;
-        const w2 = w * w;
-        accX *= 1 - w2 * 0.72;
-        accY *= 1 - w2 * 0.72;
-        let rnx = nx;
-        let rny = ny;
-        let rtx = tx;
-        let rty = ty;
-        if (dist > 0.85) {
-          const invd = 1 / dist;
-          rnx = dx * invd;
-          rny = dy * invd;
-          rtx = -rny;
-          rty = rnx;
-        } else {
-          const a = seed[i] * Math.PI * 2;
-          rnx = Math.cos(a);
-          rny = Math.sin(a);
-          rtx = -rny;
-          rty = rnx;
+      if (!pointer.down) {
+        if (mode === "flow") {
+          const t = hueShift * 0.035;
+          const ang =
+            Math.sin(x[i] * 0.008 + t + seed[i]) +
+            Math.cos(y[i] * 0.0064 - t * 0.7);
+          accX = Math.cos(ang * 1.65) * 720 * force + nx * err * 18 * force + pvx * 0.9;
+          accY = Math.sin(ang * 1.65) * 720 * force + ny * err * 18 * force + pvy * 0.9;
+        } else if (mode === "orbit") {
+          const ox = x[i] - cx;
+          const oy = y[i] - cy;
+          const r = Math.max(Math.hypot(ox, oy), 18);
+          const ux = ox / r;
+          const uy = oy / r;
+          const targetR = 40 + seed[i] * wide * 0.44;
+          accX = -uy * 1100 * force + ux * (targetR - r) * 6.2 + nx * 12 * force;
+          accY = ux * 1100 * force + uy * (targetR - r) * 6.2 + ny * 12 * force;
+        } else if (mode === "wave") {
+          const phase = dist * 0.04 - hueShift * 0.11 + seed[i] * 2;
+          const mag = Math.sin(phase) * 520 * force;
+          accX = -nx * mag + tx * 320 * force;
+          accY = -ny * mag + ty * 320 * force;
         }
-        const err = dist - targetR;
-        const inner = dist < targetR ? 1.55 : 1;
-        const spring = err * (48 + force * 36) * inner * w2;
-        accX += rnx * spring;
-        accY += rny * spring;
-        const vRad = vx[i] * rnx + vy[i] * rny;
-        const dampR = 8 + 10 * w;
-        accX -= rnx * vRad * dampR;
-        accY -= rny * vRad * dampR;
-        const orbit = (720 + force * 420) * (0.35 + w * 0.55);
-        accX += rtx * orbit;
-        accY += rty * orbit;
+        accX += pvx * Math.exp(-dist / 140) * 2.4;
+        accY += pvy * Math.exp(-dist / 140) * 2.4;
+      } else {
+        const vRad = vx[i] * nx + vy[i] * ny;
+        accX -= nx * vRad * 22;
+        accY -= ny * vRad * 22;
       }
 
       const ang = hueShift * 0.12 + seed[i] * Math.PI * 2;
@@ -583,15 +530,14 @@ export function createEngine(
 
       const heading = Math.atan2(vy[i], vx[i]) * 57.2957795;
       let hue = heading + 180 + dist * 0.04 + seed[i] * 48 + hueShift * 0.65;
-      let glowSp = sp;
-      if (pointer.active && dist < 88) {
-        glowSp += Math.exp(-dist / 38) * 40;
+      let glowSp = sp + 80;
+      if (pointer.active && dist < 120) {
+        glowSp += Math.exp(-dist / 48) * 90;
       }
-      if (pointer.down && dist < RING_CAPTURE) {
-        const targetR = RING_R + (seed[i] - 0.5) * 20;
-        const onRing = Math.exp((-((dist - targetR) * (dist - targetR))) / (2 * 28 * 28));
-        glowSp += onRing * (55 + holdAcc * 22);
-        hue += onRing * 8;
+      if (pointer.down) {
+        const onRing = Math.exp((-((dist - rest) * (dist - rest))) / (2 * 18 * 18));
+        glowSp += 220 + onRing * 180 + holdAcc * 60;
+        hue += onRing * 10;
       }
       const o = i * STRIDE;
       pack[o] = x[i];
@@ -651,7 +597,7 @@ export function createEngine(
     gl.vertexAttribPointer(loc.aHue, 1, gl.FLOAT, false, STRIDE * 4, 12);
     gl.uniform2f(loc.uRes, cssW, cssH);
     gl.uniform1f(loc.uDpr, dpr);
-    gl.uniform1f(loc.uScale, n > 12000 ? 0.88 : n > 7000 ? 0.96 : 1.05);
+    gl.uniform1f(loc.uScale, 1.12);
     gl.uniform1f(loc.uPalette, PALETTE_INDEX[settings.palette] ?? 0);
     gl.uniform1f(loc.uLight, light ? 1 : 0);
     gl.drawArrays(gl.POINTS, 0, n);
@@ -758,9 +704,7 @@ export function createEngine(
       clearTargets(resolveBg(getSettings()));
     },
     pulse() {
-      const px = pointer.x || cssW * 0.5;
-      const py = pointer.y || cssH * 0.5;
-      gather(px, py, 16 * getSettings().force);
+      snapToRing(pointer.x || cssW * 0.5, pointer.y || cssH * 0.5);
     },
     capturePng() {
       canvas.toBlob((blob) => {
