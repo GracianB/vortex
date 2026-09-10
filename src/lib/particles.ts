@@ -390,13 +390,13 @@ export function createEngine(
       const target = RING_R + (seed[i] - 0.5) * 10;
       const tx = cx + Math.cos(ang) * target;
       const ty = cy + Math.sin(ang) * target;
-      x[i] += (tx - x[i]) * 0.42;
-      y[i] += (ty - y[i]) * 0.42;
+      x[i] += (tx - x[i]) * 0.78;
+      y[i] += (ty - y[i]) * 0.78;
       const txv = -(ty - cy);
       const tyv = tx - cx;
       const len = Math.hypot(txv, tyv) || 1;
-      vx[i] = (txv / len) * 420;
-      vy[i] = (tyv / len) * 420;
+      vx[i] = (txv / len) * 520;
+      vy[i] = (tyv / len) * 520;
     }
   }
 
@@ -437,7 +437,7 @@ export function createEngine(
     const maxSp = (pointer.down ? 1600 : 1400) * (0.55 + force * 0.5);
     const pvx = pointer.vx;
     const pvy = pointer.vy;
-    const follow = 1 - Math.exp(-(pointer.down ? 28 : 16) * dt);
+    const follow = 1 - Math.exp(-(pointer.down ? 42 : 18) * dt);
     attract.x += (pointer.x - attract.x) * follow;
     attract.y += (pointer.y - attract.y) * follow;
     const ax = attract.x;
@@ -501,8 +501,12 @@ export function createEngine(
         accY += pvy * Math.exp(-dist / 140) * 2.4;
       } else {
         const vRad = vx[i] * nx + vy[i] * ny;
-        accX -= nx * vRad * 22;
-        accY -= ny * vRad * 22;
+        accX -= nx * vRad * 28;
+        accY -= ny * vRad * 28;
+        const rx = ax - nx * rest;
+        const ry = ay - ny * rest;
+        x[i] += (rx - x[i]) * 0.16;
+        y[i] += (ry - y[i]) * 0.16;
       }
 
       const ang = hueShift * 0.12 + seed[i] * Math.PI * 2;

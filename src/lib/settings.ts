@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
-export const STORAGE_KEY = "vortex-settings-v3";
-export const SETTINGS_VERSION = 3;
+export const STORAGE_KEY = "vortex-settings-v4";
+export const SETTINGS_VERSION = 4;
 
 export type PaletteId = "spectrum" | "aurora" | "ember" | "ice" | "silver";
 export type FieldMode = "vortex" | "flow" | "orbit" | "wave";
@@ -87,7 +87,13 @@ function clamp(n: number, min: number, max: number) {
 function parsePersisted(raw: string): Partial<SettingsSnapshot> | null {
   try {
     const data = JSON.parse(raw) as Partial<Persisted>;
-    if (!data || (data.version !== 1 && data.version !== 2 && data.version !== SETTINGS_VERSION)) {
+    if (
+      !data ||
+      (data.version !== 1 &&
+        data.version !== 2 &&
+        data.version !== 3 &&
+        data.version !== SETTINGS_VERSION)
+    ) {
       return null;
     }
     const next: Partial<SettingsSnapshot> = {};

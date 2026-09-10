@@ -127,7 +127,7 @@ export function ControlDock({ canvas }: Props) {
                 Vórtice
               </p>
               <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#7af3ff]">
-                PLAY · técnica
+                PLAY · click = anillo
               </p>
             </div>
           </div>

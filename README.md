@@ -52,8 +52,8 @@ Fondos: Vacío · Tinta · Abismo · Pizarra · Niebla · Papel.
 
 | | |
 |:--|:--|
-| Puntero | Deforma el campo |
-| Clic / hold | Reúne un anillo |
+| Puntero | El campo te sigue |
+| Clic / hold | Junta un anillo brillante y arrástralo |
 | `Espacio` | Pulso |
 | `1–4` | Vórtice / Flujo / Órbita / Onda |
 | `F` | Pantalla completa |
