@@ -41,8 +41,8 @@ varying float v_hue;
 void main() {
   vec2 clip = vec2((a_pos.x / u_res.x) * 2.0 - 1.0, 1.0 - (a_pos.y / u_res.y) * 2.0);
   gl_Position = vec4(clip, 0.0, 1.0);
-  float glow = clamp(a_speed * 0.00135, 0.0, 1.0);
-  gl_PointSize = mix(3.4, 14.0, glow) * u_dpr * u_scale;
+  float glow = clamp(a_speed * 0.0009, 0.0, 1.0);
+  gl_PointSize = mix(1.15, 3.6, glow) * u_dpr * u_scale;
   v_speed = a_speed;
   v_hue = a_hue;
 }
@@ -76,9 +76,9 @@ vec3 tone() {
     s = u_light > 0.5 ? 0.74 : 0.92;
     l = u_light > 0.5 ? 0.36 + spd * 0.10 : 0.52 + spd * 0.26;
   } else if (u_palette > 2.5 && u_palette < 3.5) {
-    h = 184.0 + spd * 16.0;
-    s = u_light > 0.5 ? 0.55 : 0.82;
-    l = u_light > 0.5 ? 0.32 + spd * 0.12 : 0.62 + spd * 0.22;
+    h = 184.0 + spd * 12.0;
+    s = u_light > 0.5 ? 0.48 : 0.62;
+    l = u_light > 0.5 ? 0.30 + spd * 0.10 : 0.52 + spd * 0.16;
   } else if (u_palette > 3.5) {
     h = 210.0;
     s = u_light > 0.5 ? 0.08 : 0.14;
@@ -94,11 +94,9 @@ void main() {
   vec2 p = gl_PointCoord * 2.0 - 1.0;
   float d = dot(p, p);
   if (d > 1.0) discard;
-  float core = exp(-d * 9.5);
-  float halo = exp(-d * 2.15);
-  float a = core * 0.95 + halo * 0.48;
+  float a = exp(-d * 16.0);
   vec3 c = tone();
-  gl_FragColor = vec4(c * (0.55 + a * 0.85), a);
+  gl_FragColor = vec4(c * (0.35 + a * 0.9), a * 0.72);
 }
 `;
 
@@ -403,10 +401,10 @@ export function createEngine(
       const vRad = vx[i] * nx + vy[i] * ny;
       vx[i] -= nx * vRad * 0.52 * w;
       vy[i] -= ny * vRad * 0.52 * w;
-      vx[i] += nx * err * 1.15 * k;
-      vy[i] += ny * err * 1.15 * k;
-      vx[i] += tx * (420 + k * 24);
-      vy[i] += ty * (420 + k * 24);
+      vx[i] += nx * err * 0.55 * k;
+      vy[i] += ny * err * 0.55 * k;
+      vx[i] += tx * (180 + k * 10);
+      vy[i] += ty * (180 + k * 10);
     }
   }
 
@@ -429,7 +427,7 @@ export function createEngine(
       attract.x = p.x;
       attract.y = p.y;
       holdAcc = 0;
-      gather(p.x, p.y, 16 * getSettings().force);
+      gather(p.x, p.y, 5.5 * getSettings().force);
     } else if (kind === "move") {
       pointer.active = true;
     } else {
@@ -444,10 +442,10 @@ export function createEngine(
     const n = Math.min(CAPACITY, settings.count | 0);
     const force = settings.force;
     const mode: FieldMode = settings.mode;
-    const pullK = 2860 * force * (pointer.down ? 0.7 : 1);
-    const spinK = 3920 * force * (pointer.down ? 1.28 : 1);
-    const maxSp = (pointer.down ? 1760 : 1480) * (0.55 + force * 0.5);
-    const stirR = 210;
+    const pullK = 2480 * force * (pointer.down ? 0.55 : 1);
+    const spinK = 3400 * force * (pointer.down ? 1.12 : 1);
+    const maxSp = (pointer.down ? 1320 : 1180) * (0.55 + force * 0.42);
+    const stirR = 160;
     const pvx = pointer.vx;
     const pvy = pointer.vy;
     const follow = 1 - Math.exp(-(pointer.down ? 22 : 14) * dt);
@@ -455,7 +453,7 @@ export function createEngine(
     attract.y += (pointer.y - attract.y) * follow;
     const ax = attract.x;
     const ay = attract.y;
-    hueShift += dt * (34 + force * 14 + (pointer.down ? 22 : 0));
+    hueShift += dt * (22 + force * 8 + (pointer.down ? 8 : 0));
 
     if (pointer.down) {
       holdAcc = Math.min(holdAcc + dt, 1.2);
@@ -465,7 +463,7 @@ export function createEngine(
 
     const damp = Math.exp(-1.18 * dt);
     const idle = pointer.active ? 6 : 18;
-    const holdPulse = pointer.down ? 1 + Math.sin(hueShift * 0.22) * 0.18 : 1;
+    const holdPulse = pointer.down ? 1 + Math.sin(hueShift * 0.16) * 0.06 : 1;
     const cx = cssW * 0.5;
     const cy = cssH * 0.5;
     let speedSum = 0;
@@ -517,7 +515,7 @@ export function createEngine(
 
       if (pointer.active && dist < stirR) {
         const fall = 1 - dist / stirR;
-        const stir = pointer.down ? 1.7 : 4.2;
+        const stir = pointer.down ? 0.85 : 1.65;
         accX += pvx * fall * stir;
         accY += pvy * fall * stir;
       }
@@ -546,14 +544,14 @@ export function createEngine(
         }
         const err = dist - targetR;
         const inner = dist < targetR ? 1.55 : 1;
-        const spring = err * (112 + force * 88) * inner * w2;
+        const spring = err * (48 + force * 36) * inner * w2;
         accX += rnx * spring;
         accY += rny * spring;
         const vRad = vx[i] * rnx + vy[i] * rny;
-        const dampR = 12 + 18 * w;
+        const dampR = 8 + 10 * w;
         accX -= rnx * vRad * dampR;
         accY -= rny * vRad * dampR;
-        const orbit = (1280 + force * 980) * (0.4 + w * 0.8);
+        const orbit = (720 + force * 420) * (0.35 + w * 0.55);
         accX += rtx * orbit;
         accY += rty * orbit;
       }
@@ -583,12 +581,15 @@ export function createEngine(
 
       const heading = Math.atan2(vy[i], vx[i]) * 57.2957795;
       let hue = heading + 180 + dist * 0.04 + seed[i] * 48 + hueShift * 0.65;
-      let glowSp = sp;
+      let glowSp = sp * 0.72;
+      if (pointer.active && dist < 88) {
+        glowSp += Math.exp(-dist / 38) * 22;
+      }
       if (pointer.down && dist < RING_CAPTURE) {
         const targetR = RING_R + (seed[i] - 0.5) * 20;
-        const onRing = Math.exp((-((dist - targetR) * (dist - targetR))) / (2 * 22 * 22));
-        glowSp += onRing * (210 + holdAcc * 90);
-        hue += onRing * 14;
+        const onRing = Math.exp((-((dist - targetR) * (dist - targetR))) / (2 * 28 * 28));
+        glowSp += onRing * (26 + holdAcc * 12);
+        hue += onRing * 6;
       }
       const o = i * STRIDE;
       pack[o] = x[i];
@@ -608,7 +609,7 @@ export function createEngine(
     const bg = resolveBg(settings);
     const [br, bgG, bb] = parseHex(bg);
     const light = luminance(br, bgG, bb) > 0.52;
-    const fade = settings.trail <= 0.001 ? 1 : Math.max(0.02, Math.pow(1 - settings.trail, 1.15));
+    const fade = settings.trail <= 0.001 ? 1 : Math.max(0.012, Math.pow(1 - settings.trail, 1.05));
     const src = ping;
     const dst = pong;
 
@@ -648,7 +649,7 @@ export function createEngine(
     gl.vertexAttribPointer(loc.aHue, 1, gl.FLOAT, false, STRIDE * 4, 12);
     gl.uniform2f(loc.uRes, cssW, cssH);
     gl.uniform1f(loc.uDpr, dpr);
-    gl.uniform1f(loc.uScale, n > 12000 ? 0.86 : n > 7000 ? 0.96 : 1.08);
+    gl.uniform1f(loc.uScale, n > 12000 ? 0.62 : n > 7000 ? 0.72 : 0.82);
     gl.uniform1f(loc.uPalette, PALETTE_INDEX[settings.palette] ?? 0);
     gl.uniform1f(loc.uLight, light ? 1 : 0);
     gl.drawArrays(gl.POINTS, 0, n);

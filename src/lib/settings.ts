@@ -139,7 +139,7 @@ type SettingsStore = SettingsSnapshot & {
 export const useSettings = create<SettingsStore>((set, get) => ({
   count: 8000,
   force: 1,
-  trail: 0.93,
+  trail: 0.96,
   palette: "ice",
   mode: "vortex",
   bg: "void",
@@ -201,7 +201,7 @@ export const useSettings = create<SettingsStore>((set, get) => ({
     set({
       count: defaultCount(),
       force: 1,
-      trail: 0.93,
+      trail: 0.96,
       palette: "ice",
       mode: "vortex",
       bg: "void",
