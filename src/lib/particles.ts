@@ -27,6 +27,7 @@ const PALETTE_INDEX: Record<PaletteId, number> = {
   ember: 2,
   ice: 3,
   silver: 4,
+  solar: 5,
 };
 
 const POINT_VS = `
@@ -42,7 +43,7 @@ void main() {
   vec2 clip = vec2((a_pos.x / u_res.x) * 2.0 - 1.0, 1.0 - (a_pos.y / u_res.y) * 2.0);
   gl_Position = vec4(clip, 0.0, 1.0);
   float glow = clamp(a_speed * 0.0016, 0.0, 1.0);
-  gl_PointSize = mix(2.2, 5.4, glow) * u_dpr * u_scale;
+  gl_PointSize = mix(2.4, 6.8, glow) * u_dpr * u_scale;
   v_speed = a_speed;
   v_hue = a_hue;
 }
@@ -79,10 +80,14 @@ vec3 tone() {
     h = 186.0 + spd * 16.0;
     s = u_light > 0.5 ? 0.40 : 0.55;
     l = u_light > 0.5 ? 0.30 + spd * 0.10 : 0.62 + spd * 0.14;
-  } else if (u_palette > 3.5) {
+  } else if (u_palette > 3.5 && u_palette < 4.5) {
     h = 210.0;
     s = u_light > 0.5 ? 0.08 : 0.14;
     l = u_light > 0.5 ? 0.28 + spd * 0.10 : 0.74 + spd * 0.14;
+  } else if (u_palette > 4.5) {
+    h = 45.0 - spd * 105.0;
+    s = u_light > 0.5 ? 0.80 : 0.95;
+    l = u_light > 0.5 ? 0.34 + spd * 0.12 : 0.54 + spd * 0.24;
   } else {
     s = u_light > 0.5 ? 0.62 : 0.82;
     l = u_light > 0.5 ? 0.34 + spd * 0.12 : 0.58 + spd * 0.24;
@@ -94,7 +99,7 @@ void main() {
   vec2 p = gl_PointCoord * 2.0 - 1.0;
   float d = dot(p, p);
   if (d > 1.0) discard;
-  float a = exp(-d * 4.2);
+  float a = exp(-d * 3.4);
   vec3 c = tone();
   gl_FragColor = vec4(c * a, a);
 }

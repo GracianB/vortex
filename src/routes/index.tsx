@@ -10,11 +10,29 @@ export const Route = createFileRoute("/")({ component: Home });
 function Home() {
   const canvasRef = useRef<ParticleCanvasHandle>(null);
   const [hint, setHint] = useState(true);
+  const [intro, setIntro] = useState(true);
+  const [introDone, setIntroDone] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   useEffect(() => {
     useSettings.getState().hydrate();
+  }, []);
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const holdT = window.setTimeout(() => setIntroDone(true), reduce ? 250 : 1900);
+    const gone = window.setTimeout(() => setIntro(false), reduce ? 550 : 2650);
+    const skip = () => {
+      setIntroDone(true);
+      window.setTimeout(() => setIntro(false), 650);
+    };
+    window.addEventListener("pointerdown", skip, { once: true });
+    return () => {
+      window.clearTimeout(holdT);
+      window.clearTimeout(gone);
+      window.removeEventListener("pointerdown", skip);
+    };
   }, []);
 
   useEffect(() => {
@@ -67,6 +85,7 @@ function Home() {
     <main className="fixed inset-0 overflow-hidden bg-background text-foreground select-none">
       <h1 className="sr-only">Vórtice — visualización de datos WebGL</h1>
       <ParticleCanvas ref={canvasRef} />
+      <div className="vortex-vignette" aria-hidden="true" />
       <div ref={cursorRef} className="vortex-cursor" aria-hidden="true">
         <i />
       </div>
@@ -79,6 +98,18 @@ function Home() {
         />
       ))}
       <AmbientEngine />
+      {intro ? (
+        <div
+          className={`vortex-intro${introDone ? " is-done" : ""}`}
+          aria-hidden="true"
+        >
+          <div className="vortex-intro__mark">
+            <span className="vortex-intro__word">VÓRTICE</span>
+            <p className="vortex-intro__tag">Mueve el cursor. Eso es todo.</p>
+          </div>
+          <span className="vortex-intro__scan" />
+        </div>
+      ) : null}
       <div className="pointer-events-none absolute inset-0">
         <ControlDock canvas={canvasRef} />
         {hint ? (
