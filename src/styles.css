@@ -176,8 +176,37 @@
   opacity: 0;
 }
 .vortex-intro__mark {
+  position: relative;
   text-align: center;
   padding: 0 1rem;
+}
+.vortex-intro__mark::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px solid rgba(122, 243, 255, 0.5);
+  animation: vx-ring 2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
+}
+@keyframes vx-ring {
+  0% {
+    opacity: 0;
+    width: 8px;
+    height: 8px;
+  }
+  28% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    width: 520px;
+    height: 520px;
+    border-color: rgba(122, 243, 255, 0.02);
+  }
 }
 .vortex-intro__word {
   display: inline-block;

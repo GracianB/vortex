@@ -7,6 +7,8 @@ import {
   RotateCcw,
   Pipette,
   Share2,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -59,8 +61,11 @@ export function ControlDock({ canvas }: Props) {
   const fps = useLive((s) => s.fps);
   const gl = useLive((s) => s.gl);
   const [open, setOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(true);
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
+  const modeLabel = FIELD_MODES.find((m) => m.id === mode)?.label ?? "Vórtice";
+  const paletteLabel = PALETTES.find((p) => p.id === palette)?.label ?? "";
 
   const share = async () => {
     const url = "https://vortex-gilt-xi.vercel.app/";
@@ -144,11 +149,15 @@ export function ControlDock({ canvas }: Props) {
         data-ui="chrome"
         className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-5"
       >
-        <div className="pointer-events-auto rounded-xl border border-[color-mix(in_srgb,#7af3ff_28%,transparent)] bg-card/90 px-4 py-3 shadow-border">
+        <div className="pointer-events-auto relative overflow-hidden rounded-xl border border-[color-mix(in_srgb,#7af3ff_28%,transparent)] bg-gradient-to-br from-card/95 to-[#0a1418]/90 px-4 py-3 shadow-[0_0_0_1px_rgba(241,240,235,0.06),0_10px_40px_-12px_rgba(122,243,255,0.35)]">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7af3ff] to-transparent"
+          />
           <div className="flex items-center gap-2.5">
             <a
               href="https://gracianb.github.io/GracianB/"
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-[4px] border border-foreground text-[10px] font-bold tracking-wide text-foreground hover:border-[#7af3ff] hover:bg-[#7af3ff] hover:text-[#06070a]"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-gradient-to-br from-[#7af3ff] to-[#2b6f77] text-[11px] font-bold tracking-wide text-[#06070a] shadow-[0_0_16px_rgba(122,243,255,0.45)] transition-transform duration-150 ease-out hover:scale-105"
               aria-label="GracianB hub"
             >
               GB
@@ -158,7 +167,8 @@ export function ControlDock({ canvas }: Props) {
                 Vórtice
               </p>
               <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#7af3ff]">
-                PLAY · 1–4 · click local
+                PLAY · {modeLabel}
+                {paletteLabel ? ` · ${paletteLabel}` : ""}
               </p>
             </div>
           </div>
@@ -259,42 +269,50 @@ export function ControlDock({ canvas }: Props) {
         </div>
       </header>
 
-      {saved ? (
-        <p className="pointer-events-none absolute top-20 right-4 z-10 rounded-md bg-card px-3 py-2 text-xs text-foreground shadow-border sm:right-5">
-          Captura lista
-        </p>
+      {saved || shared ? (
+        <div className="pointer-events-none fixed inset-0 z-30 grid place-items-center">
+          <p className="rounded-xl border border-[color-mix(in_srgb,#7af3ff_40%,transparent)] bg-card/95 px-6 py-3.5 text-sm font-medium text-foreground shadow-[0_0_40px_rgba(122,243,255,0.3)]">
+            {saved ? "Captura lista ✓" : "Enlace copiado ✓"}
+          </p>
+        </div>
       ) : null}
 
-      {shared ? (
-        <p className="pointer-events-none absolute top-20 right-4 z-10 rounded-md bg-card px-3 py-2 text-xs text-foreground shadow-border sm:right-5">
-          Enlace copiado
-        </p>
-      ) : null}
-
+      {panelOpen ? (
       <aside
         data-ui="chrome"
         className={cn(
-          "pointer-events-auto absolute inset-x-4 bottom-4 z-10 flex max-h-[46vh] flex-col rounded-xl bg-card/95 shadow-border sm:inset-x-auto sm:left-5 sm:bottom-5 sm:w-80 sm:max-h-[min(36rem,calc(100dvh-7rem))]",
+          "pointer-events-auto absolute inset-x-4 bottom-4 z-10 flex max-h-[62vh] flex-col rounded-xl border border-[color-mix(in_srgb,#7af3ff_16%,transparent)] bg-card/95 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.65)] sm:inset-x-auto sm:left-5 sm:bottom-5 sm:w-80 sm:max-h-[min(38rem,calc(100dvh-6rem))]",
           "pb-[max(0px,env(safe-area-inset-bottom))]",
         )}
       >
-        <div className="flex h-11 items-center justify-between px-4">
+        <div className="flex h-11 items-center justify-between border-b border-border px-4">
           <p className="text-sm font-medium text-foreground">Controles</p>
-          <button
-            type="button"
-            className="flex h-11 items-center gap-1 text-xs font-medium text-muted-foreground sm:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-controls="vortex-controls"
-          >
-            Más
-            <ChevronDown
-              className={cn(
-                "size-4 transition-transform duration-150 ease-out",
-                open ? "rotate-0" : "-rotate-90",
-              )}
-            />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="flex h-11 items-center gap-1 text-xs font-medium text-muted-foreground sm:hidden"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              aria-controls="vortex-controls"
+            >
+              Más
+              <ChevronDown
+                className={cn(
+                  "size-4 transition-transform duration-150 ease-out",
+                  open ? "rotate-0" : "-rotate-90",
+                )}
+              />
+            </button>
+            <button
+              type="button"
+              aria-label="Ocultar controles"
+              title="Ocultar controles"
+              onClick={() => setPanelOpen(false)}
+              className="grid size-8 place-items-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
         </div>
 
         <div className="min-h-0 overflow-y-auto px-4 pb-4">
@@ -454,6 +472,18 @@ export function ControlDock({ canvas }: Props) {
           </div>
         </div>
       </aside>
+      ) : (
+        <button
+          type="button"
+          data-ui="chrome"
+          onClick={() => setPanelOpen(true)}
+          aria-label="Mostrar controles"
+          className="pointer-events-auto absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,#7af3ff_30%,transparent)] bg-card/90 px-4 py-2.5 text-xs font-medium text-foreground shadow-border transition hover:shadow-[0_0_18px_rgba(122,243,255,0.3)] sm:bottom-5 sm:left-5"
+        >
+          <SlidersHorizontal className="size-4 text-[#7af3ff]" />
+          Controles
+        </button>
+      )}
     </>
   );
 }
