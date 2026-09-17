@@ -6,6 +6,7 @@ import {
   Maximize,
   RotateCcw,
   Pipette,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -19,6 +20,7 @@ import {
   FORCE_MIN,
   FORCE_STEP,
   PALETTES,
+  PRESETS,
   TRAIL_MAX,
   TRAIL_MIN,
   TRAIL_STEP,
@@ -58,6 +60,35 @@ export function ControlDock({ canvas }: Props) {
   const gl = useLive((s) => s.gl);
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  const share = async () => {
+    const url = "https://vortex-gilt-xi.vercel.app/";
+    const data = { title: "Vórtice", text: "Mueve el cursor. Eso es todo. Campo WebGL de GracianB.", url };
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share(data);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        window.setTimeout(() => setShared(false), 1500);
+      }
+    } catch {
+      /* cancelado */
+    }
+  };
+
+  const applyPreset = (id: string) => {
+    const p = PRESETS.find((x) => x.id === id);
+    if (!p) return;
+    const s = useSettings.getState();
+    s.setMode(p.mode);
+    s.setPalette(p.palette);
+    s.setBg(p.bg);
+    s.setCount(p.count);
+    s.setForce(p.force);
+    s.setTrail(p.trail);
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -154,10 +185,28 @@ export function ControlDock({ canvas }: Props) {
             >
               Sustained Focus
             </a>
+            <a
+              className="text-[#7af3ff] hover:text-foreground"
+              href="https://www.linkedin.com/in/gracianbaena"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Contrátame
+            </a>
           </nav>
         </div>
         <div className="pointer-events-auto flex items-center gap-2">
           <AmbientToggle />
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            aria-label="Compartir Vórtice"
+            title="Compartir"
+            onClick={share}
+          >
+            <Share2 />
+          </Button>
           <Button
             type="button"
             variant="secondary"
@@ -216,6 +265,12 @@ export function ControlDock({ canvas }: Props) {
         </p>
       ) : null}
 
+      {shared ? (
+        <p className="pointer-events-none absolute top-20 right-4 z-10 rounded-md bg-card px-3 py-2 text-xs text-foreground shadow-border sm:right-5">
+          Enlace copiado
+        </p>
+      ) : null}
+
       <aside
         data-ui="chrome"
         className={cn(
@@ -261,6 +316,22 @@ export function ControlDock({ canvas }: Props) {
                   data-testid={`mode-${m.id}`}
                 >
                   {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Estilos</p>
+            <div className="flex flex-wrap gap-1.5">
+              {PRESETS.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => applyPreset(p.id)}
+                  className="h-9 rounded-md bg-muted px-3 text-xs font-medium text-foreground shadow-border transition-[background-color,box-shadow] duration-150 ease-out hover:bg-muted/80 hover:shadow-[0_0_16px_rgba(122,243,255,0.22)]"
+                >
+                  {p.label}
                 </button>
               ))}
             </div>

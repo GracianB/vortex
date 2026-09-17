@@ -49,6 +49,26 @@ export const FIELD_BG_OPTIONS: { id: Exclude<FieldBgId, "custom">; label: string
     { id: "paper", label: "Papel" },
   ];
 
+export type Preset = {
+  id: string;
+  label: string;
+  mode: FieldMode;
+  palette: PaletteId;
+  bg: Exclude<FieldBgId, "custom">;
+  count: number;
+  force: number;
+  trail: number;
+};
+
+export const PRESETS: Preset[] = [
+  { id: "aurora", label: "Aurora", mode: "flow", palette: "aurora", bg: "abyss", count: 9000, force: 1.1, trail: 0.94 },
+  { id: "brasa", label: "Brasa", mode: "vortex", palette: "ember", bg: "ink", count: 8000, force: 1.45, trail: 0.9 },
+  { id: "solar", label: "Solar", mode: "orbit", palette: "solar", bg: "void", count: 9000, force: 1.2, trail: 0.93 },
+  { id: "hielo", label: "Hielo", mode: "wave", palette: "ice", bg: "void", count: 7000, force: 1, trail: 0.95 },
+  { id: "espectro", label: "Espectro", mode: "flow", palette: "spectrum", bg: "void", count: 12000, force: 1.3, trail: 0.92 },
+  { id: "papel", label: "Papel", mode: "vortex", palette: "silver", bg: "paper", count: 6000, force: 0.9, trail: 0.88 },
+];
+
 export const COUNT_MIN = 800;
 export const COUNT_MAX = 20000;
 export const COUNT_STEP = 200;
