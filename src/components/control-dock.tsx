@@ -281,7 +281,7 @@ export function ControlDock({ canvas }: Props) {
       <aside
         data-ui="chrome"
         className={cn(
-          "pointer-events-auto absolute inset-x-4 bottom-4 z-10 flex max-h-[62vh] flex-col rounded-xl border border-[color-mix(in_srgb,#7af3ff_16%,transparent)] bg-card/95 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.65)] sm:inset-x-auto sm:left-5 sm:bottom-5 sm:w-80 sm:max-h-[min(38rem,calc(100dvh-6rem))]",
+          "pointer-events-auto absolute inset-x-4 bottom-4 z-10 flex max-h-[62vh] flex-col rounded-xl border border-[color-mix(in_srgb,#7af3ff_16%,transparent)] bg-card/95 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.65)] sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-80 sm:max-h-[min(38rem,calc(100dvh-6rem))]",
           "pb-[max(0px,env(safe-area-inset-bottom))]",
         )}
       >
@@ -478,7 +478,7 @@ export function ControlDock({ canvas }: Props) {
           data-ui="chrome"
           onClick={() => setPanelOpen(true)}
           aria-label="Mostrar controles"
-          className="pointer-events-auto absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,#7af3ff_30%,transparent)] bg-card/90 px-4 py-2.5 text-xs font-medium text-foreground shadow-border transition hover:shadow-[0_0_18px_rgba(122,243,255,0.3)] sm:bottom-5 sm:left-5"
+          className="pointer-events-auto absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,#7af3ff_30%,transparent)] bg-card/90 px-4 py-2.5 text-xs font-medium text-foreground shadow-border transition hover:shadow-[0_0_18px_rgba(122,243,255,0.3)] sm:bottom-5 sm:right-5"
         >
           <SlidersHorizontal className="size-4 text-[#7af3ff]" />
           Controles
