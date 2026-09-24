@@ -1,860 +1,179 @@
 <div align="center">
 
 <a href="https://vortex-gilt-xi.vercel.app/">
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=240&color=0:06070A,35:0B1720,65:102A43,100:7AF3FF&text=V%C3%93RTICE&fontColor=F4F3EE&fontSize=62&fontAlignY=36&desc=WEBGL%20%C2%B7%20MUEVE%20EL%20CURSOR&descAlignY=58&descSize=16&animation=twinkling" width="100%" alt="Vórtice. WebGL. Mueve el cursor."/>
+</a>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&height=240&color=0:06070A,35:0B1720,65:102A43,100:7AF3FF&text=V%C3%93RTICE&fontColor=F4F3EE&fontSize=66&fontAlignY=37&desc=WEBGL%20%C2%B7%20PARTICLE%20FIELD%20%C2%B7%20INTERACTION%20%C2%B7%20PLAY&descAlignY=61&descSize=17&animation=fadeIn" width="100%"/>
-
+<a href="https://vortex-gilt-xi.vercel.app/">
+  <img src="https://readme-typing-svg.demolab.com?font=Fraunces&weight=500&size=26&duration=2600&pause=800&color=7AF3FF&center=true&vCenter=true&width=820&height=56&lines=Mueve+el+cursor.;El+campo+responde.;V%C3%B3rtice+%C2%B7+Flujo+%C2%B7+%C3%93rbita+%C2%B7+Onda;Seis+paletas+%C2%B7+sin+cuenta;PLAY+%C2%B7+GracianB" alt="Mueve el cursor. El campo responde."/>
 </a>
 
 <br/>
 
-[![Typing](https://readme-typing-svg.demolab.com?font=Fraunces\&weight=500\&size=28\&duration=2800\&pause=800\&color=7AF3FF\&center=true\&vCenter=true\&width=920\&height=60\&lines=V%C3%93RTICE;Mueve+el+cursor.+Eso+es+todo.;El+campo+responde.;Miles+de+muestras.;V%C3%B3rtice+%C2%B7+Flujo+%C2%B7+%C3%93rbita+%C2%B7+Onda;PLAY+%C2%B7+GracianB)](https://vortex-gilt-xi.vercel.app/)
+<a href="https://vortex-gilt-xi.vercel.app/"><img src="https://img.shields.io/badge/ABRIR_V%C3%93RTICE-7AF3FF?style=for-the-badge&labelColor=06070A" alt="Abrir Vórtice"/></a>
+<a href="https://gracianb.github.io/systems-lab/"><img src="https://img.shields.io/badge/02_LAB-7AF3FF?style=for-the-badge&labelColor=06070A" alt="Systems Lab"/></a>
+<a href="https://gracianb.github.io/project-ohana/"><img src="https://img.shields.io/badge/OHANA-F4F3EE?style=for-the-badge&labelColor=06070A" alt="Ohana"/></a>
+<a href="https://gracianb.github.io/GracianB/"><img src="https://img.shields.io/badge/HUB-C4A574?style=for-the-badge&labelColor=06070A" alt="Hub"/></a>
 
-# **VÓRTICE**
-
-### `WEBGL · PARTICLE FIELD · PLAY`
+<br/><br/>
 
 **No es una captura. Mueve el cursor.**
 
-Un campo visual interactivo donde miles de muestras responden al movimiento, la fuerza y el pulso.
-
-`MOVE` · `ATTRACT` · `PULSE` · `EXPLORE`
+Miles de muestras. Cuatro reglas. El puntero es la fuerza.
 
 <br/>
 
-[![🚀 ABRIR VÓRTICE](https://img.shields.io/badge/%F0%9F%9A%80_ABRIR_V%C3%93RTICE-7AF3FF?style=for-the-badge\&labelColor=06070A)](https://vortex-gilt-xi.vercel.app/)
-[![02 · SYSTEMS LAB](https://img.shields.io/badge/02-SYSTEMS_LAB-7AF3FF?style=for-the-badge\&labelColor=06070A)](https://gracianb.github.io/systems-lab/)
-[![00 · HUB](https://img.shields.io/badge/00-GRACIANB-C4A574?style=for-the-badge\&labelColor=06070A)](https://gracianb.github.io/GracianB/)
-[![01 · EXPERIENCE](https://img.shields.io/badge/01-EXPERIENCE-F4F3EE?style=for-the-badge\&labelColor=06070A)](https://gracianb.github.io/professional-deck/)
-[![03 · YOGA](https://img.shields.io/badge/03-YOGA-7DCAA5?style=for-the-badge\&labelColor=06070A)](https://gracianb.github.io/yoga-instructor/)
-
-<br/><br/>
-
-<img src="https://img.shields.io/badge/LIVE-WEBGL-7AF3FF?style=flat-square&labelColor=06070A"/>
-<img src="https://img.shields.io/badge/ENGINE-PARTICLE_FIELD-7AF3FF?style=flat-square&labelColor=06070A"/>
-<img src="https://img.shields.io/badge/MODES-4-F4F3EE?style=flat-square&labelColor=06070A"/>
-<img src="https://img.shields.io/badge/PALETTES-5-C4A574?style=flat-square&labelColor=06070A"/>
-<img src="https://img.shields.io/badge/BACKEND-NONE-F4F3EE?style=flat-square&labelColor=06070A"/>
-<img src="https://img.shields.io/badge/VERCEL-LIVE-F4F3EE?style=flat-square&labelColor=06070A"/>
+[Español](#español) · [English](#english)
 
 </div>
 
 ---
+
+## Lo que hace
+
+```mermaid
+%%{init: {'theme':'dark'}}%%
+flowchart LR
+  U[Cursor] --> P[Posición]
+  P --> F[Fuerza]
+  F --> C[Campo]
+  C --> V[Vórtice]
+  C --> L[Flujo]
+  C --> O[Órbita]
+  C --> W[Onda]
+  V --> R[WebGL]
+  L --> R
+  O --> R
+  W --> R
+```
 
 <div align="center">
 
-# `MUEVE EL CURSOR.`
-
-### **[🌀 ABRIR VÓRTICE →](https://vortex-gilt-xi.vercel.app/)**
-
-`LIVE · WEBGL · INTERACTIVE · BROWSER`
-
-<br/>
-
-**El cursor es la fuerza.**
-
-**El campo responde.**
-
-**Tú decides qué ocurre.**
+### [Abrir Vórtice](https://vortex-gilt-xi.vercel.app/)
 
 </div>
 
 ---
 
-# 01 · WHAT IS VÓRTICE?
+<a id="español"></a>
 
-**Vórtice** es un experimento visual interactivo del mundo **PLAY** de GracianB.
+## Español
 
-Miles de muestras forman un campo dinámico que responde al usuario en tiempo real.
+Vórtice es un campo de partículas en WebGL, del mundo Play de [GracianB](https://gracianb.github.io/GracianB/). No hay un vídeo que se reproduzca. Hay una regla, muchas muestras, y el cursor.
 
-No hay una secuencia prefijada.
+La entrada es mínima. La respuesta no. Atraes, pulsas, dejas estela, cambias la regla, la paleta, el fondo, la densidad y la energía. No hay una configuración correcta. Hay una que te gusta.
 
-No hay una animación que simplemente reproduzca un vídeo.
+### Cuatro campos
 
-Hay un sistema:
+La misma simulación, cuatro comportamientos. Se cambian con `1` `2` `3` `4` o desde el panel.
 
-```text id="vortex-system"
-USER
-  ↓
-POINTER
-  ↓
-FORCE
-  ↓
-PARTICLE FIELD
-  ↓
-MOTION
-  ↓
-TRAIL
-  ↓
-VISUAL RESPONSE
-```
+| Tecla | Campo | Qué hace |
+| --- | --- | --- |
+| `1` | Vórtice | Las muestras giran hacia el puntero |
+| `2` | Flujo | Siguen una corriente |
+| `3` | Órbita | Rodean el centro, en dos radios |
+| `4` | Onda | El campo responde como un pulso |
 
-La interacción es la interfaz.
+### Mandos
 
----
+| | |
+| --- | --- |
+| Puntero | El campo sigue al cursor |
+| Clic y mantener | Fuerza local. Si arrastras, la fuerza se mueve y deja estela |
+| `Espacio` | Pulso de todo el campo |
+| `F` | Pantalla completa |
+| `C` | Limpia las estelas |
+| `R` | Reinicia las muestras |
+| `S` | Guarda un PNG |
 
-# 02 · THE IDEA
+En el panel: cantidad de muestras, energía, estela, paleta y fondo.
 
-La premisa de Vórtice es deliberadamente mínima:
+### Color
 
-> **Mueve el cursor.**
+Seis paletas, no cinco: Espectro, Aurora, Brasa, Hielo, Plata y Solar. Hielo es el acento de Play, `#7AF3FF`, sobre `#06070A`.
 
-A partir de ahí aparece el sistema.
+Seis fondos: Vacío, Tinta, Abismo, Pizarra, Niebla y Papel. Papel es el claro.
 
-El usuario puede:
+Unas combinaciones para empezar, no para obedecer:
 
-* atraer muestras
-* modificar el campo
-* generar pulsos
-* crear anillos
-* alterar la trayectoria
-* cambiar el comportamiento
-* cambiar la paleta
-* cambiar el fondo
-* controlar la densidad
-* controlar la energía
-* experimentar con las estelas
+| | | |
+| --- | --- | --- |
+| Vórtice | Hielo | Vacío |
+| Flujo | Aurora | Niebla |
+| Órbita | Plata | Abismo |
+| Onda | Brasa | Pizarra |
 
-La complejidad está detrás de una interacción sencilla.
+### Por qué WebGL
 
-```text
-SIMPLE INPUT
-     ↓
-COMPLEX RESPONSE
-```
+Miles de puntos, cada frame, con estela. Una regla pequeña, repetida, se ve como un campo vivo. Más muestras tienen que sentirse como más atmósfera, no como más espera. Por eso la densidad se puede bajar.
 
----
+El audio de la pieza, Sustained Focus, suena en el propio sitio. También está en [Suno](https://suno.com/s/Zq81WeM02AVZnhuC).
 
-# 03 · THE FIELD
+### Dónde vive
 
-El campo está compuesto por una gran cantidad de muestras visuales que se comportan como un sistema dinámico.
+Ohana es el juego: estado, salas, evolución. Vórtice es el campo: rendering, movimiento, densidad. Los dos hacen lo mismo desde lados distintos. Una regla se convierte en experiencia.
 
-```text
-             ·      ·
-       ·                 ·
-    ·         ↘   ↓        ·
-          →     ◎     ←
-    ·         ↗   ↑        ·
-       ·                 ·
-             ·      ·
-```
+| | |
+| --- | --- |
+| Lab | [Systems Lab](https://gracianb.github.io/systems-lab/) |
+| Juego | [Ohana](https://gracianb.github.io/project-ohana/) |
+| Hub | [GracianB](https://gracianb.github.io/GracianB/) |
+| Deck | [Professional Deck](https://gracianb.github.io/professional-deck/) |
+| Yoga | [Yoga](https://gracianb.github.io/yoga-instructor/) |
 
-El punto de interacción funciona como una zona de influencia.
+La experiencia que se abre no pide cuenta. El campo corre en el navegador.
 
-Cuando el usuario mueve el cursor:
-
-```text
-POSITION
-   +
-DISTANCE
-   +
-FORCE
-   +
-FIELD MODE
-   +
-ENERGY
-   ↓
-PARTICLE RESPONSE
-```
-
-El resultado es un campo que parece vivo.
-
-No porque tenga que serlo.
-
-Porque responde.
-
----
-
-# 04 · FOUR FIELDS
-
-Vórtice no tiene una única dinámica.
-
-Tiene **cuatro comportamientos**.
-
-| Mode           | Behaviour                           | Interaction                |
-| :------------- | :---------------------------------- | :------------------------- |
-| 🌀 **Vórtice** | Las muestras giran hacia el puntero | Click → anillo             |
-| 🌊 **Flujo**   | Las muestras siguen una corriente   | Click → cinta              |
-| ◉ **Órbita**   | Las muestras rodean el centro       | Click → doble anillo       |
-| ∿ **Onda**     | El campo responde como un pulso     | Click → círculo respirando |
-
-### `1 → 4`
-
-```text
-1  VÓRTICE
-2  FLUJO
-3  ÓRBITA
-4  ONDA
-```
-
-Cuatro reglas.
-
-Cuatro sensaciones.
-
-Un mismo sistema.
-
----
-
-# 05 · INTERACTION MODEL
-
-### Pointer
-
-El puntero modifica el campo.
-
-```text
-POINTER
-   ↓
-POSITION
-   ↓
-INFLUENCE
-   ↓
-FIELD
-```
-
-### Click / Hold
-
-Mantener pulsado crea una interacción más intensa.
-
-```text
-CLICK
-  ↓
-LOCAL FORCE
-  ↓
-RING
-  ↓
-PARTICLES RESPOND
-```
-
-### Space
-
-Genera un pulso global.
-
-```text
-SPACE
-  ↓
-GLOBAL PULSE
-  ↓
-FIELD RESPONSE
-```
-
-### Drag
-
-El punto de interacción puede desplazarse mientras mantiene la fuerza.
-
-```text
-HOLD
-  +
-MOVE
-  ↓
-MOVING FORCE
-  ↓
-TRAIL
-```
-
----
-
-# 06 · CONTROLS
-
-|       Input      | Action                    |
-| :--------------: | :------------------------ |
-|    **Pointer**   | El campo sigue al cursor  |
-| **Click / Hold** | Crea y arrastra un anillo |
-|      `SPACE`     | Pulso                     |
-|        `1`       | Vórtice                   |
-|        `2`       | Flujo                     |
-|        `3`       | Órbita                    |
-|        `4`       | Onda                      |
-|        `F`       | Pantalla completa         |
-|        `C`       | Limpia estelas            |
-|        `R`       | Reinicia                  |
-|        `S`       | Captura PNG               |
-
-### Control panel
-
-También puedes modificar:
-
-```text
-SAMPLES
-ENERGY
-TRAIL
-PALETTE
-BACKGROUND
-```
-
-La idea no es encontrar una configuración correcta.
-
-Es encontrar una que te guste.
-
----
-
-# 07 · VISUAL SYSTEM
-
-## Palettes
-
-| Palette      | Character                 |
-| :----------- | :------------------------ |
-| **Espectro** | Máxima variedad cromática |
-| **Aurora**   | Flujo frío / atmosférico  |
-| **Brasa**    | Calor / energía           |
-| **Hielo**    | Ice neon / PLAY           |
-| **Plata**    | Monocromo / minimal       |
-
-## Backgrounds
-
-| Background  | Character         |
-| :---------- | :---------------- |
-| **Vacío**   | Dark space        |
-| **Tinta**   | Deep black        |
-| **Abismo**  | Dense / immersive |
-| **Pizarra** | Neutral           |
-| **Niebla**  | Soft              |
-| **Papel**   | Light mode        |
-
----
-
-# 08 · VISUAL LANGUAGE
-
-Vórtice forma parte del lenguaje visual **PLAY**.
-
-```text
-GRACIANB
-   │
-   └── SYSTEMS LAB
-          │
-          └── PLAY
-               │
-               ├── PROJECT OHANA
-               │
-               └── VÓRTICE
-```
-
-### Core visual tokens
-
-| Token     | Role              |
-| :-------- | :---------------- |
-| `#7AF3FF` | Ice / interaction |
-| `#06070A` | Deep background   |
-| `#102A43` | Field depth       |
-| `#C4A574` | Hub bridge        |
-| `#F4F3EE` | Contrast          |
-
-Vórtice utiliza el **ice neon** como acento porque representa la frecuencia técnica del mundo PLAY.
-
----
-
-# 09 · FROM CURSOR TO FIELD
-
-Conceptualmente, la interacción puede entenderse así:
-
-```text
-┌─────────────────────┐
-│       USER          │
-│                     │
-│       CURSOR        │
-└──────────┬──────────┘
-           ↓
-┌─────────────────────┐
-│      POSITION       │
-│                     │
-│ X · Y · DISTANCE    │
-└──────────┬──────────┘
-           ↓
-┌─────────────────────┐
-│        FORCE        │
-│                     │
-│ attraction / pulse  │
-└──────────┬──────────┘
-           ↓
-┌─────────────────────┐
-│    PARTICLE FIELD   │
-│                     │
-│ motion · orbit      │
-│ flow · wave         │
-└──────────┬──────────┘
-           ↓
-┌─────────────────────┐
-│       RENDER        │
-│                     │
-│ particles · trails  │
-│ rings · background  │
-└─────────────────────┘
-```
-
-El usuario no necesita conocer nada de esto.
-
-Solo necesita mover el ratón.
-
----
-
-# 10 · WHY WEBGL?
-
-Porque un campo visual con miles de muestras necesita una capa de rendering adecuada para este tipo de experiencia.
-
-La idea del experimento es explorar:
-
-**rendering · motion · interaction · density · visual feedback**
-
-y observar cómo pequeñas variaciones en las reglas producen comportamientos visuales completamente diferentes.
-
-```text
-RULE
- ↓
-MANY SAMPLES
- ↓
-EMERGENT MOTION
- ↓
-VISUAL EXPERIENCE
-```
-
-Ese es el experimento.
-
----
-
-# 11 · TECHNICAL CONCEPT
-
-```text
-┌─────────────────────────────────────────┐
-│              VÓRTICE                    │
-├─────────────────────────────────────────┤
-│                                         │
-│  INPUT                                  │
-│  Pointer · Keyboard · Click             │
-│                ↓                        │
-│  INTERACTION                            │
-│  Position · Force · Pulse               │
-│                ↓                        │
-│  FIELD                                  │
-│  Vortex · Flow · Orbit · Wave           │
-│                ↓                        │
-│  PARAMETERS                             │
-│  Samples · Energy · Trail               │
-│                ↓                        │
-│  RENDER                                 │
-│  WebGL · Particles · Trails             │
-│                ↓                        │
-│  OUTPUT                                 │
-│  Interactive visual field               │
-│                                         │
-└─────────────────────────────────────────┘
-```
-
-No necesita backend para existir.
-
-La experiencia ocurre directamente en el navegador.
-
----
-
-# 12 · PERFORMANCE PHILOSOPHY
-
-La regla del proyecto:
-
-> **More particles should mean more atmosphere, not more waiting.**
-
-El sistema permite ajustar la cantidad de muestras y la energía del campo para explorar diferentes niveles de densidad.
-
-```text
-LOW DENSITY
-     ↓
-MORE SPACE
-     ↓
-MEDIUM DENSITY
-     ↓
-MORE STRUCTURE
-     ↓
-HIGH DENSITY
-     ↓
-MORE ATMOSPHERE
-```
-
-El objetivo no es simplemente dibujar más.
-
-Es encontrar el punto donde:
-
-**cantidad + movimiento + respuesta = experiencia**
-
----
-
-# 13 · AUDIO
-
-El experimento utiliza como referencia de práctica:
-
-**Sustained Focus · Suno**
-
-[**Escuchar →**](https://suno.com/s/Zq81WeM02AVZnhuC)
-
-El pulso conecta Vórtice con el universo visual y sensorial de `yoga-instructor`.
-
-La relación no es accidental:
-
-```text
-YOGA
-  ↓
-BREATH
-  ↓
-RHYTHM
-  ↓
-MOVEMENT
-  ↓
-VÓRTICE
-```
-
-Un sistema visual también puede tener ritmo.
-
----
-
-# 14 · PLAYGROUND
-
-Vórtice no está pensado para tener una única forma correcta de utilizarse.
-
-Prueba combinaciones:
-
-```text
-VÓRTICE + HIELO + VACÍO
-```
-
-```text
-FLUJO + AURORA + NIEBLA
-```
-
-```text
-ÓRBITA + PLATA + ABISMO
-```
-
-```text
-ONDA + BRASA + PIZARRA
-```
-
-Cada combinación cambia la sensación del sistema.
-
-La herramienta deja de ser solamente una demo.
-
-Se convierte en un pequeño **instrumento visual**.
-
----
-
-# 15 · BUILD LOOP
-
-```text
-IDEA
- ↓
-FIELD
- ↓
-RULE
- ↓
-INTERACTION
- ↓
-VISUAL RESPONSE
- ↓
-PLAYTEST
- ↓
-TUNE
- ↓
-SHIP
-```
-
-El proyecto existe para experimentar.
-
-No para fingir que el primer resultado fue perfecto.
-
----
-
-# 16 · PROJECT STATUS
-
-| Component           |  Status |
-| :------------------ | :-----: |
-| WebGL field         | 🟢 LIVE |
-| Pointer interaction | 🟢 LIVE |
-| Click / hold        | 🟢 LIVE |
-| Four field modes    | 🟢 LIVE |
-| Particle controls   | 🟢 LIVE |
-| Trails              | 🟢 LIVE |
-| Palettes            | 🟢 LIVE |
-| Backgrounds         | 🟢 LIVE |
-| Fullscreen          | 🟢 LIVE |
-| PNG capture         | 🟢 LIVE |
-| Browser deployment  | 🟢 LIVE |
-| Backend             |  ⚪ NONE |
-
-### Current status
-
-# `LIVE`
-
-**Open the browser. Move the cursor.**
-
----
-
-# 17 · ECOSYSTEM
-
-```text
-                              GRACIANB
-                                 HUB
-                                  │
-              ┌───────────────────┼───────────────────┐
-              │                   │                   │
-              ▼                   ▼                   ▼
-        EXPERIENCE              PLAY                YOGA
-     professional-deck      systems-lab       yoga-instructor
-                                  │
-                         ┌────────┴────────┐
-                         │                 │
-                         ▼                 ▼
-                       OHANA            VÓRTICE
-                         │                 │
-                    Canvas 2D          WebGL
-                         │                 │
-                         └────────┬────────┘
-                                  ▼
-                           PLAY · TÉCNICA
-```
-
-### Three worlds
-
-| World               | Focus                                       |
-| :------------------ | :------------------------------------------ |
-| **01 · Experience** | Customer Success · Data · AI                |
-| **02 · Play**       | Development · AI · Automation · Experiments |
-| **03 · Yoga**       | Presence · Breath · Movement                |
-
-Vórtice vive en el segundo.
-
----
-
-# 18 · WHY IT BELONGS IN SYSTEMS LAB
-
-Project Ohana explora:
-
-**game systems · state · interaction · progression**
-
-Vórtice explora:
-
-**rendering · motion · fields · visual interaction**
-
-Los dos hacen lo mismo desde ángulos distintos:
-
-> **Convertir reglas en experiencia.**
-
-```text
-OHANA
-SYSTEMS
-  ↓
-GAME
-  ↓
-EXPERIENCE
-```
-
-```text
-VÓRTICE
-SYSTEMS
-  ↓
-FIELD
-  ↓
-EXPERIENCE
-```
-
-El medio cambia.
-
-La lógica permanece.
-
----
-
-# 19 · REPOSITORY
-
-```text
-vortex/
-│
-├── frontend/
-├── public/
-├── src/
-├── package.json
-└── ...
-```
-
-La estructura exacta puede evolucionar con el proyecto.
-
-La regla importante permanece:
-
-```text
-CODE
- ↓
-SYSTEM
- ↓
-BROWSER
- ↓
-INTERACTION
-```
-
----
-
-# 20 · LOCAL DEVELOPMENT
-
-### Requirements
-
-**Node.js 22+**
-
-Clone:
+Para verlo en local:
 
 ```bash
 git clone https://github.com/GracianB/vortex.git
-```
-
-Enter:
-
-```bash
 cd vortex
-```
-
-Install:
-
-```bash
 npm install
-```
-
-Run:
-
-```bash
 npm run dev
 ```
 
-Then open:
+Abre [http://localhost:8080](http://localhost:8080). Hace falta Node. `npm run dev` levanta Vite en el puerto 8080.
 
-```text
-http://localhost:8080
-```
-
-### Deployment
-
-```text
-git push
-   ↓
-main
-   ↓
-Vercel
-   ↓
-LIVE
-```
+El despliegue live es Vercel: [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi.vercel.app/).
 
 ---
 
-# 21 · LIVE
+<a id="english"></a>
+
+## English
+
+Vórtice is a WebGL particle field. Not a video. A rule, many samples, and the cursor.
+
+Four behaviours, keys `1` to `4`: vortex (samples turn toward the pointer), flow (a current), orbit (two radii around the centre), wave (the field answers like a pulse).
+
+Pointer follows. Click and hold is a local force; drag it and it leaves a trail. Space is a global pulse. `F` fullscreen, `C` clears trails, `R` resets, `S` saves a PNG.
+
+Six palettes: Spectrum, Aurora, Ember, Ice, Silver, Solar. Six backgrounds: Void, Ink, Abyss, Slate, Fog, Paper.
+
+The open experience asks for no account. The field runs in the browser. Locally: Node, `npm install`, `npm run dev`, port 8080.
+
+It sits next to [Ohana](https://gracianb.github.io/project-ohana/) in [Play](https://gracianb.github.io/systems-lab/). Ohana is the game. Vórtice is the field. Same idea: a rule becomes an experience.
+
+[Open it](https://vortex-gilt-xi.vercel.app/).
+
+---
 
 <div align="center">
 
-## 🌀 **THE BEST DOCUMENTATION IS THE EXPERIENCE**
-
-### [**OPEN VÓRTICE →**](https://vortex-gilt-xi.vercel.app/)
-
-<br/>
-
-`MOVE`
-
-↓
-
-`ATTRACT`
-
-↓
-
-`PULSE`
-
-↓
-
-`EXPLORE`
-
-</div>
-
----
-
-# 22 · NAVIGATION
-
-<div align="center">
-
-### `00` · HUB
-
-**People × Data × Systems**
-
-[**OPEN GRACIANB →**](https://gracianb.github.io/GracianB/)
-
----
-
-### `01` · EXPERIENCE
-
-**Customer Success × Data × AI**
-
-[**OPEN PROFESSIONAL DECK →**](https://gracianb.github.io/professional-deck/)
-
----
-
-### `02` · PLAY
-
-**AI × Automation × Development**
-
-[**OPEN SYSTEMS LAB →**](https://gracianb.github.io/systems-lab/)
-
----
-
-### `03` · YOGA
-
-**Presence × Breath × Movement**
-
-[**OPEN YOGA →**](https://gracianb.github.io/yoga-instructor/)
-
-</div>
-
----
-
-# 23 · CONTACT
-
-<div align="center">
-
-[![Agenda](https://img.shields.io/badge/AGENDA-30_MIN-F4F3EE?style=for-the-badge\&labelColor=06070A)](https://calendar.app.google/n99psBFktwYyoAWi9)
-
-[![Email](https://img.shields.io/badge/EMAIL-GMAIL-EA4335?style=for-the-badge\&labelColor=06070A\&logo=gmail\&logoColor=white)](mailto:gracianbaenagonzalez@gmail.com)
-
-[![LinkedIn](https://img.shields.io/badge/LINKEDIN-GRACIANBAENA-0A66C2?style=for-the-badge\&labelColor=06070A\&logo=linkedin\&logoColor=white)](https://www.linkedin.com/in/gracianbaena)
-
-[![GitHub](https://img.shields.io/badge/GITHUB-GRACIANB-F4F3EE?style=for-the-badge\&labelColor=06070A\&logo=github)](https://github.com/GracianB)
+<a href="https://calendar.app.google/n99psBFktwYyoAWi9"><img src="https://img.shields.io/badge/30_min-F4F3EE?style=for-the-badge&labelColor=06070A" alt="Reservar 30 minutos"/></a>
+<a href="mailto:gracianbaenagonzalez@gmail.com"><img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white&labelColor=06070A" alt="Email"/></a>
+<a href="https://www.linkedin.com/in/gracianbaena"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=06070A" alt="LinkedIn"/></a>
 
 <br/><br/>
 
-`PLAY · TECHNIQUE · INTERACTION`
+[Vórtice](https://vortex-gilt-xi.vercel.app/) · [Lab](https://gracianb.github.io/systems-lab/) · [Ohana](https://gracianb.github.io/project-ohana/) · [Hub](https://gracianb.github.io/GracianB/)
 
 <br/>
 
-**PEOPLE × DATA × SYSTEMS**
-
-<sub>Murcia · Spain · 2026 · Gracián Baena · vortex</sub>
-
-</div>
-
----
-
-# 24 · LEGAL
-
-**MIT © 2026 Gracián Baena**
-
-Campo visual, interfaz y código desarrollados como parte del proyecto Vórtice.
-
-Sin backend en la experiencia live.
-
-Sin dependencia de una captura o vídeo para representar la interacción.
-
-**El campo ocurre en el navegador.**
-
----
-
-<div align="center">
-
 <a href="https://vortex-gilt-xi.vercel.app/">
-
-<img src="https://capsule-render.vercel.app/api?type=waving&height=140&section=footer&color=0:7AF3FF,35:102A43,70:0B1720,100:06070A" width="100%"/>
-
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=110&section=footer&reversal=true&color=0:7AF3FF,40:102A43,100:06070A&text=MUEVE%20EL%20CURSOR&fontColor=F4F3EE&fontSize=22&fontAlignY=64&animation=fadeIn" width="100%" alt="Mueve el cursor."/>
 </a>
 
-### `VÓRTICE`
-
-**Mueve el cursor.**
-
-**El sistema responde.**
-
-<sub>PLAY × GracianB · 2026</sub>
+<sub>Murcia · 2026</sub>
 
 </div>
