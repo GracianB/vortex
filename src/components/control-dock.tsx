@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
+  buildSceneUrl,
   COUNT_MAX,
   COUNT_MIN,
   COUNT_STEP,
@@ -29,6 +30,7 @@ import {
   useLive,
   useSettings,
   type FieldBgId,
+  type SettingsSnapshot,
 } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 import { AmbientToggle, AmbientVolume } from "@/components/ambient-audio";
@@ -68,8 +70,26 @@ export function ControlDock({ canvas }: Props) {
   const paletteLabel = PALETTES.find((p) => p.id === palette)?.label ?? "";
 
   const share = async () => {
-    const url = "https://vortex-gilt-xi.vercel.app/";
-    const data = { title: "Vórtice", text: "Mueve el cursor. Eso es todo. Campo WebGL de GracianB.", url };
+    const state = useSettings.getState();
+    const snapshot: SettingsSnapshot = {
+      count: state.count,
+      force: state.force,
+      trail: state.trail,
+      palette: state.palette,
+      mode: state.mode,
+      bg: state.bg,
+      customBg: state.customBg,
+    };
+    const base =
+      typeof window !== "undefined"
+        ? window.location.href
+        : "https://vortex-gilt-xi.vercel.app/";
+    const url = buildSceneUrl(base, snapshot);
+    const data = {
+      title: "Vórtice",
+      text: `Vórtice · ${modeLabel} · ${paletteLabel || "WebGL"}`,
+      url,
+    };
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share(data);
@@ -211,8 +231,9 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="secondary"
             size="icon"
-            aria-label="Compartir Vórtice"
-            title="Compartir"
+            aria-label="Compartir esta escena de Vórtice"
+            title="Compartir esta escena"
+            data-testid="btn-share"
             onClick={share}
           >
             <Share2 />
@@ -221,6 +242,7 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="secondary"
             size="icon"
+            className="max-sm:hidden"
             aria-label="Borrar estelas"
             title="Borrar estelas (C)"
             data-testid="btn-clear"
@@ -232,6 +254,7 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="secondary"
             size="icon"
+            className="max-sm:hidden"
             aria-label="Reiniciar campo"
             title="Reiniciar (R)"
             data-testid="btn-reset"
@@ -254,6 +277,7 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="secondary"
             size="icon"
+            className="max-sm:hidden"
             aria-label="Pantalla completa"
             title="Pantalla completa (F)"
             onClick={() => {
@@ -271,7 +295,7 @@ export function ControlDock({ canvas }: Props) {
 
       {saved || shared ? (
         <div className="pointer-events-none fixed inset-0 z-30 grid place-items-center">
-          <p className="rounded-xl border border-[color-mix(in_srgb,#7af3ff_40%,transparent)] bg-card/95 px-6 py-3.5 text-sm font-medium text-foreground shadow-[0_0_40px_rgba(122,243,255,0.3)]">
+          <p role="status" aria-live="polite" className="rounded-xl border border-[color-mix(in_srgb,#7af3ff_40%,transparent)] bg-card/95 px-6 py-3.5 text-sm font-medium text-foreground shadow-[0_0_40px_rgba(122,243,255,0.3)]">
             {saved ? "Captura lista ✓" : "Enlace copiado ✓"}
           </p>
         </div>
@@ -385,6 +409,42 @@ export function ControlDock({ canvas }: Props) {
 
           <AmbientVolume />
 
+          <div className="mt-3 grid grid-cols-3 gap-2 sm:hidden">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => canvas.current?.clearTrails()}
+            >
+              <Eraser />
+              Borrar
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => canvas.current?.resetParticles()}
+            >
+              <RotateCcw />
+              Reiniciar
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                if (!document.fullscreenElement) {
+                  void document.documentElement.requestFullscreen?.();
+                } else {
+                  void document.exitFullscreen?.();
+                }
+              }}
+            >
+              <Maximize />
+              Pantalla
+            </Button>
+          </div>
+
           <div
             id="vortex-controls"
             className={cn(open ? "max-sm:block" : "max-sm:hidden")}
@@ -468,6 +528,19 @@ export function ControlDock({ canvas }: Props) {
                   />
                 </label>
               </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
+              <p className="max-w-[11rem] text-[10px] leading-relaxed text-muted-foreground">
+                Ajustes locales. Sin cuenta, tracking ni publicidad.
+              </p>
+              <button
+                type="button"
+                onClick={() => useSettings.getState().restoreDefaults()}
+                className="shrink-0 rounded-md px-2 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              >
+                Restaurar
+              </button>
             </div>
           </div>
         </div>
