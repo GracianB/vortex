@@ -702,6 +702,14 @@ export function createEngine(
     pointer.vx = 0;
     pointer.vy = 0;
   };
+  const onVisibility = () => {
+    onBlur();
+    if (!running) return;
+    window.cancelAnimationFrame(raf);
+    if (document.hidden) return;
+    lastT = 0;
+    raf = window.requestAnimationFrame(frame);
+  };
   const onWinResize = () => resize();
   const ro = new ResizeObserver(() => resize());
 
@@ -719,7 +727,7 @@ export function createEngine(
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onCancel);
       window.addEventListener("blur", onBlur);
-      document.addEventListener("visibilitychange", onBlur);
+      document.addEventListener("visibilitychange", onVisibility);
       lastT = 0;
       raf = window.requestAnimationFrame(frame);
     },
@@ -734,7 +742,7 @@ export function createEngine(
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onCancel);
       window.removeEventListener("blur", onBlur);
-      document.removeEventListener("visibilitychange", onBlur);
+      document.removeEventListener("visibilitychange", onVisibility);
       destroyTarget(gl, ping);
       destroyTarget(gl, pong);
       ping = null;
