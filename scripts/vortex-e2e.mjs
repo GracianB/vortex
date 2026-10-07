@@ -92,6 +92,7 @@ async function runDesktop(browser) {
     { waitUntil: "domcontentloaded" },
   );
   await assertCleanPage(page, errors);
+  await page.getByText("45%", { exact: true }).waitFor();
 
   const initial = await page.evaluate(() => ({
     mode: window.__vortex?.mode(),
@@ -147,6 +148,7 @@ async function runMobile(browser) {
   const errors = watchErrors(page);
   await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
   await assertCleanPage(page, errors);
+  await page.locator(".vortex-intro").waitFor({ state: "detached", timeout: 5_000 });
 
   const hiddenDesktopActions = await page
     .locator('[data-testid="btn-clear"]')
@@ -183,6 +185,11 @@ async function runNarrowMobile(browser) {
     });
   });
   assert.equal(clipped, false, "interactive chrome must stay inside a 320px viewport");
+  await page.locator(".vortex-intro").waitFor({ state: "detached", timeout: 5_000 });
+  await page.screenshot({
+    path: `${artifactsDir}/mobile-320.png`,
+    fullPage: false,
+  });
   await context.close();
 }
 
