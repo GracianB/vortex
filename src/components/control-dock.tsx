@@ -125,16 +125,18 @@ export function ControlDock({ canvas }: Props) {
       force: scene.force,
       trail: scene.trail,
     });
-    window.dispatchEvent(
-      new CustomEvent("vortex:scene", {
-        detail: {
-          code: scene.code,
-          label: scene.label,
-          note: scene.note,
-        },
-      }),
-    );
-    window.setTimeout(() => canvas.current?.pulse(), 40);
+    window.setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent("vortex:scene", {
+          detail: {
+            code: scene.code,
+            label: scene.label,
+            note: scene.note,
+          },
+        }),
+      );
+      canvas.current?.pulse();
+    }, 40);
   };
 
   useEffect(() => {
