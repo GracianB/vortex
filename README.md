@@ -33,9 +33,9 @@ Miles de muestras. Cuatro campos. Seis paletas. Presets, audio, captura y respue
 
 Vórtice convierte una regla matemática mínima en una experiencia manipulable. El cursor no navega por la obra: forma parte de ella. Cada gesto modifica un campo WebGL que puede explorarse, parametrizarse, capturarse y compartirse.
 
-**Stack:** React 19 · TypeScript · TanStack · WebGL · Zustand · Vite 8 · PWA
+**Stack:** React 19 · TypeScript · TanStack · WebGL · Zustand · Vite 8
 
-**Contrato de calidad:** TypeScript + ESLint + tests + invariantes + build reproducible en CI.
+**Contrato de calidad:** TypeScript estricto + ESLint sin warnings + tests unitarios + build reproducible + E2E real en Chromium + auditoría de dependencias de producción.
 
 ### Lo que demuestra
 
@@ -44,7 +44,10 @@ Vórtice convierte una regla matemática mínima en una experiencia manipulable.
 - interacción por puntero, teclado y controles táctiles;
 - accesibilidad con reduced-motion y semántica de controles;
 - captura PNG, fullscreen, audio ambiental y modo embed;
-- diseño responsive y degradación controlada cuando WebGL no está disponible.
+- escenas reproducibles mediante URL: comparte el estado exacto del campo;
+- modo lienzo inmersivo con `H`, sin chrome alrededor de la pieza;
+- pausa del renderer en pestañas ocultas y recuperación de contexto WebGL;
+- diseño responsive, mobile-first y degradación controlada cuando WebGL no está disponible.
 
 ## Lo que hace
 
@@ -102,8 +105,10 @@ La misma simulación, cuatro comportamientos. Se cambian con `1` `2` `3` `4` o d
 | `C` | Limpia las estelas |
 | `R` | Reinicia las muestras |
 | `S` | Guarda un PNG |
+| `M` | Activa o silencia el audio |
+| `H` | Oculta/muestra toda la interfaz y deja solo el lienzo |
 
-En el panel: cantidad de muestras, energía, estela, paleta y fondo.
+En el panel: cantidad de muestras, energía, estela, paleta y fondo. **Compartir** genera una URL que conserva la escena exacta, para que otra persona abra el mismo campo, paleta, densidad, energía y estela.
 
 ### Color
 
@@ -145,11 +150,20 @@ Para verlo en local:
 ```bash
 git clone https://github.com/GracianB/vortex.git
 cd vortex
-npm install
+npm ci
 npm run dev
 ```
 
-Abre [http://localhost:8080](http://localhost:8080). Hace falta Node. `npm run dev` levanta Vite en el puerto 8080.
+Abre [http://localhost:8080](http://localhost:8080). Hace falta Node 24. `npm run dev` levanta Vite en el puerto 8080.
+
+Contrato local de release:
+
+```bash
+npm run quality
+npm run test:browser
+```
+
+`quality` exige tipos, lint sin warnings, tests y build. El E2E levanta la aplicación real y valida desktop, móvil, reduced-motion, navegación por teclado, escenas compartibles, overflow y consola limpia.
 
 El despliegue live es Vercel: [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi.vercel.app/).
 
@@ -161,17 +175,17 @@ El despliegue live es Vercel: [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi
 
 ### V5 · Interactive visual instrument
 
-Vórtice turns a minimal mathematical rule into a manipulable real-time experience. The pointer is not navigation: it is part of the field. Built with React 19, TypeScript, TanStack, WebGL, Zustand and Vite, with automated quality gates for type safety, linting, tests, invariants and production build.
+Vórtice turns a minimal mathematical rule into a manipulable real-time experience. The pointer is not navigation: it is part of the field. Built with React 19, TypeScript, TanStack, WebGL, Zustand and Vite, with automated gates for strict type safety, zero-warning linting, unit tests, production build, dependency audit and real Chromium E2E.
 
 Vórtice is a WebGL particle field. Not a video. A rule, many samples, and the cursor.
 
 Four behaviours, keys `1` to `4`: vortex (samples turn toward the pointer), flow (a current), orbit (two radii around the centre), wave (the field answers like a pulse).
 
-Pointer follows. Click and hold is a local force; drag it and it leaves a trail. Space is a global pulse. `F` fullscreen, `C` clears trails, `R` resets, `S` saves a PNG.
+Pointer follows. Click and hold is a local force; drag it and it leaves a trail. Space is a global pulse. `F` fullscreen, `C` clears trails, `R` resets, `S` saves a PNG, `M` toggles audio, and `H` switches to an immersive canvas-only mode.
 
 Six palettes: Spectrum, Aurora, Ember, Ice, Silver, Solar. Six backgrounds: Void, Ink, Abyss, Slate, Fog, Paper.
 
-The open experience asks for no account. The field runs in the browser. Locally: Node, `npm install`, `npm run dev`, port 8080.
+The open experience asks for no account. The field runs in the browser. Scenes can be shared as URLs that preserve their exact visual state. Locally: Node 24, `npm ci`, `npm run dev`, port 8080.
 
 It sits next to [Ohana](https://gracianb.github.io/project-ohana/) in [Play](https://gracianb.github.io/systems-lab/). Ohana is the game. Vórtice is the field. Same idea: a rule becomes an experience.
 
