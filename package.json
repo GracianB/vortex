@@ -18,7 +18,10 @@
     "check:auth": "node scripts/check-auth-invariant.mjs",
     "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/auth/gate-identity.test.ts",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "quality": "npm run typecheck && npm run lint && npm test && npm run check:auth && npm run build",
+    "test:browser": "node scripts/browser-smoke.mjs",
+    "quality:full": "npm run quality && npm run test:browser"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",
