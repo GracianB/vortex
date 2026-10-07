@@ -13,9 +13,10 @@
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "quality": "npm run typecheck && npm run lint && npm test && npm run build",
-    "test:browser": "node scripts/vortex-e2e.mjs",
-    "quality:full": "npm run quality && npm run test:browser"
+    "quality": "npm run typecheck && npm run lint && npm test && npm run build && npm run budget",
+    "test:browser": "npm run build && node scripts/vortex-e2e.mjs",
+    "quality:full": "npm run quality && npm run test:browser",
+    "budget": "node scripts/performance-budget.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slider": "^1.3.6",
