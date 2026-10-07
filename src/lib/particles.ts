@@ -5,6 +5,7 @@ import {
   resolveBg,
   useLive,
 } from "@/lib/settings";
+import { resolveRenderDpr } from "@/lib/render-quality";
 
 const CAPACITY = 20000;
 const MAX_DT = 0.05;
@@ -234,6 +235,7 @@ export function createEngine(
     throw new Error("Este navegador no admite WebGL");
   }
   const gl: WebGLRenderingContext = rawGl as WebGLRenderingContext;
+  const maxTextureSize = Number(gl.getParameter(gl.MAX_TEXTURE_SIZE)) || 4096;
 
   const x = new Float32Array(CAPACITY);
   const y = new Float32Array(CAPACITY);
@@ -365,9 +367,15 @@ export function createEngine(
     const vh = window.visualViewport?.height ?? window.innerHeight;
     cssW = Math.max(rect.width, vw, 2);
     cssH = Math.max(rect.height, vh, 2);
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(cssW * dpr);
-    canvas.height = Math.floor(cssH * dpr);
+    dpr = resolveRenderDpr({
+      width: cssW,
+      height: cssH,
+      deviceDpr: window.devicePixelRatio || 1,
+      maxTextureSize,
+    });
+    canvas.width = Math.max(1, Math.floor(cssW * dpr));
+    canvas.height = Math.max(1, Math.floor(cssH * dpr));
+    useLive.getState().setLive({ renderDpr: dpr });
     gl.viewport(0, 0, canvas.width, canvas.height);
     if (!pointer.seen) {
       pointer.x = cssW * 0.5;
