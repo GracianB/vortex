@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ParticleCanvas, type ParticleCanvasHandle } from "@/components/particle-canvas";
 import { ControlDock } from "@/components/control-dock";
 import { AmbientEngine } from "@/components/ambient-audio";
-import { useSettings } from "@/lib/settings";
+import { parseSceneSearch, useSettings } from "@/lib/settings";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -13,29 +13,18 @@ function Home() {
   const [intro, setIntro] = useState(true);
   const [introDone, setIntroDone] = useState(false);
   const [embed, setEmbed] = useState(false);
-  const [consent, setConsent] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   useEffect(() => {
-    useSettings.getState().hydrate();
-  }, []);
-
-  useEffect(() => {
+    const settings = useSettings.getState();
+    settings.hydrate();
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.has("embed")) setEmbed(true);
-      const bgParam = params.get("bg");
-      if (bgParam && /^[0-9a-fA-F]{6}$/.test(bgParam)) {
-        useSettings.getState().setCustomBg(`#${bgParam}`);
-      }
+      setEmbed(params.has("embed"));
+      settings.applyScene(parseSceneSearch(window.location.search));
     } catch {
-      /* sin params */
-    }
-    try {
-      if (!window.localStorage.getItem("vortex-consent")) setConsent(true);
-    } catch {
-      /* almacenamiento no disponible */
+      // A malformed URL must never prevent the field from starting.
     }
   }, []);
 
@@ -102,7 +91,10 @@ function Home() {
   }, []);
 
   return (
-    <main className="fixed inset-0 overflow-hidden bg-background text-foreground select-none">
+    <main
+      data-testid="vortex-root"
+      className="fixed inset-0 overflow-hidden bg-background text-foreground select-none"
+    >
       <h1 className="sr-only">Vórtice — visualización de datos WebGL</h1>
       <ParticleCanvas ref={canvasRef} />
       <div className="vortex-vignette" aria-hidden="true" />
@@ -135,53 +127,11 @@ function Home() {
           <ControlDock canvas={canvasRef} />
           {hint ? (
             <p className="absolute top-[32%] left-1/2 z-10 w-max max-w-[min(90vw,22rem)] -translate-x-1/2 rounded-md border border-[color-mix(in_srgb,#7af3ff_35%,transparent)] bg-card/80 px-4 py-2 text-center text-sm text-foreground shadow-border">
-              Mueve el cursor. Click: solo las cercanas. Cada campo, un gesto.
+              Mueve el cursor. Mantén pulsado y arrastra. Cada campo responde distinto.
             </p>
           ) : null}
         </div>
       ) : null}
-      {consent && !embed ? (
-        <CookieNotice onClose={() => setConsent(false)} />
-      ) : null}
     </main>
-  );
-}
-
-function CookieNotice({ onClose }: { onClose: () => void }) {
-  const decide = (value: "yes" | "no") => {
-    try {
-      window.localStorage.setItem("vortex-consent", value);
-    } catch {
-      /* almacenamiento no disponible */
-    }
-    onClose();
-  };
-  return (
-    <div
-      data-ui="chrome"
-      className="pointer-events-auto fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-md flex-col gap-2 rounded-xl border border-[color-mix(in_srgb,#7af3ff_24%,transparent)] bg-card/95 px-4 py-3 text-xs shadow-border sm:left-1/2 sm:right-auto sm:-translate-x-1/2"
-    >
-      <p className="text-muted-foreground">
-        Vórtice solo guarda tus{" "}
-        <b className="font-medium text-foreground">ajustes</b> en este navegador
-        (almacenamiento local). Sin rastreo ni publicidad.
-      </p>
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => decide("no")}
-          className="rounded-md bg-muted px-3 py-1.5 font-medium text-foreground hover:bg-muted/80"
-        >
-          Rechazar
-        </button>
-        <button
-          type="button"
-          onClick={() => decide("yes")}
-          className="rounded-md bg-[#7af3ff] px-3 py-1.5 font-medium text-[#06070a] hover:brightness-110"
-        >
-          Aceptar
-        </button>
-      </div>
-    </div>
   );
 }
