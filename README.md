@@ -29,13 +29,23 @@ Miles de muestras. Cuatro campos. Seis paletas. Presets, audio, captura y respue
 
 ---
 
-## V5 · Instrumento visual interactivo
+## V6 · Experiencia audiovisual generativa
 
-Vórtice convierte una regla matemática mínima en una experiencia manipulable. V5 elimina la capa de framework y servicios que no aportaba nada a esta pieza: queda como una SPA estática, pequeña y centrada en el renderer. El cursor no navega por la obra: forma parte de ella. Cada gesto modifica un campo WebGL que puede explorarse, parametrizarse, capturarse y compartirse.
+Vórtice convierte una regla matemática mínima en una experiencia audiovisual manipulable. V5 cerró la arquitectura; **V6 cierra la obra**. El campo ocupa la pantalla, la interfaz se retira y los controles aparecen solo cuando hacen falta. El cursor no navega por Vórtice: forma parte de él. Cada gesto, movimiento y pulso altera un instrumento WebGL que puede explorarse, escucharse, capturarse y compartir su estado exacto.
 
 **Stack:** React 19 · TypeScript · WebGL · Zustand · Vite 8
 
 **Contrato de calidad:** TypeScript estricto + ESLint sin warnings + tests unitarios + build reproducible + E2E real en Chromium + auditoría de dependencias de producción.
+
+### V6 · Qué cambia por fuera
+
+- **canvas-first**: la obra se abre sin un dashboard ocupando la composición;
+- cuatro movimientos tratados como capítulos: **I VÓRTICE · II FLUJO · III ÓRBITA · IV ONDA**;
+- seis estados maestros: **VOID · AURORA · SOLAR · EMBER · ICE · PAPER**;
+- instrumento avanzado bajo demanda con `I` y lienzo puro con `H`;
+- apertura cinematográfica, transiciones de movimiento e identidad de reposo;
+- `Sustained Focus` alimenta una respuesta Web Audio deliberadamente sutil;
+- al dejar el campo quieto, el chrome desaparece y vuelve la firma de la pieza.
 
 ### Lo que demuestra
 
@@ -107,6 +117,7 @@ La misma simulación, cuatro comportamientos. Se cambian con `1` `2` `3` `4` o d
 | `S` | Guarda un PNG |
 | `M` | Activa o silencia el audio |
 | `H` | Oculta/muestra toda la interfaz y deja solo el lienzo |
+| `I` | Abre/cierra el instrumento avanzado |
 
 En el panel: cantidad de muestras, energía, estela, paleta y fondo. **Compartir** genera una URL que conserva la escena exacta, para que otra persona abra el mismo campo, paleta, densidad, energía y estela.
 
@@ -129,7 +140,7 @@ Unas combinaciones para empezar, no para obedecer:
 
 Miles de puntos, cada frame, con estela. Una regla pequeña, repetida, se ve como un campo vivo. Más muestras tienen que sentirse como más atmósfera, no como más espera. Por eso la densidad se puede bajar.
 
-La experiencia incluye audio ambiental integrado, controles de volumen y una capa visual pensada como pieza interactiva, no como demo técnica. El audio de la pieza, Sustained Focus, suena en el propio sitio. También está en [Suno](https://suno.com/s/Zq81WeM02AVZnhuC).
+La experiencia incluye audio ambiental integrado y una capa visual pensada como pieza interactiva, no como demo técnica. En V6, **Sustained Focus** alimenta un analizador Web Audio: graves y medios modifican de forma contenida la respiración, el color y la luminosidad del campo. No dirige la pieza; la hace respirar. También está en [Suno](https://suno.com/s/Zq81WeM02AVZnhuC).
 
 ### Dónde vive
 
@@ -173,15 +184,15 @@ El despliegue live es Vercel: [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi
 
 ## English
 
-### V5 · Interactive visual instrument
+### V6 · Generative audiovisual experience
 
-Vórtice turns a minimal mathematical rule into a manipulable real-time experience. The pointer is not navigation: it is part of the field. Built with React 19, TypeScript, WebGL, Zustand and Vite, with automated gates for strict type safety, zero-warning linting, unit tests, production build, dependency audit and real Chromium E2E.
+Vórtice turns a minimal mathematical rule into a generative audiovisual experience. V5 closed the architecture; **V6 closes the artwork**. The field leads, the interface recedes, four behaviours become movements, and six curated states become distinct visual worlds. Sustained Focus contributes a restrained Web Audio signal to motion and luminosity. Built with React 19, TypeScript, WebGL, Zustand and Vite, with automated gates for strict type safety, zero-warning linting, unit tests, production build, dependency audit and real Chromium E2E.
 
 Vórtice is a WebGL particle field. Not a video. A rule, many samples, and the cursor.
 
 Four behaviours, keys `1` to `4`: vortex (samples turn toward the pointer), flow (a current), orbit (two radii around the centre), wave (the field answers like a pulse).
 
-Pointer follows. Click and hold is a local force; drag it and it leaves a trail. Space is a global pulse. `F` fullscreen, `C` clears trails, `R` resets, `S` saves a PNG, `M` toggles audio, and `H` switches to an immersive canvas-only mode.
+Pointer follows. Click and hold is a local force; drag it and it leaves a trail. Space is a global pulse. `F` fullscreen, `C` clears trails, `R` resets, `S` saves a PNG, `M` toggles audio, `I` opens the instrument, and `H` switches to a pure canvas-only mode.
 
 Six palettes: Spectrum, Aurora, Ember, Ice, Silver, Solar. Six backgrounds: Void, Ink, Abyss, Slate, Fog, Paper.
 
