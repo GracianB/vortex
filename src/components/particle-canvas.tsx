@@ -1,6 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import { createEngine, type EngineApi } from "@/lib/particles";
-import { useSettings, type SettingsSnapshot } from "@/lib/settings";
+import { useLive, useSettings, type SettingsSnapshot } from "@/lib/settings";
 
 export type ParticleCanvasHandle = {
   clearTrails: () => void;
@@ -75,6 +75,7 @@ export function ParticleCanvas({ ref }: Props) {
       engineRef.current?.destroy();
       engineRef.current = null;
       if (window.__vortex) window.__vortex.gl = false;
+      useLive.getState().setLive({ gl: false });
       setError("WebGL se ha detenido. Recuperando el campo…");
     };
     const onContextRestored = () => boot();
