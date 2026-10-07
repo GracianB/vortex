@@ -38,7 +38,7 @@ async function waitForServer(url, timeoutMs = 45_000) {
     }
     await new Promise((resolve) => setTimeout(resolve, 350));
   }
-  throw new Error(`Vórtice dev server did not become ready: ${lastError}\n${serverLog.slice(-6000)}`);
+  throw new Error(`Vórtice production preview did not become ready: ${lastError}\n${serverLog.slice(-6000)}`);
 }
 
 function captureServerOutput(stream) {
@@ -188,7 +188,7 @@ async function main() {
       process.execPath,
       [
         "node_modules/vite/bin/vite.js",
-        "dev",
+        "preview",
         "--host",
         HOST,
         "--port",
