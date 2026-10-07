@@ -187,8 +187,7 @@ async function main() {
     server = spawn(
       process.execPath,
       [
-        "scripts/with-app-env.mjs",
-        "vite",
+        "node_modules/vite/bin/vite.js",
         "dev",
         "--host",
         HOST,
