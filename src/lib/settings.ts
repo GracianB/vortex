@@ -325,6 +325,7 @@ type LiveState = {
   meanSpeed: number;
   fps: number;
   samples: number;
+  renderDpr: number;
   gl: boolean;
   setLive: (next: Partial<Omit<LiveState, "setLive">>) => void;
 };
@@ -333,6 +334,7 @@ export const useLive = create<LiveState>((set) => ({
   meanSpeed: 0,
   fps: 0,
   samples: 0,
+  renderDpr: 1,
   gl: false,
   setLive: (next) => set(next),
 }));
