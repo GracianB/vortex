@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useCallback, useEffect, useState, type ReactNode, type RefObject } from "react";
 import {
   Download,
   Eraser,
@@ -106,10 +106,13 @@ export function ControlDock({ canvas }: Props) {
     }
   };
 
-  const setMovement = (next: FieldMode) => {
-    useSettings.getState().setMode(next);
-    window.setTimeout(() => canvas.current?.pulse(), 30);
-  };
+  const setMovement = useCallback(
+    (next: FieldMode) => {
+      useSettings.getState().setMode(next);
+      window.setTimeout(() => canvas.current?.pulse(), 30);
+    },
+    [canvas],
+  );
 
   const applyMasterScene = (id: string) => {
     const scene = MASTER_SCENES.find((item) => item.id === id);
@@ -184,7 +187,7 @@ export function ControlDock({ canvas }: Props) {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [canvas]);
+  }, [canvas, setMovement]);
 
   const capture = () => {
     canvas.current?.capturePng();
@@ -590,7 +593,7 @@ function Utility({
   testId?: string;
   label: string;
   shortcut: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   onClick: () => void;
 }) {
   return (
