@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vortex-gilt-xi.vercel.app/sitemap.xml
