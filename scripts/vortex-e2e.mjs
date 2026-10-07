@@ -164,6 +164,54 @@ async function runMobile(browser) {
   await context.close();
 }
 
+async function runNarrowMobile(browser) {
+  const context = await browser.newContext({
+    viewport: { width: 320, height: 568 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  const errors = watchErrors(page);
+  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await assertCleanPage(page, errors);
+
+  const clipped = await page.evaluate(() => {
+    const interactive = [...document.querySelectorAll("button, a, input")];
+    return interactive.some((node) => {
+      const rect = node.getBoundingClientRect();
+      return rect.right > window.innerWidth + 1 || rect.left < -1;
+    });
+  });
+  assert.equal(clipped, false, "interactive chrome must stay inside a 320px viewport");
+  await context.close();
+}
+
+async function runEmbed(browser) {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 720 },
+  });
+  const page = await context.newPage();
+  const errors = watchErrors(page);
+  await page.goto(
+    `${baseUrl}/?embed=1&mode=wave&palette=ember&bg=custom&color=220b08&count=6400`,
+    { waitUntil: "domcontentloaded" },
+  );
+  await assertCleanPage(page, errors);
+
+  assert.equal(await page.locator('[data-ui="chrome"]').count(), 0);
+  assert.equal(await page.locator(".vortex-intro").count(), 0);
+  assert.deepEqual(
+    await page.evaluate(() => ({
+      mode: window.__vortex?.mode(),
+      palette: window.__vortex?.palette(),
+      bg: window.__vortex?.bg(),
+      count: window.__vortex?.count(),
+    })),
+    { mode: "wave", palette: "ember", bg: "custom", count: 6400 },
+  );
+  await context.close();
+}
+
 async function runReducedMotion(browser) {
   const context = await browser.newContext({
     viewport: { width: 1280, height: 800 },
@@ -223,6 +271,8 @@ async function main() {
   try {
     await runDesktop(browser);
     await runMobile(browser);
+    await runNarrowMobile(browser);
+    await runEmbed(browser);
     await runReducedMotion(browser);
     console.log("VÓRTICE BROWSER E2E PASS");
   } finally {
