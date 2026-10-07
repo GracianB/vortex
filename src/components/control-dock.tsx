@@ -532,7 +532,7 @@ export function ControlDock({ canvas }: Props) {
 
             <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
               <p className="max-w-[11rem] text-[10px] leading-relaxed text-muted-foreground">
-                Ajustes locales. Sin cuenta, tracking ni publicidad.
+                Preferencias locales. Sin cuenta ni analítica.
               </p>
               <button
                 type="button"
