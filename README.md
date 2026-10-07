@@ -17,9 +17,9 @@
 
 <br/><br/>
 
-**No es una captura. Mueve el cursor.**
+**No es una captura. Es un instrumento visual en tiempo real.**
 
-Miles de muestras. Cuatro reglas. El puntero es la fuerza.
+Miles de muestras. Cuatro campos. Seis paletas. Presets, audio, captura y respuesta WebGL en tiempo real.
 
 <br/>
 
@@ -28,6 +28,23 @@ Miles de muestras. Cuatro reglas. El puntero es la fuerza.
 </div>
 
 ---
+
+## V5 · Instrumento visual interactivo
+
+Vórtice convierte una regla matemática mínima en una experiencia manipulable. El cursor no navega por la obra: forma parte de ella. Cada gesto modifica un campo WebGL que puede explorarse, parametrizarse, capturarse y compartirse.
+
+**Stack:** React 19 · TypeScript · TanStack · WebGL · Zustand · Vite 8 · PWA
+
+**Contrato de calidad:** TypeScript + ESLint + tests + invariantes + build reproducible en CI.
+
+### Lo que demuestra
+
+- rendering WebGL interactivo con miles de muestras;
+- estado persistente y presets reproducibles;
+- interacción por puntero, teclado y controles táctiles;
+- accesibilidad con reduced-motion y semántica de controles;
+- captura PNG, fullscreen, audio ambiental y modo embed;
+- diseño responsive y degradación controlada cuando WebGL no está disponible.
 
 ## Lo que hace
 
@@ -107,7 +124,7 @@ Unas combinaciones para empezar, no para obedecer:
 
 Miles de puntos, cada frame, con estela. Una regla pequeña, repetida, se ve como un campo vivo. Más muestras tienen que sentirse como más atmósfera, no como más espera. Por eso la densidad se puede bajar.
 
-El audio de la pieza, Sustained Focus, suena en el propio sitio. También está en [Suno](https://suno.com/s/Zq81WeM02AVZnhuC).
+La experiencia incluye audio ambiental integrado, controles de volumen y una capa visual pensada como pieza interactiva, no como demo técnica. El audio de la pieza, Sustained Focus, suena en el propio sitio. También está en [Suno](https://suno.com/s/Zq81WeM02AVZnhuC).
 
 ### Dónde vive
 
@@ -141,6 +158,10 @@ El despliegue live es Vercel: [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi
 <a id="english"></a>
 
 ## English
+
+### V5 · Interactive visual instrument
+
+Vórtice turns a minimal mathematical rule into a manipulable real-time experience. The pointer is not navigation: it is part of the field. Built with React 19, TypeScript, TanStack, WebGL, Zustand and Vite, with automated quality gates for type safety, linting, tests, invariants and production build.
 
 Vórtice is a WebGL particle field. Not a video. A rule, many samples, and the cursor.
 
