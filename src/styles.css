@@ -355,14 +355,22 @@
   align-items: center;
   gap: .68rem;
   min-height: 2.6rem;
-  color: rgba(241, 240, 235, .78);
+  padding: .25rem .58rem;
+  margin-left: -.58rem;
+  border: 1px solid rgba(241,240,235,.045);
+  border-radius: 999px;
+  color: rgba(241, 240, 235, .86);
+  background: rgba(5, 7, 9, .34);
+  backdrop-filter: blur(10px) saturate(110%);
+  -webkit-backdrop-filter: blur(10px) saturate(110%);
   text-decoration: none;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, .78);
-  transition: color .25s ease, opacity .25s ease;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, .88);
+  transition: color .25s ease, opacity .25s ease, background-color .25s ease;
 }
 
 .v6-signature:hover {
   color: #f1f0eb;
+  background: rgba(5, 7, 9, .48);
 }
 
 .v6-signature__name {
@@ -393,7 +401,7 @@
   padding: .18rem;
   border: 1px solid rgba(241,240,235,.07);
   border-radius: 999px;
-  background: rgba(7, 8, 11, .32);
+  background: rgba(7, 8, 11, .54);
   backdrop-filter: blur(16px) saturate(115%);
   -webkit-backdrop-filter: blur(16px) saturate(115%);
   box-shadow: 0 12px 44px -30px rgba(0,0,0,.9);
@@ -431,7 +439,12 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   width: min(36rem, calc(100vw - 2rem));
   transform: translateX(-50%);
-  border-top: 1px solid rgba(241,240,235,.10);
+  border-top: 1px solid rgba(241,240,235,.16);
+  border-radius: 0 0 .65rem .65rem;
+  background: linear-gradient(180deg, rgba(5,7,9,.08), rgba(5,7,9,.44));
+  box-shadow: 0 18px 36px -28px rgba(0,0,0,.95);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   transition: opacity .28s ease, transform .28s ease;
 }
 
@@ -443,9 +456,10 @@
   min-height: 3.25rem;
   padding: .58rem .75rem .52rem;
   border: 0;
-  color: rgba(241,240,235,.38);
+  color: rgba(241,240,235,.62);
   background: transparent;
   text-align: left;
+  text-shadow: 0 1px 10px rgba(0,0,0,.88);
   transition: color .25s ease, background-color .25s ease;
 }
 
@@ -465,7 +479,7 @@
   font-family: var(--font-mono);
   font-size: .55rem;
   letter-spacing: .12em;
-  color: rgba(122,243,255,.42);
+  color: rgba(122,243,255,.64);
 }
 
 .v6-movement strong {
