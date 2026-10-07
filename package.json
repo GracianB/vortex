@@ -1,6 +1,6 @@
 {
   "name": "vortex",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 8081",
     "typecheck": "tsc --noEmit",
-    "test": "node --test scripts/security-contract.test.mjs && node --experimental-strip-types --test src/lib/settings.test.ts src/lib/render-quality.test.ts src/lib/ambient.test.ts",
+    "test": "node --test scripts/security-contract.test.mjs && node --experimental-strip-types --test src/lib/settings.test.ts src/lib/render-quality.test.ts src/lib/ambient.test.ts src/lib/movements.test.ts",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

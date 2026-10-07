@@ -6,6 +6,7 @@ import {
   useLive,
 } from "@/lib/settings";
 import { resolveRenderDpr } from "@/lib/render-quality";
+import { useAmbient } from "@/lib/ambient";
 
 const CAPACITY = 20000;
 const MAX_DT = 0.05;
@@ -452,6 +453,7 @@ export function createEngine(
     const n = Math.min(CAPACITY, settings.count | 0);
     const force = settings.force;
     const mode: FieldMode = settings.mode;
+    const audioEnergy = useAmbient.getState().energy;
     const pullK = 2680 * force;
     const spinK = 3400 * force;
     const maxSp = 1280 * (0.55 + force * 0.45);
@@ -462,13 +464,13 @@ export function createEngine(
     attract.y += (pointer.y - attract.y) * follow;
     const ax = attract.x;
     const ay = attract.y;
-    hueShift += dt * (24 + force * 9);
+    hueShift += dt * (24 + force * 9 + audioEnergy * 18);
 
     if (pointer.down) holdAcc = Math.min(holdAcc + dt, 1.2);
     else holdAcc = 0;
 
-    const damp = Math.exp(-1.32 * dt);
-    const idle = pointer.active ? 6 : 16;
+    const damp = Math.exp(-(1.32 - audioEnergy * 0.08) * dt);
+    const idle = (pointer.active ? 6 : 16) + audioEnergy * 18;
     const cx = cssW * 0.5;
     const cy = cssH * 0.5;
     const wide = Math.min(cssW, cssH);
@@ -580,7 +582,7 @@ export function createEngine(
 
       const heading = Math.atan2(vy[i], vx[i]) * 57.2957795;
       let hue = heading + 180 + dist * 0.04 + seed[i] * 48 + hueShift * 0.65;
-      let glowSp = sp;
+      let glowSp = sp + audioEnergy * (18 + seed[i] * 28);
       if (pointer.active && dist < 80) glowSp += Math.exp(-dist / 36) * 22;
       if (nearClick && local) {
         const w = 1 - dist / NEAR;

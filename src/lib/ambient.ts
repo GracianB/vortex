@@ -30,14 +30,17 @@ export function readAmbientVolume() {
 type AmbientState = {
   on: boolean;
   volume: number;
+  energy: number;
   setOn: (on: boolean) => void;
   setVolume: (volume: number) => void;
+  setEnergy: (energy: number) => void;
   toggle: () => void;
 };
 
 export const useAmbient = create<AmbientState>((set, get) => ({
   on: true,
   volume: 0.45,
+  energy: 0,
   setOn: (on) => {
     set({ on });
     try {
@@ -55,6 +58,10 @@ export const useAmbient = create<AmbientState>((set, get) => ({
     } catch {
       // Storage is optional.
     }
+  },
+  setEnergy: (energy) => {
+    const value = Number.isFinite(energy) ? Math.min(1, Math.max(0, energy)) : 0;
+    set({ energy: value });
   },
   toggle: () => get().setOn(!get().on),
 }));
