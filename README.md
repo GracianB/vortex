@@ -31,9 +31,9 @@ Miles de muestras. Cuatro campos. Seis paletas. Presets, audio, captura y respue
 
 ## V5 · Instrumento visual interactivo
 
-Vórtice convierte una regla matemática mínima en una experiencia manipulable. El cursor no navega por la obra: forma parte de ella. Cada gesto modifica un campo WebGL que puede explorarse, parametrizarse, capturarse y compartirse.
+Vórtice convierte una regla matemática mínima en una experiencia manipulable. V5 elimina la capa de framework y servicios que no aportaba nada a esta pieza: queda como una SPA estática, pequeña y centrada en el renderer. El cursor no navega por la obra: forma parte de ella. Cada gesto modifica un campo WebGL que puede explorarse, parametrizarse, capturarse y compartirse.
 
-**Stack:** React 19 · TypeScript · TanStack · WebGL · Zustand · Vite 8
+**Stack:** React 19 · TypeScript · WebGL · Zustand · Vite 8
 
 **Contrato de calidad:** TypeScript estricto + ESLint sin warnings + tests unitarios + build reproducible + E2E real en Chromium + auditoría de dependencias de producción.
 
@@ -175,7 +175,7 @@ El despliegue live es Vercel: [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi
 
 ### V5 · Interactive visual instrument
 
-Vórtice turns a minimal mathematical rule into a manipulable real-time experience. The pointer is not navigation: it is part of the field. Built with React 19, TypeScript, TanStack, WebGL, Zustand and Vite, with automated gates for strict type safety, zero-warning linting, unit tests, production build, dependency audit and real Chromium E2E.
+Vórtice turns a minimal mathematical rule into a manipulable real-time experience. The pointer is not navigation: it is part of the field. Built with React 19, TypeScript, WebGL, Zustand and Vite, with automated gates for strict type safety, zero-warning linting, unit tests, production build, dependency audit and real Chromium E2E.
 
 Vórtice is a WebGL particle field. Not a video. A rule, many samples, and the cursor.
 
