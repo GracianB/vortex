@@ -63,6 +63,13 @@
     cursor: pointer;
   }
 
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 3px;
+  }
+
   h1,
   h2,
   h3 {
@@ -282,5 +289,31 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+@media (pointer: coarse) {
+  .vortex-cursor {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .vortex-vignette {
+    background: radial-gradient(
+      150% 105% at 50% 42%,
+      transparent 62%,
+      rgba(4, 5, 7, 0.24) 90%,
+      rgba(4, 5, 7, 0.42) 100%
+    );
+  }
+}
+
+@media (forced-colors: active) {
+  .vortex-cursor,
+  .vortex-ripple {
+    border-color: CanvasText;
+    box-shadow: none;
   }
 }
