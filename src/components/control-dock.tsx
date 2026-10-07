@@ -3,6 +3,7 @@ import {
   ChevronDown,
   Download,
   Eraser,
+  Focus,
   Maximize,
   RotateCcw,
   Pipette,
@@ -64,6 +65,7 @@ export function ControlDock({ canvas }: Props) {
   const gl = useLive((s) => s.gl);
   const [open, setOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
+  const [chromeHidden, setChromeHidden] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
   const modeLabel = FIELD_MODES.find((m) => m.id === mode)?.label ?? "Vórtice";
@@ -144,6 +146,9 @@ export function ControlDock({ canvas }: Props) {
         useSettings.getState().setMode("orbit");
       } else if (e.code === "Digit4") {
         useSettings.getState().setMode("wave");
+      } else if (e.code === "KeyH" && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setChromeHidden((value) => !value);
       } else if (e.code === "KeyF" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         if (!document.fullscreenElement) {
@@ -162,6 +167,23 @@ export function ControlDock({ canvas }: Props) {
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1400);
   };
+
+  if (chromeHidden) {
+    return (
+      <button
+        type="button"
+        data-ui="chrome"
+        data-testid="chrome-toggle"
+        onClick={() => setChromeHidden(false)}
+        aria-label="Mostrar interfaz"
+        title="Mostrar interfaz (H)"
+        className="pointer-events-auto absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,#7af3ff_24%,transparent)] bg-card/75 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground backdrop-blur-md transition hover:border-[color-mix(in_srgb,#7af3ff_50%,transparent)] hover:text-foreground"
+      >
+        <Focus className="size-3.5 text-[#7af3ff]" />
+        Interfaz · H
+      </button>
+    );
+  }
 
   return (
     <>
@@ -312,6 +334,15 @@ export function ControlDock({ canvas }: Props) {
         <div className="flex h-11 items-center justify-between border-b border-border px-4">
           <p className="text-sm font-medium text-foreground">Controles</p>
           <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label="Ocultar interfaz y dejar solo el lienzo"
+              title="Modo lienzo (H)"
+              onClick={() => setChromeHidden(true)}
+              className="grid size-8 place-items-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <Focus className="size-4" />
+            </button>
             <button
               type="button"
               className="flex h-11 items-center gap-1 text-xs font-medium text-muted-foreground sm:hidden"
