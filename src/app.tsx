@@ -123,8 +123,13 @@ export function App() {
         <div className="pointer-events-none absolute inset-0">
           <ControlDock canvas={canvasRef} />
           {hint ? (
-            <p className="absolute top-[32%] left-1/2 z-10 w-max max-w-[min(90vw,22rem)] -translate-x-1/2 rounded-md border border-[color-mix(in_srgb,#7af3ff_35%,transparent)] bg-card/80 px-4 py-2 text-center text-sm text-foreground shadow-border">
-              Mueve el cursor. Mantén pulsado y arrastra. Cada campo responde distinto.
+            <p className="absolute top-[20%] left-1/2 z-10 w-max max-w-[min(90vw,22rem)] -translate-x-1/2 rounded-md border border-[color-mix(in_srgb,#7af3ff_35%,transparent)] bg-card/80 px-4 py-2 text-center text-sm text-foreground shadow-border sm:top-[32%]">
+              <span className="sm:hidden">
+                Toca y arrastra el campo. Cada modo responde distinto.
+              </span>
+              <span className="hidden sm:inline">
+                Mueve el cursor. Mantén pulsado y arrastra. Cada campo responde distinto.
+              </span>
             </p>
           ) : null}
         </div>
