@@ -79,6 +79,7 @@ export function AmbientToggle() {
       type="button"
       variant="secondary"
       size="icon"
+      className="max-sm:size-9"
       aria-label={on ? "Silenciar" : "Activar sonido"}
       title={on ? "Silenciar (M)" : "Sonido (M)"}
       aria-pressed={on}
