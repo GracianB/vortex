@@ -56,6 +56,9 @@ export function ParticleCanvas({ ref }: Props) {
       count: () => useSettings.getState().count,
       force: () => useSettings.getState().force,
       mode: () => useSettings.getState().mode,
+      palette: () => useSettings.getState().palette,
+      bg: () => useSettings.getState().bg,
+      trail: () => useSettings.getState().trail,
       gl: true,
       clear: () => engine.clearTrails(),
       reset: () => engine.resetParticles(),
@@ -94,6 +97,9 @@ declare global {
       count: () => number;
       force: () => number;
       mode: () => string;
+      palette: () => string;
+      bg: () => string;
+      trail: () => number;
       gl: boolean;
       clear: () => void;
       reset: () => void;
