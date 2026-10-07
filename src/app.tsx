@@ -194,7 +194,7 @@ export function App() {
     <main
       data-testid="vortex-root"
       data-movement={movement.id}
-      className="fixed inset-0 overflow-hidden bg-background text-foreground select-none"
+      className={`fixed inset-0 overflow-hidden bg-background text-foreground select-none${idle ? " is-v6-idle" : ""}`}
     >
       <h1 className="sr-only">Vórtice — instrumento visual generativo WebGL</h1>
       <ParticleCanvas ref={canvasRef} />
