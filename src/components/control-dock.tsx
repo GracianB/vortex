@@ -67,6 +67,15 @@ export function ControlDock({ canvas }: Props) {
 
   const movement = movementFor(mode);
   const paletteLabel = PALETTES.find((item) => item.id === palette)?.label ?? "";
+  const activeScene = MASTER_SCENES.find(
+    (scene) =>
+      scene.mode === mode &&
+      scene.palette === palette &&
+      scene.bg === bg &&
+      scene.count === count &&
+      scene.force === force &&
+      scene.trail === trail,
+  );
 
   const currentSnapshot = (): SettingsSnapshot => {
     const state = useSettings.getState();
@@ -355,7 +364,10 @@ export function ControlDock({ canvas }: Props) {
                     type="button"
                     data-testid={`scene-${scene.id}`}
                     onClick={() => applyMasterScene(scene.id)}
-                    className="v6-scene"
+                    className={cn(
+                      "v6-scene",
+                      activeScene?.id === scene.id && "is-active",
+                    )}
                   >
                     <span>{scene.code}</span>
                     <strong>{scene.label}</strong>
