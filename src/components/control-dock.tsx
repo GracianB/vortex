@@ -1,12 +1,10 @@
-import { useEffect, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
 import {
-  ChevronDown,
   Download,
   Eraser,
   Focus,
   Maximize,
   RotateCcw,
-  Pipette,
   Share2,
   SlidersHorizontal,
   X,
@@ -19,20 +17,20 @@ import {
   COUNT_MIN,
   COUNT_STEP,
   FIELD_BG_OPTIONS,
-  FIELD_MODES,
   FORCE_MAX,
   FORCE_MIN,
   FORCE_STEP,
   PALETTES,
-  PRESETS,
   TRAIL_MAX,
   TRAIL_MIN,
   TRAIL_STEP,
   useLive,
   useSettings,
   type FieldBgId,
+  type FieldMode,
   type SettingsSnapshot,
 } from "@/lib/settings";
+import { MASTER_SCENES, MOVEMENTS, movementFor } from "@/lib/movements";
 import { cn } from "@/lib/utils";
 import { AmbientToggle, AmbientVolume } from "@/components/ambient-audio";
 import type { ParticleCanvasHandle } from "@/components/particle-canvas";
@@ -43,13 +41,11 @@ type Props = {
 
 function fmt(n: number, digits = 0) {
   if (digits === 0) {
-    const rounded = Math.round(n).toString();
-    return rounded.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return Math.round(n)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
-  const fixed = n.toFixed(digits);
-  const [intPart, frac] = fixed.split(".");
-  const grouped = (intPart ?? "0").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${grouped},${frac}`;
+  return n.toFixed(digits).replace(".", ",");
 }
 
 export function ControlDock({ canvas }: Props) {
@@ -60,25 +56,21 @@ export function ControlDock({ canvas }: Props) {
   const mode = useSettings((s) => s.mode);
   const bg = useSettings((s) => s.bg);
   const customBg = useSettings((s) => s.customBg);
-  const meanSpeed = useLive((s) => s.meanSpeed);
   const fps = useLive((s) => s.fps);
   const renderDpr = useLive((s) => s.renderDpr);
   const gl = useLive((s) => s.gl);
-  const [open, setOpen] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(() =>
-    typeof window === "undefined"
-      ? true
-      : !window.matchMedia("(max-width: 640px)").matches,
-  );
+
+  const [panelOpen, setPanelOpen] = useState(false);
   const [chromeHidden, setChromeHidden] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
-  const modeLabel = FIELD_MODES.find((m) => m.id === mode)?.label ?? "Vórtice";
-  const paletteLabel = PALETTES.find((p) => p.id === palette)?.label ?? "";
 
-  const share = async () => {
+  const movement = movementFor(mode);
+  const paletteLabel = PALETTES.find((item) => item.id === palette)?.label ?? "";
+
+  const currentSnapshot = (): SettingsSnapshot => {
     const state = useSettings.getState();
-    const snapshot: SettingsSnapshot = {
+    return {
       count: state.count,
       force: state.force,
       trail: state.trail,
@@ -87,16 +79,20 @@ export function ControlDock({ canvas }: Props) {
       bg: state.bg,
       customBg: state.customBg,
     };
+  };
+
+  const share = async () => {
     const base =
       typeof window !== "undefined"
         ? window.location.href
         : "https://vortex-gilt-xi.vercel.app/";
-    const url = buildSceneUrl(base, snapshot);
+    const url = buildSceneUrl(base, currentSnapshot());
     const data = {
-      title: "Vórtice",
-      text: `Vórtice · ${modeLabel} · ${paletteLabel || "WebGL"}`,
+      title: "VØRTICE",
+      text: `VØRTICE · ${movement.roman} · ${movement.name}`,
       url,
     };
+
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share(data);
@@ -106,56 +102,78 @@ export function ControlDock({ canvas }: Props) {
         window.setTimeout(() => setShared(false), 1500);
       }
     } catch {
-      /* cancelado */
+      // Native share cancellation is not an error state for the experience.
     }
   };
 
-  const applyPreset = (id: string) => {
-    const p = PRESETS.find((x) => x.id === id);
-    if (!p) return;
-    const s = useSettings.getState();
-    s.setMode(p.mode);
-    s.setPalette(p.palette);
-    s.setBg(p.bg);
-    s.setCount(p.count);
-    s.setForce(p.force);
-    s.setTrail(p.trail);
+  const setMovement = (next: FieldMode) => {
+    useSettings.getState().setMode(next);
+    window.setTimeout(() => canvas.current?.pulse(), 30);
+  };
+
+  const applyMasterScene = (id: string) => {
+    const scene = MASTER_SCENES.find((item) => item.id === id);
+    if (!scene) return;
+    useSettings.getState().applyScene({
+      mode: scene.mode,
+      palette: scene.palette,
+      bg: scene.bg,
+      count: scene.count,
+      force: scene.force,
+      trail: scene.trail,
+    });
+    window.dispatchEvent(
+      new CustomEvent("vortex:scene", {
+        detail: {
+          code: scene.code,
+          label: scene.label,
+          note: scene.note,
+        },
+      }),
+    );
+    window.setTimeout(() => canvas.current?.pulse(), 40);
   };
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
       if (
         target &&
         (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
       ) {
         return;
       }
-      if (e.code === "KeyR" && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
+
+      if (event.code === "KeyR" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
         canvas.current?.resetParticles();
-      } else if (e.code === "KeyC" && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
+      } else if (event.code === "KeyC" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
         canvas.current?.clearTrails();
-      } else if (e.code === "KeyS" && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
+      } else if (event.code === "KeyS" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
         canvas.current?.capturePng();
-      } else if (e.code === "Space") {
-        e.preventDefault();
+      } else if (event.code === "Space") {
+        event.preventDefault();
         canvas.current?.pulse();
-      } else if (e.code === "Digit1") {
-        useSettings.getState().setMode("vortex");
-      } else if (e.code === "Digit2") {
-        useSettings.getState().setMode("flow");
-      } else if (e.code === "Digit3") {
-        useSettings.getState().setMode("orbit");
-      } else if (e.code === "Digit4") {
-        useSettings.getState().setMode("wave");
-      } else if (e.code === "KeyH" && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
+      } else if (event.code === "Digit1") {
+        setMovement("vortex");
+      } else if (event.code === "Digit2") {
+        setMovement("flow");
+      } else if (event.code === "Digit3") {
+        setMovement("orbit");
+      } else if (event.code === "Digit4") {
+        setMovement("wave");
+      } else if (event.code === "KeyH" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
         setChromeHidden((value) => !value);
-      } else if (e.code === "KeyF" && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
+      } else if (event.code === "KeyI" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        setPanelOpen((value) => !value);
+      } else if (event.code === "Escape") {
+        setPanelOpen(false);
+      } else if (event.code === "KeyF" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
         if (!document.fullscreenElement) {
           void document.documentElement.requestFullscreen?.();
         } else {
@@ -163,6 +181,7 @@ export function ControlDock({ canvas }: Props) {
         }
       }
     };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [canvas]);
@@ -182,457 +201,408 @@ export function ControlDock({ canvas }: Props) {
         onClick={() => setChromeHidden(false)}
         aria-label="Mostrar interfaz"
         title="Mostrar interfaz (H)"
-        className="pointer-events-auto absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,#7af3ff_24%,transparent)] bg-card/75 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground backdrop-blur-md transition hover:border-[color-mix(in_srgb,#7af3ff_50%,transparent)] hover:text-foreground"
+        className="v6-reveal pointer-events-auto absolute right-4 top-4 z-20"
       >
-        <Focus className="size-3.5 text-[#7af3ff]" />
-        Interfaz · H
+        <span aria-hidden="true" />
+        UI · H
       </button>
     );
   }
 
   return (
     <>
-      <header
-        data-ui="chrome"
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-3 sm:p-5"
-      >
-        <div className="pointer-events-auto relative min-w-0 overflow-hidden rounded-xl border border-[color-mix(in_srgb,#7af3ff_28%,transparent)] bg-gradient-to-br from-card/95 to-[#0a1418]/90 px-3 py-2 shadow-[0_0_0_1px_rgba(241,240,235,0.06),0_10px_40px_-12px_rgba(122,243,255,0.35)] sm:px-4 sm:py-3">
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7af3ff] to-transparent"
-          />
-          <div className="flex items-center gap-2.5">
-            <a
-              href="https://gracianb.github.io/GracianB/"
-              className="grid h-8 w-8 shrink-0 place-items-center sm:h-9 sm:w-9 rounded-md bg-gradient-to-br from-[#7af3ff] to-[#2b6f77] text-[11px] font-bold tracking-wide text-[#06070a] shadow-[0_0_16px_rgba(122,243,255,0.45)] transition-transform duration-150 ease-out hover:scale-105"
-              aria-label="GracianB hub"
-            >
-              GB
-            </a>
-            <div>
-              <p className="font-display text-lg leading-tight tracking-display text-foreground">
-                Vórtice
-              </p>
-              <p className="hidden font-mono text-[10px] uppercase tracking-[0.14em] text-[#7af3ff] sm:block">
-                PLAY · {modeLabel}
-                {paletteLabel ? ` · ${paletteLabel}` : ""}
-              </p>
-            </div>
-          </div>
-          <p className="mt-1.5 hidden text-xs leading-snug text-muted-foreground tabular-nums sm:block">
-            {fmt(count)} muestras
-            {meanSpeed > 0 ? ` · ${fmt(meanSpeed, 0)} u/s` : ""}
-          </p>
-          <p className="mt-0.5 hidden text-xs leading-snug text-muted-foreground sm:block">
-            {gl ? "WebGL" : "Inicializando"}
-            {fps > 1 ? ` · ${Math.round(fps)} fps` : ""}
-            {gl ? ` · ${renderDpr.toFixed(2)}×` : ""}
-          </p>
-          <nav className="mt-2 hidden flex-wrap gap-x-3 gap-y-1 font-mono sm:flex text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-            <a className="hover:text-[#7af3ff]" href="https://gracianb.github.io/systems-lab/">
-              Lab
-            </a>
-            <a className="hover:text-[#7af3ff]" href="https://gracianb.github.io/project-ohana/">
-              Ohana
-            </a>
-            <a
-              className="hover:text-[#7af3ff]"
-              href="https://suno.com/s/Zq81WeM02AVZnhuC"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Sustained Focus
-            </a>
-            <a
-              className="text-[#7af3ff] hover:text-foreground"
-              href="https://www.linkedin.com/in/gracianbaena"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Contrátame
-            </a>
-          </nav>
-        </div>
-        <div className="pointer-events-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <AmbientToggle />
+      <header data-ui="chrome" className="v6-chrome pointer-events-none absolute inset-x-0 top-0 z-20">
+        <a
+          href="https://gracianb.github.io/GracianB/"
+          className="v6-signature pointer-events-auto"
+          aria-label="Gracián Baena"
+        >
+          <span className="v6-signature__name">VØRTICE</span>
+          <span className="v6-signature__line" aria-hidden="true" />
+          <span className="v6-signature__movement">
+            {movement.roman} · {movement.name}
+          </span>
+        </a>
+
+        <div className="v6-actions pointer-events-auto">
+          <AmbientToggle className="v6-icon-button" />
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="icon"
             aria-label="Compartir esta escena de Vórtice"
-            title="Compartir esta escena"
+            title="Compartir escena"
             data-testid="btn-share"
-            className="max-sm:size-9"
+            className="v6-icon-button"
             onClick={share}
           >
             <Share2 />
           </Button>
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="icon"
-            className="max-sm:hidden"
-            aria-label="Borrar estelas"
-            title="Borrar estelas (C)"
-            data-testid="btn-clear"
-            onClick={() => canvas.current?.clearTrails()}
+            aria-label={panelOpen ? "Ocultar instrumento" : "Mostrar instrumento"}
+            title="Instrumento (I)"
+            aria-expanded={panelOpen}
+            data-testid="instrument-toggle"
+            className="v6-icon-button"
+            onClick={() => setPanelOpen((value) => !value)}
           >
-            <Eraser />
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="icon"
-            className="max-sm:hidden"
-            aria-label="Reiniciar campo"
-            title="Reiniciar (R)"
-            data-testid="btn-reset"
-            onClick={() => canvas.current?.resetParticles()}
-          >
-            <RotateCcw />
-          </Button>
-          <Button
-            type="button"
-            variant="default"
-            size="icon"
-            aria-label="Descargar captura"
-            title="Descargar captura (S)"
-            data-testid="btn-capture"
-            className="max-sm:size-9"
-            onClick={capture}
-          >
-            <Download />
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="icon"
-            className="max-sm:hidden"
-            aria-label="Pantalla completa"
-            title="Pantalla completa (F)"
-            onClick={() => {
-              if (!document.fullscreenElement) {
-                void document.documentElement.requestFullscreen?.();
-              } else {
-                void document.exitFullscreen?.();
-              }
-            }}
-          >
-            <Maximize />
+            <SlidersHorizontal />
           </Button>
         </div>
       </header>
 
+      <nav
+        data-ui="chrome"
+        aria-label="Movimientos de Vórtice"
+        className={cn("v6-movement-rail", panelOpen && "is-panel-open")}
+      >
+        {MOVEMENTS.map((item) => {
+          const active = item.id === mode;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              data-testid={`mode-${item.id}`}
+              aria-current={active ? "true" : undefined}
+              className={cn("v6-movement", active && "is-active")}
+              onClick={() => setMovement(item.id)}
+            >
+              <span>{item.roman}</span>
+              <strong>{item.name}</strong>
+            </button>
+          );
+        })}
+      </nav>
+
       {saved || shared ? (
-        <div className="pointer-events-none fixed inset-0 z-30 grid place-items-center">
-          <p role="status" aria-live="polite" className="rounded-xl border border-[color-mix(in_srgb,#7af3ff_40%,transparent)] bg-card/95 px-6 py-3.5 text-sm font-medium text-foreground shadow-[0_0_40px_rgba(122,243,255,0.3)]">
-            {saved ? "Captura lista ✓" : "Enlace copiado ✓"}
+        <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center">
+          <p
+            role="status"
+            aria-live="polite"
+            className="v6-toast"
+          >
+            {saved ? "CAPTURA · LISTA" : "ESCENA · COPIADA"}
           </p>
         </div>
       ) : null}
 
       {panelOpen ? (
-      <aside
-        data-ui="chrome"
-        className={cn(
-          "pointer-events-auto absolute inset-x-4 bottom-4 z-10 flex max-h-[62vh] flex-col rounded-xl border border-[color-mix(in_srgb,#7af3ff_16%,transparent)] bg-card/95 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.65)] sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-80 sm:max-h-[min(38rem,calc(100dvh-6rem))]",
-          "pb-[max(0px,env(safe-area-inset-bottom))]",
-        )}
-      >
-        <div className="flex h-11 items-center justify-between border-b border-border px-4">
-          <p className="text-sm font-medium text-foreground">Controles</p>
-          <div className="flex items-center gap-1">
+        <aside
+          data-ui="chrome"
+          data-testid="instrument-panel"
+          aria-label="Instrumento de Vórtice"
+          className="v6-instrument"
+        >
+          <div className="v6-instrument__head">
+            <div>
+              <p>INSTRUMENT / 06</p>
+              <h2>VØRTICE</h2>
+            </div>
             <button
               type="button"
-              aria-label="Ocultar interfaz y dejar solo el lienzo"
-              title="Modo lienzo (H)"
-              onClick={() => setChromeHidden(true)}
-              className="grid size-8 place-items-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
-            >
-              <Focus className="size-4" />
-            </button>
-            <button
-              type="button"
-              className="flex h-11 items-center gap-1 text-xs font-medium text-muted-foreground sm:hidden"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls="vortex-controls"
-            >
-              Más
-              <ChevronDown
-                className={cn(
-                  "size-4 transition-transform duration-150 ease-out",
-                  open ? "rotate-0" : "-rotate-90",
-                )}
-              />
-            </button>
-            <button
-              type="button"
-              aria-label="Ocultar controles"
-              title="Ocultar controles"
+              aria-label="Cerrar instrumento"
               onClick={() => setPanelOpen(false)}
-              className="grid size-8 place-items-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              className="v6-panel-close"
             >
-              <X className="size-4" />
+              <X />
             </button>
           </div>
-        </div>
 
-        <div className="min-h-0 overflow-y-auto px-4 pb-4">
-          <div className="mb-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Campo</p>
-            <div className="flex flex-wrap gap-1.5">
-              {FIELD_MODES.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => useSettings.getState().setMode(m.id)}
-                  className={cn(
-                    "h-9 rounded-md px-3 text-xs font-medium shadow-border transition-[background-color,color,box-shadow] duration-150 ease-out",
-                    mode === m.id
-                      ? "bg-[#7af3ff] text-[#06070a] shadow-[0_0_18px_rgba(122,243,255,0.35)]"
-                      : "bg-muted text-foreground hover:bg-muted/80",
-                  )}
-                  aria-pressed={mode === m.id}
-                  data-testid={`mode-${m.id}`}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          <div className="v6-instrument__scroll">
+            <section className="v6-section">
+              <div className="v6-section__label">
+                <span>01</span>
+                <p>MOVEMENTS</p>
+              </div>
+              <div className="v6-movement-list">
+                {MOVEMENTS.map((item) => {
+                  const active = item.id === mode;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={cn("v6-movement-card", active && "is-active")}
+                      onClick={() => setMovement(item.id)}
+                    >
+                      <span>{item.roman}</span>
+                      <div>
+                        <strong>{item.name}</strong>
+                        <small>{item.description}</small>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
 
-          <div className="mb-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Estilos</p>
-            <div className="flex flex-wrap gap-1.5">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => applyPreset(p.id)}
-                  className="h-9 rounded-md bg-muted px-3 text-xs font-medium text-foreground shadow-border transition-[background-color,box-shadow] duration-150 ease-out hover:bg-muted/80 hover:shadow-[0_0_16px_rgba(122,243,255,0.22)]"
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Field label="Muestras" value={fmt(count)}>
-            <Slider
-              min={COUNT_MIN}
-              max={COUNT_MAX}
-              step={COUNT_STEP}
-              value={[count]}
-              onValueChange={([v]) => {
-                if (typeof v === "number") useSettings.getState().setCount(v);
-              }}
-              aria-label="Cantidad de muestras"
-              data-testid="slider-count"
-            />
-          </Field>
-
-          <Field label="Energía" value={`${fmt(force, 2)}×`}>
-            <Slider
-              min={FORCE_MIN}
-              max={FORCE_MAX}
-              step={FORCE_STEP}
-              value={[force]}
-              onValueChange={([v]) => {
-                if (typeof v === "number") useSettings.getState().setForce(v);
-              }}
-              aria-label="Energía del campo"
-              data-testid="slider-force"
-            />
-          </Field>
-
-          <AmbientVolume />
-
-          <div className="mt-3 grid grid-cols-3 gap-2 sm:hidden">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => canvas.current?.clearTrails()}
-            >
-              <Eraser />
-              Borrar
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => canvas.current?.resetParticles()}
-            >
-              <RotateCcw />
-              Reiniciar
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                if (!document.fullscreenElement) {
-                  void document.documentElement.requestFullscreen?.();
-                } else {
-                  void document.exitFullscreen?.();
-                }
-              }}
-            >
-              <Maximize />
-              Pantalla
-            </Button>
-          </div>
-
-          <div
-            id="vortex-controls"
-            className={cn(open ? "max-sm:block" : "max-sm:hidden")}
-          >
-            <Field label="Estela" value={fmt(trail, 2)}>
-              <Slider
-                min={TRAIL_MIN}
-                max={TRAIL_MAX}
-                step={TRAIL_STEP}
-                value={[trail]}
-                onValueChange={([v]) => {
-                  if (typeof v === "number") useSettings.getState().setTrail(v);
-                }}
-                aria-label="Persistencia de estelas"
-                data-testid="slider-trail"
-              />
-            </Field>
-
-            <div className="mt-3">
-              <p className="mb-2 text-xs font-medium text-muted-foreground">Paleta</p>
-              <div className="flex flex-wrap gap-1.5">
-                {PALETTES.map((p) => (
+            <section className="v6-section">
+              <div className="v6-section__label">
+                <span>02</span>
+                <p>STATES</p>
+              </div>
+              <div className="v6-scene-grid">
+                {MASTER_SCENES.map((scene) => (
                   <button
-                    key={p.id}
+                    key={scene.id}
                     type="button"
-                    onClick={() => useSettings.getState().setPalette(p.id)}
-                    className={cn(
-                      "h-9 rounded-md px-3 text-xs font-medium shadow-border transition-[background-color,color,box-shadow] duration-150 ease-out",
-                      palette === p.id
-                        ? "bg-[#7af3ff] text-[#06070a] shadow-[0_0_18px_rgba(122,243,255,0.35)]"
-                        : "bg-muted text-foreground hover:bg-muted/80",
-                    )}
-                    aria-pressed={palette === p.id}
+                    data-testid={`scene-${scene.id}`}
+                    onClick={() => applyMasterScene(scene.id)}
+                    className="v6-scene"
                   >
-                    {p.label}
+                    <span>{scene.code}</span>
+                    <strong>{scene.label}</strong>
+                    <small>{scene.note}</small>
                   </button>
                 ))}
               </div>
-            </div>
+            </section>
 
-            <div className="mt-3">
-              <p className="mb-2 text-xs font-medium text-muted-foreground">Fondo</p>
-              <div className="flex flex-wrap items-center gap-2">
-                {FIELD_BG_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    aria-label={opt.label}
-                    title={opt.label}
-                    aria-pressed={bg === opt.id}
-                    onClick={() => useSettings.getState().setBg(opt.id)}
-                    className={cn(
-                      "size-8 rounded-md shadow-border ring-offset-2 ring-offset-card transition-[box-shadow,transform] duration-150 ease-out",
-                      swatchClass(opt.id),
-                      bg === opt.id
-                        ? "ring-2 ring-ring"
-                        : "hover:ring-2 hover:ring-ring/40",
-                    )}
-                  />
-                ))}
-                <label
-                  className={cn(
-                    "relative size-8 cursor-pointer overflow-hidden rounded-md shadow-border ring-offset-2 ring-offset-card",
-                    bg === "custom" ? "ring-2 ring-ring" : "",
-                  )}
-                  title="Color personalizado"
-                >
-                  <span
-                    className="absolute inset-0"
-                    style={{ backgroundColor: customBg }}
-                  />
-                  <Pipette className="absolute inset-0 m-auto size-3.5 text-primary mix-blend-difference" />
-                  <input
-                    type="color"
-                    value={customBg}
-                    aria-label="Color de fondo personalizado"
-                    className="absolute inset-0 cursor-pointer opacity-0"
-                    onChange={(e) =>
-                      useSettings.getState().setCustomBg(e.target.value)
-                    }
-                  />
-                </label>
+            <section className="v6-section">
+              <div className="v6-section__label">
+                <span>03</span>
+                <p>TUNE</p>
               </div>
-            </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
-              <p className="max-w-[11rem] text-[10px] leading-relaxed text-muted-foreground">
-                Preferencias locales. Sin cuenta ni analítica.
-              </p>
-              <button
-                type="button"
-                onClick={() => useSettings.getState().restoreDefaults()}
-                className="shrink-0 rounded-md px-2 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              <InstrumentSlider
+                label="Muestras"
+                value={fmt(count)}
+                min={COUNT_MIN}
+                max={COUNT_MAX}
+                step={COUNT_STEP}
+                current={count}
+                onChange={(value) => useSettings.getState().setCount(value)}
+              />
+              <InstrumentSlider
+                label="Energía"
+                value={`${fmt(force, 2)}×`}
+                min={FORCE_MIN}
+                max={FORCE_MAX}
+                step={FORCE_STEP}
+                current={force}
+                onChange={(value) => useSettings.getState().setForce(value)}
+              />
+              <InstrumentSlider
+                label="Estela"
+                value={fmt(trail, 2)}
+                min={TRAIL_MIN}
+                max={TRAIL_MAX}
+                step={TRAIL_STEP}
+                current={trail}
+                onChange={(value) => useSettings.getState().setTrail(value)}
+              />
+
+              <div className="mt-5">
+                <div className="v6-tune-row">
+                  <span>Paleta</span>
+                  <strong>{paletteLabel.toUpperCase()}</strong>
+                </div>
+                <div className="v6-palette-row">
+                  {PALETTES.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-label={`Paleta ${item.label}`}
+                      title={item.label}
+                      data-palette={item.id}
+                      className={cn(
+                        "v6-palette",
+                        palette === item.id && "is-active",
+                      )}
+                      onClick={() => useSettings.getState().setPalette(item.id)}
+                    >
+                      <span />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <div className="v6-tune-row">
+                  <span>Fondo</span>
+                  <strong>
+                    {(FIELD_BG_OPTIONS.find((item) => item.id === bg)?.label ??
+                      (bg === "custom" ? "Custom" : bg)
+                    ).toUpperCase()}
+                  </strong>
+                </div>
+                <div className="v6-bg-row">
+                  {FIELD_BG_OPTIONS.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-label={`Fondo ${item.label}`}
+                      title={item.label}
+                      className={cn(
+                        "v6-bg",
+                        bg === item.id && "is-active",
+                      )}
+                      style={{
+                        background:
+                          item.id === "void"
+                            ? "#050506"
+                            : item.id === "ink"
+                              ? "#0c121c"
+                              : item.id === "abyss"
+                                ? "#071412"
+                                : item.id === "slate"
+                                  ? "#181a20"
+                                  : item.id === "fog"
+                                    ? "#1a1714"
+                                    : "#e6e1d6",
+                      }}
+                      onClick={() =>
+                        useSettings.getState().setBg(item.id as FieldBgId)
+                      }
+                    />
+                  ))}
+                  <label className={cn("v6-bg v6-bg--custom", bg === "custom" && "is-active")}>
+                    <input
+                      type="color"
+                      value={customBg}
+                      aria-label="Fondo personalizado"
+                      onChange={(event) =>
+                        useSettings.getState().setCustomBg(event.target.value)
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <AmbientVolume />
+              </div>
+            </section>
+
+            <section className="v6-section">
+              <div className="v6-section__label">
+                <span>04</span>
+                <p>FIELD</p>
+              </div>
+              <div className="v6-utility-grid">
+                <Utility
+                  testId="btn-clear"
+                  label="Borrar"
+                  shortcut="C"
+                  icon={<Eraser />}
+                  onClick={() => canvas.current?.clearTrails()}
+                />
+                <Utility
+                  testId="btn-reset"
+                  label="Reiniciar"
+                  shortcut="R"
+                  icon={<RotateCcw />}
+                  onClick={() => canvas.current?.resetParticles()}
+                />
+                <Utility
+                  testId="btn-capture"
+                  label="Captura"
+                  shortcut="S"
+                  icon={<Download />}
+                  onClick={capture}
+                />
+                <Utility
+                  label="Pantalla"
+                  shortcut="F"
+                  icon={<Maximize />}
+                  onClick={() => {
+                    if (!document.fullscreenElement) {
+                      void document.documentElement.requestFullscreen?.();
+                    } else {
+                      void document.exitFullscreen?.();
+                    }
+                  }}
+                />
+                <Utility
+                  label="Lienzo"
+                  shortcut="H"
+                  icon={<Focus />}
+                  onClick={() => setChromeHidden(true)}
+                />
+              </div>
+            </section>
+
+            <footer className="v6-instrument__footer">
+              <span>
+                {gl ? `${Math.round(fps)} FPS · ${renderDpr.toFixed(2)}×` : "WEBGL · INIT"}
+              </span>
+              <a
+                href="https://gracianb.github.io/GracianB/"
+                target="_blank"
+                rel="noreferrer"
               >
-                Restaurar
-              </button>
-            </div>
+                GRACIÁN BAENA · 2026
+              </a>
+            </footer>
           </div>
-        </div>
-      </aside>
-      ) : (
-        <button
-          type="button"
-          data-ui="chrome"
-          onClick={() => setPanelOpen(true)}
-          aria-label="Mostrar controles"
-          className="pointer-events-auto absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,#7af3ff_30%,transparent)] bg-card/90 px-4 py-2.5 text-xs font-medium text-foreground shadow-border transition hover:shadow-[0_0_18px_rgba(122,243,255,0.3)] sm:bottom-5 sm:right-5"
-        >
-          <SlidersHorizontal className="size-4 text-[#7af3ff]" />
-          Controles
-        </button>
-      )}
+        </aside>
+      ) : null}
     </>
   );
 }
 
-function Field({
+function InstrumentSlider({
   label,
   value,
-  children,
+  min,
+  max,
+  step,
+  current,
+  onChange,
 }: {
   label: string;
   value: string;
-  children: ReactNode;
+  min: number;
+  max: number;
+  step: number;
+  current: number;
+  onChange: (value: number) => void;
 }) {
   return (
-    <div className="mt-1">
-      <div className="flex items-baseline justify-between gap-3">
-        <label className="text-xs font-medium text-muted-foreground">{label}</label>
-        <span className="text-xs tabular-nums text-foreground">{value}</span>
+    <div className="v6-slider-block">
+      <div className="v6-tune-row">
+        <span>{label}</span>
+        <strong>{value}</strong>
       </div>
-      {children}
+      <Slider
+        min={min}
+        max={max}
+        step={step}
+        value={[current]}
+        onValueChange={([next]) => {
+          if (typeof next === "number") onChange(next);
+        }}
+        aria-label={label}
+      />
     </div>
   );
 }
 
-function swatchClass(id: Exclude<FieldBgId, "custom">) {
-  switch (id) {
-    case "void":
-      return "bg-field-void";
-    case "ink":
-      return "bg-field-ink";
-    case "abyss":
-      return "bg-field-abyss";
-    case "slate":
-      return "bg-field-slate";
-    case "fog":
-      return "bg-field-fog";
-    case "paper":
-      return "bg-field-paper";
-  }
+function Utility({
+  testId,
+  label,
+  shortcut,
+  icon,
+  onClick,
+}: {
+  testId?: string;
+  label: string;
+  shortcut: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      data-testid={testId}
+      className="v6-utility"
+      onClick={onClick}
+    >
+      <span>{icon}</span>
+      <strong>{label}</strong>
+      <small>{shortcut}</small>
+    </button>
+  );
 }
