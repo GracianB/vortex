@@ -62,6 +62,7 @@ export function ControlDock({ canvas }: Props) {
   const customBg = useSettings((s) => s.customBg);
   const meanSpeed = useLive((s) => s.meanSpeed);
   const fps = useLive((s) => s.fps);
+  const renderDpr = useLive((s) => s.renderDpr);
   const gl = useLive((s) => s.gl);
   const [open, setOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
@@ -221,6 +222,7 @@ export function ControlDock({ canvas }: Props) {
           <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
             {gl ? "WebGL" : "Inicializando"}
             {fps > 1 ? ` · ${Math.round(fps)} fps` : ""}
+            {gl ? ` · ${renderDpr.toFixed(2)}×` : ""}
           </p>
           <nav className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
             <a className="hover:text-[#7af3ff]" href="https://gracianb.github.io/systems-lab/">
