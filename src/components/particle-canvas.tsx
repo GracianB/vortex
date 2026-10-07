@@ -29,28 +29,32 @@ export function ParticleCanvas({ ref }: Props) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    let engine: EngineApi;
-    try {
-      engine = createEngine(canvas, () => {
-        const s = useSettings.getState();
-        const snap: SettingsSnapshot = {
-          count: s.count,
-          force: s.force,
-          trail: s.trail,
-          palette: s.palette,
-          mode: s.mode,
-          bg: s.bg,
-          customBg: s.customBg,
-        };
-        return snap;
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "WebGL no disponible");
-      return;
-    }
+    const snapshot = (): SettingsSnapshot => {
+      const s = useSettings.getState();
+      return {
+        count: s.count,
+        force: s.force,
+        trail: s.trail,
+        palette: s.palette,
+        mode: s.mode,
+        bg: s.bg,
+        customBg: s.customBg,
+      };
+    };
 
-    engineRef.current = engine;
-    engine.start();
+    const boot = () => {
+      try {
+        const engine = createEngine(canvas, snapshot);
+        engineRef.current = engine;
+        engine.start();
+        setError(null);
+        if (window.__vortex) window.__vortex.gl = true;
+      } catch (err) {
+        engineRef.current = null;
+        setError(err instanceof Error ? err.message : "WebGL no disponible");
+        if (window.__vortex) window.__vortex.gl = false;
+      }
+    };
 
     window.__vortex = {
       count: () => useSettings.getState().count,
@@ -59,15 +63,30 @@ export function ParticleCanvas({ ref }: Props) {
       palette: () => useSettings.getState().palette,
       bg: () => useSettings.getState().bg,
       trail: () => useSettings.getState().trail,
-      gl: true,
-      clear: () => engine.clearTrails(),
-      reset: () => engine.resetParticles(),
-      capture: () => engine.capturePng(),
-      pulse: () => engine.pulse(),
+      gl: false,
+      clear: () => engineRef.current?.clearTrails(),
+      reset: () => engineRef.current?.resetParticles(),
+      capture: () => engineRef.current?.capturePng(),
+      pulse: () => engineRef.current?.pulse(),
     };
 
+    const onContextLost = (event: Event) => {
+      event.preventDefault();
+      engineRef.current?.destroy();
+      engineRef.current = null;
+      if (window.__vortex) window.__vortex.gl = false;
+      setError("WebGL se ha detenido. Recuperando el campo…");
+    };
+    const onContextRestored = () => boot();
+
+    canvas.addEventListener("webglcontextlost", onContextLost);
+    canvas.addEventListener("webglcontextrestored", onContextRestored);
+    boot();
+
     return () => {
-      engine.destroy();
+      canvas.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextrestored", onContextRestored);
+      engineRef.current?.destroy();
       engineRef.current = null;
       if (window.__vortex) delete window.__vortex;
     };
