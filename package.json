@@ -16,7 +16,8 @@
     "quality": "npm run typecheck && npm run lint && npm test && npm run build && npm run budget",
     "test:browser": "npm run build && node scripts/vortex-e2e.mjs",
     "quality:full": "npm run quality && npm run test:browser",
-    "budget": "node scripts/performance-budget.mjs"
+    "budget": "node scripts/performance-budget.mjs",
+    "smoke:live": "node scripts/live-contract.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slider": "^1.3.6",
