@@ -527,8 +527,8 @@
   border: 1px solid rgba(241,240,235,.1);
   border-radius: 1.35rem;
   background:
-    linear-gradient(180deg, rgba(12,14,18,.975), rgba(6,7,10,.985)),
-    radial-gradient(circle at 90% 0%, rgba(122,243,255,.08), transparent 36%);
+    radial-gradient(circle at 94% 0%, rgba(122,243,255,.07), transparent 32%),
+    #080a0d;
   backdrop-filter: blur(24px) saturate(120%);
   -webkit-backdrop-filter: blur(24px) saturate(120%);
   box-shadow:
@@ -579,7 +579,7 @@
   height: 2.35rem;
   border: 0;
   border-radius: 999px;
-  color: rgba(241,240,235,.42);
+  color: rgba(241,240,235,.56);
   background: transparent;
   transition: color .2s ease, background-color .2s ease;
 }
@@ -614,7 +614,7 @@
   font-family: var(--font-mono);
   font-size: .5rem;
   letter-spacing: .2em;
-  color: rgba(241,240,235,.35);
+  color: rgba(241,240,235,.52);
 }
 
 .v6-section__label span {
@@ -661,7 +661,7 @@
   margin-top: .2rem;
   font-size: .67rem;
   line-height: 1.45;
-  color: rgba(241,240,235,.46);
+  color: rgba(241,240,235,.62);
 }
 
 .v6-movement-card:hover,
@@ -729,7 +729,7 @@
   display: block;
   margin-top: .18rem;
   font-size: .6rem;
-  color: rgba(241,240,235,.42);
+  color: rgba(241,240,235,.58);
 }
 
 .v6-slider-block + .v6-slider-block {
@@ -749,7 +749,7 @@
   font-size: .54rem;
   letter-spacing: .13em;
   text-transform: uppercase;
-  color: rgba(241,240,235,.34);
+  color: rgba(241,240,235,.5);
 }
 
 .v6-tune-row > strong {
