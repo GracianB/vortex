@@ -1,4 +1,4 @@
-import type { FieldMode, Preset } from "@/lib/settings";
+import type { FieldMode, Preset } from "./settings.ts";
 
 export type Movement = {
   id: FieldMode;
