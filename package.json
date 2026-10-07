@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 8081",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test src/lib/settings.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/settings.test.ts src/lib/render-quality.test.ts",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
