@@ -65,7 +65,11 @@ export function ControlDock({ canvas }: Props) {
   const renderDpr = useLive((s) => s.renderDpr);
   const gl = useLive((s) => s.gl);
   const [open, setOpen] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(() =>
+    typeof window === "undefined"
+      ? true
+      : !window.matchMedia("(max-width: 640px)").matches,
+  );
   const [chromeHidden, setChromeHidden] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
