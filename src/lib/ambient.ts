@@ -11,14 +11,20 @@ export function readAmbientOn() {
   }
 }
 
+export function parseAmbientVolume(raw: string | null): number {
+  if (raw === null || raw.trim() === "") return 0.45;
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return 0.45;
+  return Math.min(1, Math.max(0, value));
+}
+
 export function readAmbientVolume() {
   try {
-    const n = Number(localStorage.getItem(VOL_KEY));
-    if (Number.isFinite(n)) return Math.min(1, Math.max(0, n));
+    return parseAmbientVolume(localStorage.getItem(VOL_KEY));
   } catch {
     // Storage is optional.
+    return 0.45;
   }
-  return 0.45;
 }
 
 type AmbientState = {
