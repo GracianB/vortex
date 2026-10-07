@@ -171,6 +171,7 @@ async function runDesktop(browser) {
   assert.equal(sharedUrl.searchParams.get("palette"), "solar");
   assert.equal(sharedUrl.searchParams.get("count"), "9800");
   assert.equal(sharedUrl.searchParams.has("embed"), false);
+  await page.getByRole("status").waitFor({ state: "detached", timeout: 2_500 });
 
   await page.screenshot({
     path: `${artifactsDir}/v6-desktop-canvas.png`,
@@ -214,6 +215,7 @@ async function runMobile(browser) {
       window.__vortex?.mode() === "flow" &&
       window.__vortex?.palette() === "aurora",
   );
+  await page.waitForTimeout(1_650);
 
   const overflow = await page.evaluate(
     () =>
