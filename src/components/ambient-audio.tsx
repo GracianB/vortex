@@ -15,7 +15,6 @@ export function AmbientEngine() {
   const graphRef = useRef<{
     context: AudioContext;
     analyser: AnalyserNode;
-    data: Uint8Array<ArrayBuffer>;
     raf: number;
   } | null>(null);
   const on = useAmbient((s) => s.on);
@@ -46,7 +45,7 @@ export function AmbientEngine() {
           analyser.smoothingTimeConstant = 0.84;
           source.connect(analyser);
           analyser.connect(context.destination);
-          const data = new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>;
+          const data = new Uint8Array(analyser.frequencyBinCount);
 
           const tick = () => {
             analyser.getByteFrequencyData(data);
@@ -63,7 +62,7 @@ export function AmbientEngine() {
             if (graphRef.current) graphRef.current.raf = raf;
           };
 
-          graphRef.current = { context, analyser, data, raf: 0 };
+          graphRef.current = { context, analyser, raf: 0 };
           tick();
         } catch {
           useAmbient.getState().setEnergy(0);
