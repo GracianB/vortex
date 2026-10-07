@@ -1,0 +1,36 @@
+name: Vórtice Production Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    name: Live V6 contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VORTEX_LIVE_URL: https://vortex-gilt-xi.vercel.app/
+      VORTEX_E2E_URL: https://vortex-gilt-xi.vercel.app/
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: HTTP + security contract
+        run: npm run smoke:live
+      - run: npx playwright install --with-deps chromium
+      - name: Production browser E2E
+        run: node scripts/vortex-e2e.mjs
+      - name: Upload live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vortex-live-v6-${{ github.sha }}
+          path: artifacts/e2e
+          if-no-files-found: warn
+          retention-days: 14
