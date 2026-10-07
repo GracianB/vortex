@@ -150,6 +150,9 @@ async function runMobile(browser) {
   await assertCleanPage(page, errors);
   await page.locator(".vortex-intro").waitFor({ state: "detached", timeout: 5_000 });
 
+  await page.getByRole("button", { name: "Mostrar controles" }).waitFor();
+  await page.getByRole("button", { name: "Mostrar controles" }).click();
+
   const hiddenDesktopActions = await page
     .locator('[data-testid="btn-clear"]')
     .evaluate((el) => getComputedStyle(el).display === "none");
