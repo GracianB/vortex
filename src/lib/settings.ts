@@ -105,6 +105,75 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
+function finiteParam(params: URLSearchParams, key: string): number | null {
+  const raw = params.get(key);
+  if (raw === null || raw.trim() === "") return null;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : null;
+}
+
+/**
+ * Parse a shareable scene URL without trusting arbitrary query-string values.
+ * Invalid values are ignored, so a malformed link can never poison the store.
+ */
+export function parseSceneSearch(search: string): Partial<SettingsSnapshot> {
+  const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const next: Partial<SettingsSnapshot> = {};
+
+  const mode = params.get("mode");
+  if (FIELD_MODES.some((item) => item.id === mode)) next.mode = mode as FieldMode;
+
+  const palette = params.get("palette");
+  if (PALETTES.some((item) => item.id === palette)) next.palette = palette as PaletteId;
+
+  const bg = params.get("bg");
+  if (bg === "custom" || FIELD_BG_OPTIONS.some((item) => item.id === bg)) {
+    next.bg = bg as FieldBgId;
+  }
+
+  const count = finiteParam(params, "count");
+  if (count !== null) {
+    next.count = clamp(
+      Math.round(count / COUNT_STEP) * COUNT_STEP,
+      COUNT_MIN,
+      COUNT_MAX,
+    );
+  }
+
+  const force = finiteParam(params, "force");
+  if (force !== null) next.force = clamp(force, FORCE_MIN, FORCE_MAX);
+
+  const trail = finiteParam(params, "trail");
+  if (trail !== null) next.trail = clamp(trail, TRAIL_MIN, TRAIL_MAX);
+
+  const color = params.get("color");
+  if (color && /^[0-9a-fA-F]{6}$/.test(color)) {
+    next.customBg = `#${color.toLowerCase()}`;
+    if (!bg) next.bg = "custom";
+  }
+
+  return next;
+}
+
+export function serializeScene(s: SettingsSnapshot): string {
+  const params = new URLSearchParams();
+  params.set("mode", s.mode);
+  params.set("palette", s.palette);
+  params.set("bg", s.bg);
+  params.set("count", String(Math.round(s.count)));
+  params.set("force", String(Number(s.force.toFixed(2))));
+  params.set("trail", String(Number(s.trail.toFixed(2))));
+  if (s.bg === "custom") params.set("color", s.customBg.replace("#", "").toLowerCase());
+  return params.toString();
+}
+
+export function buildSceneUrl(base: string, s: SettingsSnapshot): string {
+  const url = new URL(base);
+  url.search = serializeScene(s);
+  url.hash = "";
+  return url.toString();
+}
+
 function parsePersisted(raw: string): Partial<SettingsSnapshot> | null {
   try {
     const data = JSON.parse(raw) as Partial<Persisted>;
@@ -160,6 +229,7 @@ type SettingsStore = SettingsSnapshot & {
   setCustomBg: (customBg: string) => void;
   hydrate: () => void;
   persist: () => void;
+  applyScene: (scene: Partial<SettingsSnapshot>) => void;
   restoreDefaults: () => void;
 };
 
@@ -203,10 +273,15 @@ export const useSettings = create<SettingsStore>((set, get) => ({
   hydrate: () => {
     if (typeof window === "undefined" || get().hydrated) return;
     const defaults: Partial<SettingsSnapshot> = { count: defaultCount() };
-    const stored =
-      window.localStorage.getItem(STORAGE_KEY) ??
-      window.localStorage.getItem("vortex-settings-v1");
-    const parsed = stored ? parsePersisted(stored) : null;
+    let parsed: Partial<SettingsSnapshot> | null = null;
+    try {
+      const stored =
+        window.localStorage.getItem(STORAGE_KEY) ??
+        window.localStorage.getItem("vortex-settings-v1");
+      parsed = stored ? parsePersisted(stored) : null;
+    } catch {
+      // Storage can be unavailable in hardened/private browser contexts.
+    }
     set({ ...defaults, ...parsed, hydrated: true });
   },
   persist: () => {
@@ -222,7 +297,15 @@ export const useSettings = create<SettingsStore>((set, get) => ({
       bg,
       customBg,
     };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {
+      // The experience remains fully usable when persistence is blocked.
+    }
+  },
+  applyScene: (scene) => {
+    set(scene);
+    get().persist();
   },
   restoreDefaults: () => {
     set({
@@ -242,6 +325,7 @@ type LiveState = {
   meanSpeed: number;
   fps: number;
   samples: number;
+  renderDpr: number;
   gl: boolean;
   setLive: (next: Partial<Omit<LiveState, "setLive">>) => void;
 };
@@ -250,6 +334,7 @@ export const useLive = create<LiveState>((set) => ({
   meanSpeed: 0,
   fps: 0,
   samples: 0,
+  renderDpr: 1,
   gl: false,
   setLive: (next) => set(next),
 }));

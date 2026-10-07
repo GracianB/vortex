@@ -3,6 +3,7 @@ import {
   ChevronDown,
   Download,
   Eraser,
+  Focus,
   Maximize,
   RotateCcw,
   Pipette,
@@ -13,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
+  buildSceneUrl,
   COUNT_MAX,
   COUNT_MIN,
   COUNT_STEP,
@@ -29,6 +31,7 @@ import {
   useLive,
   useSettings,
   type FieldBgId,
+  type SettingsSnapshot,
 } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 import { AmbientToggle, AmbientVolume } from "@/components/ambient-audio";
@@ -59,17 +62,41 @@ export function ControlDock({ canvas }: Props) {
   const customBg = useSettings((s) => s.customBg);
   const meanSpeed = useLive((s) => s.meanSpeed);
   const fps = useLive((s) => s.fps);
+  const renderDpr = useLive((s) => s.renderDpr);
   const gl = useLive((s) => s.gl);
   const [open, setOpen] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(() =>
+    typeof window === "undefined"
+      ? true
+      : !window.matchMedia("(max-width: 640px)").matches,
+  );
+  const [chromeHidden, setChromeHidden] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
   const modeLabel = FIELD_MODES.find((m) => m.id === mode)?.label ?? "Vórtice";
   const paletteLabel = PALETTES.find((p) => p.id === palette)?.label ?? "";
 
   const share = async () => {
-    const url = "https://vortex-gilt-xi.vercel.app/";
-    const data = { title: "Vórtice", text: "Mueve el cursor. Eso es todo. Campo WebGL de GracianB.", url };
+    const state = useSettings.getState();
+    const snapshot: SettingsSnapshot = {
+      count: state.count,
+      force: state.force,
+      trail: state.trail,
+      palette: state.palette,
+      mode: state.mode,
+      bg: state.bg,
+      customBg: state.customBg,
+    };
+    const base =
+      typeof window !== "undefined"
+        ? window.location.href
+        : "https://vortex-gilt-xi.vercel.app/";
+    const url = buildSceneUrl(base, snapshot);
+    const data = {
+      title: "Vórtice",
+      text: `Vórtice · ${modeLabel} · ${paletteLabel || "WebGL"}`,
+      url,
+    };
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share(data);
@@ -124,6 +151,9 @@ export function ControlDock({ canvas }: Props) {
         useSettings.getState().setMode("orbit");
       } else if (e.code === "Digit4") {
         useSettings.getState().setMode("wave");
+      } else if (e.code === "KeyH" && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setChromeHidden((value) => !value);
       } else if (e.code === "KeyF" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         if (!document.fullscreenElement) {
@@ -143,13 +173,30 @@ export function ControlDock({ canvas }: Props) {
     window.setTimeout(() => setSaved(false), 1400);
   };
 
+  if (chromeHidden) {
+    return (
+      <button
+        type="button"
+        data-ui="chrome"
+        data-testid="chrome-toggle"
+        onClick={() => setChromeHidden(false)}
+        aria-label="Mostrar interfaz"
+        title="Mostrar interfaz (H)"
+        className="pointer-events-auto absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,#7af3ff_24%,transparent)] bg-card/75 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground backdrop-blur-md transition hover:border-[color-mix(in_srgb,#7af3ff_50%,transparent)] hover:text-foreground"
+      >
+        <Focus className="size-3.5 text-[#7af3ff]" />
+        Interfaz · H
+      </button>
+    );
+  }
+
   return (
     <>
       <header
         data-ui="chrome"
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-5"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-3 sm:p-5"
       >
-        <div className="pointer-events-auto relative overflow-hidden rounded-xl border border-[color-mix(in_srgb,#7af3ff_28%,transparent)] bg-gradient-to-br from-card/95 to-[#0a1418]/90 px-4 py-3 shadow-[0_0_0_1px_rgba(241,240,235,0.06),0_10px_40px_-12px_rgba(122,243,255,0.35)]">
+        <div className="pointer-events-auto relative min-w-0 overflow-hidden rounded-xl border border-[color-mix(in_srgb,#7af3ff_28%,transparent)] bg-gradient-to-br from-card/95 to-[#0a1418]/90 px-3 py-2 shadow-[0_0_0_1px_rgba(241,240,235,0.06),0_10px_40px_-12px_rgba(122,243,255,0.35)] sm:px-4 sm:py-3">
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7af3ff] to-transparent"
@@ -157,7 +204,7 @@ export function ControlDock({ canvas }: Props) {
           <div className="flex items-center gap-2.5">
             <a
               href="https://gracianb.github.io/GracianB/"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-gradient-to-br from-[#7af3ff] to-[#2b6f77] text-[11px] font-bold tracking-wide text-[#06070a] shadow-[0_0_16px_rgba(122,243,255,0.45)] transition-transform duration-150 ease-out hover:scale-105"
+              className="grid h-8 w-8 shrink-0 place-items-center sm:h-9 sm:w-9 rounded-md bg-gradient-to-br from-[#7af3ff] to-[#2b6f77] text-[11px] font-bold tracking-wide text-[#06070a] shadow-[0_0_16px_rgba(122,243,255,0.45)] transition-transform duration-150 ease-out hover:scale-105"
               aria-label="GracianB hub"
             >
               GB
@@ -166,21 +213,22 @@ export function ControlDock({ canvas }: Props) {
               <p className="font-display text-lg leading-tight tracking-display text-foreground">
                 Vórtice
               </p>
-              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#7af3ff]">
+              <p className="hidden font-mono text-[10px] uppercase tracking-[0.14em] text-[#7af3ff] sm:block">
                 PLAY · {modeLabel}
                 {paletteLabel ? ` · ${paletteLabel}` : ""}
               </p>
             </div>
           </div>
-          <p className="mt-1.5 text-xs leading-snug text-muted-foreground tabular-nums">
+          <p className="mt-1.5 hidden text-xs leading-snug text-muted-foreground tabular-nums sm:block">
             {fmt(count)} muestras
             {meanSpeed > 0 ? ` · ${fmt(meanSpeed, 0)} u/s` : ""}
           </p>
-          <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+          <p className="mt-0.5 hidden text-xs leading-snug text-muted-foreground sm:block">
             {gl ? "WebGL" : "Inicializando"}
             {fps > 1 ? ` · ${Math.round(fps)} fps` : ""}
+            {gl ? ` · ${renderDpr.toFixed(2)}×` : ""}
           </p>
-          <nav className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+          <nav className="mt-2 hidden flex-wrap gap-x-3 gap-y-1 font-mono sm:flex text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
             <a className="hover:text-[#7af3ff]" href="https://gracianb.github.io/systems-lab/">
               Lab
             </a>
@@ -205,14 +253,16 @@ export function ControlDock({ canvas }: Props) {
             </a>
           </nav>
         </div>
-        <div className="pointer-events-auto flex items-center gap-2">
+        <div className="pointer-events-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
           <AmbientToggle />
           <Button
             type="button"
             variant="secondary"
             size="icon"
-            aria-label="Compartir Vórtice"
-            title="Compartir"
+            aria-label="Compartir esta escena de Vórtice"
+            title="Compartir esta escena"
+            data-testid="btn-share"
+            className="max-sm:size-9"
             onClick={share}
           >
             <Share2 />
@@ -221,6 +271,7 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="secondary"
             size="icon"
+            className="max-sm:hidden"
             aria-label="Borrar estelas"
             title="Borrar estelas (C)"
             data-testid="btn-clear"
@@ -232,6 +283,7 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="secondary"
             size="icon"
+            className="max-sm:hidden"
             aria-label="Reiniciar campo"
             title="Reiniciar (R)"
             data-testid="btn-reset"
@@ -246,6 +298,7 @@ export function ControlDock({ canvas }: Props) {
             aria-label="Descargar captura"
             title="Descargar captura (S)"
             data-testid="btn-capture"
+            className="max-sm:size-9"
             onClick={capture}
           >
             <Download />
@@ -254,6 +307,7 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="secondary"
             size="icon"
+            className="max-sm:hidden"
             aria-label="Pantalla completa"
             title="Pantalla completa (F)"
             onClick={() => {
@@ -271,7 +325,7 @@ export function ControlDock({ canvas }: Props) {
 
       {saved || shared ? (
         <div className="pointer-events-none fixed inset-0 z-30 grid place-items-center">
-          <p className="rounded-xl border border-[color-mix(in_srgb,#7af3ff_40%,transparent)] bg-card/95 px-6 py-3.5 text-sm font-medium text-foreground shadow-[0_0_40px_rgba(122,243,255,0.3)]">
+          <p role="status" aria-live="polite" className="rounded-xl border border-[color-mix(in_srgb,#7af3ff_40%,transparent)] bg-card/95 px-6 py-3.5 text-sm font-medium text-foreground shadow-[0_0_40px_rgba(122,243,255,0.3)]">
             {saved ? "Captura lista ✓" : "Enlace copiado ✓"}
           </p>
         </div>
@@ -288,6 +342,15 @@ export function ControlDock({ canvas }: Props) {
         <div className="flex h-11 items-center justify-between border-b border-border px-4">
           <p className="text-sm font-medium text-foreground">Controles</p>
           <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label="Ocultar interfaz y dejar solo el lienzo"
+              title="Modo lienzo (H)"
+              onClick={() => setChromeHidden(true)}
+              className="grid size-8 place-items-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <Focus className="size-4" />
+            </button>
             <button
               type="button"
               className="flex h-11 items-center gap-1 text-xs font-medium text-muted-foreground sm:hidden"
@@ -385,6 +448,42 @@ export function ControlDock({ canvas }: Props) {
 
           <AmbientVolume />
 
+          <div className="mt-3 grid grid-cols-3 gap-2 sm:hidden">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => canvas.current?.clearTrails()}
+            >
+              <Eraser />
+              Borrar
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => canvas.current?.resetParticles()}
+            >
+              <RotateCcw />
+              Reiniciar
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                if (!document.fullscreenElement) {
+                  void document.documentElement.requestFullscreen?.();
+                } else {
+                  void document.exitFullscreen?.();
+                }
+              }}
+            >
+              <Maximize />
+              Pantalla
+            </Button>
+          </div>
+
           <div
             id="vortex-controls"
             className={cn(open ? "max-sm:block" : "max-sm:hidden")}
@@ -468,6 +567,19 @@ export function ControlDock({ canvas }: Props) {
                   />
                 </label>
               </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
+              <p className="max-w-[11rem] text-[10px] leading-relaxed text-muted-foreground">
+                Preferencias locales. Sin cuenta ni analítica.
+              </p>
+              <button
+                type="button"
+                onClick={() => useSettings.getState().restoreDefaults()}
+                className="shrink-0 rounded-md px-2 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              >
+                Restaurar
+              </button>
             </div>
           </div>
         </div>

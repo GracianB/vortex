@@ -1,62 +1,14 @@
 import { useEffect, useRef } from "react";
-import { create } from "zustand";
 import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import {
+  readAmbientOn,
+  readAmbientVolume,
+  useAmbient,
+} from "@/lib/ambient";
 
 const SRC = "/audio/sustained-focus.mp3";
-const ON_KEY = "vortex-music";
-const VOL_KEY = "vortex-music-vol";
-
-function readOn() {
-  try {
-    return localStorage.getItem(ON_KEY) !== "0";
-  } catch {
-    return true;
-  }
-}
-function readVol() {
-  try {
-    const n = Number(localStorage.getItem(VOL_KEY));
-    if (Number.isFinite(n)) return Math.min(1, Math.max(0, n));
-  } catch {
-    /* ignore */
-  }
-  return 0.45;
-}
-
-type Ambient = {
-  on: boolean;
-  volume: number;
-  setOn: (on: boolean) => void;
-  setVolume: (volume: number) => void;
-  toggle: () => void;
-};
-
-export const useAmbient = create<Ambient>((set, get) => ({
-  on: true,
-  volume: 0.45,
-  setOn: (on) => {
-    set({ on });
-    try {
-      localStorage.setItem(ON_KEY, on ? "1" : "0");
-    } catch {
-      /* ignore */
-    }
-  },
-  setVolume: (volume) => {
-    const v = Math.min(1, Math.max(0, volume));
-    set({ volume: v, on: v > 0 ? get().on || true : false });
-    try {
-      localStorage.setItem(VOL_KEY, String(v));
-      if (v === 0) localStorage.setItem(ON_KEY, "0");
-      else localStorage.setItem(ON_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-  },
-  toggle: () => get().setOn(!get().on),
-}));
 
 export function AmbientEngine() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -64,17 +16,23 @@ export function AmbientEngine() {
   const volume = useAmbient((s) => s.volume);
 
   useEffect(() => {
-    useAmbient.setState({ on: readOn(), volume: readVol() });
+    useAmbient.setState({
+      on: readAmbientOn(),
+      volume: readAmbientVolume(),
+    });
+
     const audio = new Audio(SRC);
     audio.loop = true;
-    audio.preload = "auto";
+    audio.preload = "metadata";
     audioRef.current = audio;
+
     const start = () => {
-      const s = useAmbient.getState();
-      if (!s.on) return;
-      audio.volume = s.volume;
+      const state = useAmbient.getState();
+      if (!state.on || state.volume <= 0) return;
+      audio.volume = state.volume;
       void audio.play().catch(() => {});
     };
+
     window.addEventListener("pointerdown", start);
     return () => {
       window.removeEventListener("pointerdown", start);
@@ -95,8 +53,13 @@ export function AmbientEngine() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+      ) {
+        return;
+      }
       if (e.code === "KeyM" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         useAmbient.getState().toggle();
@@ -116,6 +79,7 @@ export function AmbientToggle() {
       type="button"
       variant="secondary"
       size="icon"
+      className="max-sm:size-9"
       aria-label={on ? "Silenciar" : "Activar sonido"}
       title={on ? "Silenciar (M)" : "Sonido (M)"}
       aria-pressed={on}
@@ -130,6 +94,7 @@ export function AmbientVolume() {
   const on = useAmbient((s) => s.on);
   const volume = useAmbient((s) => s.volume);
   const shown = on ? volume : 0;
+
   return (
     <div className="mt-1">
       <div className="flex items-baseline justify-between gap-3">
@@ -145,10 +110,8 @@ export function AmbientVolume() {
         max={1}
         step={0.01}
         value={[shown]}
-        onValueChange={([v]) => {
-          if (typeof v !== "number") return;
-          useAmbient.getState().setVolume(v);
-          if (v > 0) useAmbient.getState().setOn(true);
+        onValueChange={([value]) => {
+          if (typeof value === "number") useAmbient.getState().setVolume(value);
         }}
         aria-label="Volumen"
       />
