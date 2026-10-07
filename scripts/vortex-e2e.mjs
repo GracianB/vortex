@@ -115,6 +115,12 @@ async function runDesktop(browser) {
   await page.locator('[data-testid="mode-flow"]').click();
   await page.waitForFunction(() => window.__vortex?.mode() === "flow");
 
+  await page.keyboard.press("KeyH");
+  await page.locator('[data-testid="chrome-toggle"]').waitFor();
+  assert.equal(await page.locator('[data-testid="btn-share"]').count(), 0);
+  await page.keyboard.press("KeyH");
+  await page.locator('[data-testid="btn-share"]').waitFor();
+
   await page.locator('[data-testid="btn-share"]').click();
   await page.waitForTimeout(150);
   const shared = await page.evaluate(() => navigator.clipboard.readText());
