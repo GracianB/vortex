@@ -28,6 +28,7 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - run: npm run budget
       - name: Production dependency audit
         run: npm audit --omit=dev --audit-level=high
 
