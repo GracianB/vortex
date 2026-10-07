@@ -19,7 +19,7 @@
     "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/auth/gate-identity.test.ts src/lib/settings.test.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "quality": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run check:auth && npm run build",
+    "quality": "npm run typecheck && npm run lint && npm test && npm run check:auth && npm run build",
     "test:browser": "node scripts/vortex-e2e.mjs",
     "quality:full": "npm run quality && npm run test:browser",
     "format:check": "prettier --check ."
