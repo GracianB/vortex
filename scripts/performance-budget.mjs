@@ -3,7 +3,7 @@ import { gzipSync } from "node:zlib";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const ROOT = ".vercel/output/static/assets";
+const ROOT = "dist/assets";
 const LIMITS = {
   largestJsRaw: 360_000,
   largestJsGzip: 115_000,
