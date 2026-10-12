@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-preferences";
 import { useEffect, useRef, useState } from "react";
 import {
   ParticleCanvas,
@@ -15,6 +16,7 @@ type Chapter = {
 };
 
 export function App() {
+  const t = useUiText();
   const canvasRef = useRef<ParticleCanvasHandle>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const previousModeRef = useRef(useSettings.getState().mode);
@@ -196,7 +198,7 @@ export function App() {
       data-movement={movement.id}
       className={`fixed inset-0 overflow-hidden bg-background text-foreground select-none${idle ? " is-v6-idle" : ""}`}
     >
-      <h1 className="sr-only">Vórtice — instrumento visual generativo WebGL</h1>
+      <h1 className="sr-only">{t("Vórtice — instrumento visual generativo WebGL")}</h1>
       <ParticleCanvas ref={canvasRef} />
       <div className="vortex-vignette" aria-hidden="true" />
       <div className="v6-grain" aria-hidden="true" />
@@ -223,10 +225,10 @@ export function App() {
         >
           <div className="v6-intro__axis" />
           <div className="vortex-intro__mark v6-intro__mark">
-            <p className="v6-intro__eyebrow">GENERATIVE FIELD / 2026</p>
+            <p className="v6-intro__eyebrow">{t("GENERATIVE FIELD / 2026")}</p>
             <span className="vortex-intro__word">VØRTICE</span>
-            <p className="vortex-intro__tag">MOVE TO DISTURB THE FIELD</p>
-            <p className="v6-intro__author">A VISUAL INSTRUMENT BY GRACIÁN BAENA</p>
+            <p className="vortex-intro__tag">{t("MOVE TO DISTURB THE FIELD")}</p>
+            <p className="v6-intro__author">{t("A VISUAL INSTRUMENT BY GRACIÁN BAENA")}</p>
           </div>
           <span className="vortex-intro__scan" />
         </div>
@@ -235,8 +237,8 @@ export function App() {
       {chapter && !embed ? (
         <div className="v6-chapter" aria-live="polite">
           <span>{chapter.eyebrow}</span>
-          <strong>{chapter.title}</strong>
-          <small>{chapter.note}</small>
+          <strong>{t(chapter.title)}</strong>
+          <small>{t(chapter.note)}</small>
         </div>
       ) : null}
 
@@ -244,7 +246,7 @@ export function App() {
         <div className="v6-idle-signature" aria-hidden="true">
           <span>VØRTICE</span>
           <i />
-          <small>BY GRACIÁN BAENA</small>
+          <small>{t("BY GRACIÁN BAENA")}</small>
         </div>
       ) : null}
 
@@ -253,9 +255,9 @@ export function App() {
           <ControlDock canvas={canvasRef} />
           {hint ? (
             <p className="v6-gesture-hint">
-              <span className="sm:hidden">TOCA · ARRASTRA · ESCUCHA</span>
+              <span className="sm:hidden">{t("TOCA · ARRASTRA · ESCUCHA")}</span>
               <span className="hidden sm:inline">
-                MOVE · HOLD · DISTURB · SPACE TO PULSE
+                {t("MOVE · HOLD · DISTURB · SPACE TO PULSE")}
               </span>
             </p>
           ) : null}

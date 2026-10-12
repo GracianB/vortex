@@ -1,3 +1,4 @@
+import { useUiPreferences, useUiText } from "@/lib/ui-preferences";
 import { useCallback, useEffect, useState, type ReactNode, type RefObject } from "react";
 import {
   Download,
@@ -49,6 +50,13 @@ function fmt(n: number, digits = 0) {
 }
 
 export function ControlDock({ canvas }: Props) {
+  const t = useUiText();
+  const language = useUiPreferences((state) => state.language);
+  const theme = useUiPreferences((state) => state.theme);
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dataset.uiTheme = theme;
+  }, [language, theme]);
   const count = useSettings((s) => s.count);
   const force = useSettings((s) => s.force);
   const trail = useSettings((s) => s.trail);
@@ -98,7 +106,7 @@ export function ControlDock({ canvas }: Props) {
     const url = buildSceneUrl(base, currentSnapshot());
     const data = {
       title: "VØRTICE",
-      text: `VØRTICE · ${movement.roman} · ${movement.name}`,
+      text: `VØRTICE · ${movement.roman} · ${t(movement.name)}`,
       url,
     };
 
@@ -213,8 +221,8 @@ export function ControlDock({ canvas }: Props) {
         data-ui="chrome"
         data-testid="chrome-toggle"
         onClick={() => setChromeHidden(false)}
-        aria-label="Mostrar interfaz"
-        title="Mostrar interfaz (H)"
+        aria-label={t("Mostrar interfaz")}
+        title={t("Mostrar interfaz (H)")}
         className="v6-reveal pointer-events-auto absolute right-4 top-4 z-20"
       >
         <span aria-hidden="true" />
@@ -234,18 +242,22 @@ export function ControlDock({ canvas }: Props) {
           <span className="v6-signature__name">VØRTICE</span>
           <span className="v6-signature__line" aria-hidden="true" />
           <span className="v6-signature__movement">
-            {movement.roman} · {movement.name}
+            {movement.roman} · {t(movement.name)}
           </span>
         </a>
 
         <div className="v6-actions pointer-events-auto">
+          <div className="v6-preferences" role="group" aria-label={language === "es" ? "Idioma y tema" : "Language and theme"}>
+            <button type="button" aria-label={language === "es" ? "Cambiar a inglés" : "Switch to Spanish"} onClick={() => useUiPreferences.getState().setLanguage(language === "es" ? "en" : "es")}>{language.toUpperCase()}</button>
+            <button type="button" aria-label={language === "es" ? (theme === "dark" ? "Usar tema claro" : "Usar tema oscuro") : (theme === "dark" ? "Use light theme" : "Use dark theme")} aria-pressed={theme === "light"} onClick={() => useUiPreferences.getState().setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? "☀" : "☾"}</button>
+          </div>
           <AmbientToggle className="v6-icon-button" />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            aria-label="Compartir esta escena de Vórtice"
-            title="Compartir escena"
+            aria-label={t("Compartir esta escena de Vórtice")}
+            title={t("Compartir escena")}
             data-testid="btn-share"
             className="v6-icon-button"
             onClick={share}
@@ -256,8 +268,8 @@ export function ControlDock({ canvas }: Props) {
             type="button"
             variant="ghost"
             size="icon"
-            aria-label={panelOpen ? "Ocultar instrumento" : "Mostrar instrumento"}
-            title="Instrumento (I)"
+            aria-label={t(panelOpen ? "Ocultar instrumento" : "Mostrar instrumento")}
+            title={t("Instrumento (I)")}
             aria-expanded={panelOpen}
             data-testid="instrument-toggle"
             className="v6-icon-button"
@@ -270,7 +282,7 @@ export function ControlDock({ canvas }: Props) {
 
       <nav
         data-ui="chrome"
-        aria-label="Movimientos de Vórtice"
+        aria-label={t("Movimientos de Vórtice")}
         className={cn("v6-movement-rail", panelOpen && "is-panel-open")}
       >
         {MOVEMENTS.map((item) => {
@@ -285,7 +297,7 @@ export function ControlDock({ canvas }: Props) {
               onClick={() => setMovement(item.id)}
             >
               <span>{item.roman}</span>
-              <strong>{item.name}</strong>
+              <strong>{t(item.name)}</strong>
             </button>
           );
         })}
@@ -298,7 +310,7 @@ export function ControlDock({ canvas }: Props) {
             aria-live="polite"
             className="v6-toast"
           >
-            {saved ? "CAPTURA · LISTA" : "ESCENA · COPIADA"}
+            {t(saved ? "CAPTURA · LISTA" : "ESCENA · COPIADA")}
           </p>
         </div>
       ) : null}
@@ -307,17 +319,17 @@ export function ControlDock({ canvas }: Props) {
         <aside
           data-ui="chrome"
           data-testid="instrument-panel"
-          aria-label="Instrumento de Vórtice"
+          aria-label={t("Instrumento de Vórtice")}
           className="v6-instrument"
         >
           <div className="v6-instrument__head">
             <div>
-              <p>INSTRUMENT / 06</p>
+              <p>{t("INSTRUMENT / 06")}</p>
               <h2>VØRTICE</h2>
             </div>
             <button
               type="button"
-              aria-label="Cerrar instrumento"
+              aria-label={t("Cerrar instrumento")}
               onClick={() => setPanelOpen(false)}
               className="v6-panel-close"
             >
@@ -329,7 +341,7 @@ export function ControlDock({ canvas }: Props) {
             <section className="v6-section">
               <div className="v6-section__label">
                 <span>01</span>
-                <p>MOVEMENTS</p>
+                <p>{t("MOVEMENTS")}</p>
               </div>
               <div className="v6-movement-list">
                 {MOVEMENTS.map((item) => {
@@ -343,8 +355,8 @@ export function ControlDock({ canvas }: Props) {
                     >
                       <span>{item.roman}</span>
                       <div>
-                        <strong>{item.name}</strong>
-                        <small>{item.description}</small>
+                        <strong>{t(item.name)}</strong>
+                        <small>{t(item.description)}</small>
                       </div>
                     </button>
                   );
@@ -355,7 +367,7 @@ export function ControlDock({ canvas }: Props) {
             <section className="v6-section">
               <div className="v6-section__label">
                 <span>02</span>
-                <p>STATES</p>
+                <p>{t("STATES")}</p>
               </div>
               <div className="v6-scene-grid">
                 {MASTER_SCENES.map((scene) => (
@@ -371,7 +383,7 @@ export function ControlDock({ canvas }: Props) {
                   >
                     <span>{scene.code}</span>
                     <strong>{scene.label}</strong>
-                    <small>{scene.note}</small>
+                    <small>{t(scene.note)}</small>
                   </button>
                 ))}
               </div>
@@ -380,11 +392,11 @@ export function ControlDock({ canvas }: Props) {
             <section className="v6-section">
               <div className="v6-section__label">
                 <span>03</span>
-                <p>TUNE</p>
+                <p>{t("TUNE")}</p>
               </div>
 
               <InstrumentSlider
-                label="Muestras"
+                label={t("Muestras")}
                 value={fmt(count)}
                 min={COUNT_MIN}
                 max={COUNT_MAX}
@@ -393,7 +405,7 @@ export function ControlDock({ canvas }: Props) {
                 onChange={(value) => useSettings.getState().setCount(value)}
               />
               <InstrumentSlider
-                label="Energía"
+                label={t("Energía")}
                 value={`${fmt(force, 2)}×`}
                 min={FORCE_MIN}
                 max={FORCE_MAX}
@@ -402,7 +414,7 @@ export function ControlDock({ canvas }: Props) {
                 onChange={(value) => useSettings.getState().setForce(value)}
               />
               <InstrumentSlider
-                label="Estela"
+                label={t("Estela")}
                 value={fmt(trail, 2)}
                 min={TRAIL_MIN}
                 max={TRAIL_MAX}
@@ -413,16 +425,16 @@ export function ControlDock({ canvas }: Props) {
 
               <div className="mt-5">
                 <div className="v6-tune-row">
-                  <span>Paleta</span>
-                  <strong>{paletteLabel.toUpperCase()}</strong>
+                  <span>{t("Paleta")}</span>
+                  <strong>{t(paletteLabel).toUpperCase()}</strong>
                 </div>
                 <div className="v6-palette-row">
                   {PALETTES.map((item) => (
                     <button
                       key={item.id}
                       type="button"
-                      aria-label={`Paleta ${item.label}`}
-                      title={item.label}
+                      aria-label={`${t("Paleta")} ${t(item.label)}`}
+                      title={t(item.label)}
                       data-palette={item.id}
                       className={cn(
                         "v6-palette",
@@ -438,9 +450,9 @@ export function ControlDock({ canvas }: Props) {
 
               <div className="mt-5">
                 <div className="v6-tune-row">
-                  <span>Fondo</span>
+                  <span>{t("Fondo")}</span>
                   <strong>
-                    {(FIELD_BG_OPTIONS.find((item) => item.id === bg)?.label ??
+                    {t(FIELD_BG_OPTIONS.find((item) => item.id === bg)?.label ??
                       (bg === "custom" ? "Custom" : bg)
                     ).toUpperCase()}
                   </strong>
@@ -450,8 +462,8 @@ export function ControlDock({ canvas }: Props) {
                     <button
                       key={item.id}
                       type="button"
-                      aria-label={`Fondo ${item.label}`}
-                      title={item.label}
+                      aria-label={`${t("Fondo")} ${t(item.label)}`}
+                      title={t(item.label)}
                       className={cn(
                         "v6-bg",
                         bg === item.id && "is-active",
@@ -479,7 +491,7 @@ export function ControlDock({ canvas }: Props) {
                     <input
                       type="color"
                       value={customBg}
-                      aria-label="Fondo personalizado"
+                      aria-label={t("Fondo personalizado")}
                       onChange={(event) =>
                         useSettings.getState().setCustomBg(event.target.value)
                       }
@@ -496,32 +508,32 @@ export function ControlDock({ canvas }: Props) {
             <section className="v6-section">
               <div className="v6-section__label">
                 <span>04</span>
-                <p>FIELD</p>
+                <p>{t("FIELD")}</p>
               </div>
               <div className="v6-utility-grid">
                 <Utility
                   testId="btn-clear"
-                  label="Borrar"
+                  label={t("Borrar")}
                   shortcut="C"
                   icon={<Eraser />}
                   onClick={() => canvas.current?.clearTrails()}
                 />
                 <Utility
                   testId="btn-reset"
-                  label="Reiniciar"
+                  label={t("Reiniciar")}
                   shortcut="R"
                   icon={<RotateCcw />}
                   onClick={() => canvas.current?.resetParticles()}
                 />
                 <Utility
                   testId="btn-capture"
-                  label="Captura"
+                  label={t("Captura")}
                   shortcut="S"
                   icon={<Download />}
                   onClick={capture}
                 />
                 <Utility
-                  label="Pantalla"
+                  label={t("Pantalla")}
                   shortcut="F"
                   icon={<Maximize />}
                   onClick={() => {
@@ -533,13 +545,19 @@ export function ControlDock({ canvas }: Props) {
                   }}
                 />
                 <Utility
-                  label="Lienzo"
+                  label={t("Lienzo")}
                   shortcut="H"
                   icon={<Focus />}
                   onClick={() => setChromeHidden(true)}
                 />
               </div>
             </section>
+
+            <nav className="v6-universes" aria-label={t("Otros universos de Gracián Baena")}>
+              <a href="https://gracianb.github.io/systems-lab/" target="_blank" rel="noopener noreferrer">Systems Lab ↗</a>
+              <a href="https://gracianb.github.io/systems-lab/#aigoritmo" target="_blank" rel="noopener noreferrer">{t("Aigoritmo · app local ↗")}</a>
+              <a href="https://gracianb.github.io/professional-deck/" target="_blank" rel="noopener noreferrer">Deck ↗</a>
+            </nav>
 
             <footer className="v6-instrument__footer">
               <span>
