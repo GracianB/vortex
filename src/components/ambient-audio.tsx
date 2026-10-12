@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-preferences";
 import { useEffect, useRef } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -139,6 +140,7 @@ export function AmbientToggle({
 }: {
   className?: string;
 }) {
+  const t = useUiText();
   const on = useAmbient((s) => s.on);
   return (
     <Button
@@ -146,8 +148,8 @@ export function AmbientToggle({
       variant="ghost"
       size="icon"
       className={className}
-      aria-label={on ? "Silenciar" : "Activar sonido"}
-      title={on ? "Silenciar (M)" : "Sonido (M)"}
+      aria-label={t(on ? "Silenciar" : "Activar sonido")}
+      title={t(on ? "Silenciar (M)" : "Sonido (M)")}
       aria-pressed={on}
       onClick={() => useAmbient.getState().toggle()}
     >
@@ -157,6 +159,7 @@ export function AmbientToggle({
 }
 
 export function AmbientVolume() {
+  const t = useUiText();
   const on = useAmbient((s) => s.on);
   const volume = useAmbient((s) => s.volume);
   const shown = on ? volume : 0;
@@ -179,7 +182,7 @@ export function AmbientVolume() {
         onValueChange={([value]) => {
           if (typeof value === "number") useAmbient.getState().setVolume(value);
         }}
-        aria-label="Volumen"
+        aria-label={t("Volumen")}
       />
     </div>
   );
