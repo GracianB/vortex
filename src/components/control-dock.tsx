@@ -541,6 +541,12 @@ export function ControlDock({ canvas }: Props) {
               </div>
             </section>
 
+            <nav className="v6-universes" aria-label="Otros universos de Gracián Baena">
+              <a href="https://gracianb.github.io/systems-lab/" target="_blank" rel="noopener noreferrer">Systems Lab ↗</a>
+              <a href="https://gracianb.github.io/systems-lab/#aigoritmo" target="_blank" rel="noopener noreferrer">Aigoritmo · app local ↗</a>
+              <a href="https://gracianb.github.io/professional-deck/" target="_blank" rel="noopener noreferrer">Deck ↗</a>
+            </nav>
+
             <footer className="v6-instrument__footer">
               <span>
                 {gl ? `${Math.round(fps)} FPS · ${renderDpr.toFixed(2)}×` : "WEBGL · INIT"}

@@ -1287,3 +1287,7 @@
     display: none;
   }
 }
+
+.v6-universes{display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;border-top:1px solid rgba(255,255,255,.14)}
+.v6-universes a{color:#d4dce4;font-size:12px;line-height:1.5;text-decoration:underline;text-underline-offset:4px;padding:6px 0}
+.v6-universes a:focus-visible{outline:2px solid #c9b3ff;outline-offset:4px}
