@@ -52,11 +52,11 @@ export function App() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const hold = window.setTimeout(
       () => setIntroDone(true),
-      reduce ? 180 : 2100,
+      reduce ? 180 : 3200,
     );
     const gone = window.setTimeout(
       () => setIntro(false),
-      reduce ? 380 : 2850,
+      reduce ? 380 : 3900,
     );
     const skip = () => {
       setIntroDone(true);
@@ -223,7 +223,7 @@ export function App() {
           className={`vortex-intro v6-intro${introDone ? " is-done" : ""}`}
           aria-hidden="true"
         >
-          <div className="v6-intro__axis" />
+          <img className="v7-cover-art" src="/vortex-field.svg" alt="" /><div className="v6-intro__axis" />
           <div className="vortex-intro__mark v6-intro__mark">
             <p className="v6-intro__eyebrow">{t("GENERATIVE FIELD / 2026")}</p>
             <span className="vortex-intro__word">VØRTICE</span>
@@ -236,7 +236,7 @@ export function App() {
 
       {chapter && !embed ? (
         <div className="v6-chapter" aria-live="polite">
-          <span>{chapter.eyebrow}</span>
+          <span>{chapter.eyebrow.replace("MOVEMENT", t("MOVEMENTS")).replace("STATE", t("STATES"))}</span>
           <strong>{t(chapter.title)}</strong>
           <small>{t(chapter.note)}</small>
         </div>

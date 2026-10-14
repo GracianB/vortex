@@ -1,3 +1,4 @@
+import { useUiText } from "@/lib/ui-preferences";
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import { createEngine, type EngineApi } from "@/lib/particles";
 import { useLive, useSettings, type SettingsSnapshot } from "@/lib/settings";
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export function ParticleCanvas({ ref }: Props) {
+  const t = useUiText();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<EngineApi | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +102,7 @@ export function ParticleCanvas({ ref }: Props) {
         className="absolute inset-0 z-0 size-full cursor-none touch-none bg-background"
         data-canvas="vortex"
         data-engine="webgl"
-        aria-label="Campo de datos WebGL"
+        aria-label={t("Campo de datos WebGL")}
       />
       {error ? (
         <p className="absolute inset-0 z-10 m-auto h-fit max-w-sm rounded-xl bg-card px-5 py-4 text-center text-sm text-foreground shadow-border">
