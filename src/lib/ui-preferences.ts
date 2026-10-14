@@ -36,6 +36,7 @@ const dictionary: Record<string, string> = {
   "Paleta": "Palette",
   "Fondo": "Background",
   "Fondo personalizado": "Custom background",
+  "Personalizado": "Custom",
   "Borrar": "Clear",
   "Reiniciar": "Reset",
   "Captura": "Capture",

@@ -40,13 +40,10 @@ type Props = {
   canvas: RefObject<ParticleCanvasHandle | null>;
 };
 
-function fmt(n: number, digits = 0) {
-  if (digits === 0) {
-    return Math.round(n)
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  }
-  return n.toFixed(digits).replace(".", ",");
+function fmt(n: number, digits = 0, language = "es") {
+  return n.toLocaleString(language === "en" ? "en-US" : "es-ES", {
+    minimumFractionDigits: digits, maximumFractionDigits: digits,
+  });
 }
 
 export function ControlDock({ canvas }: Props) {
@@ -239,7 +236,7 @@ export function ControlDock({ canvas }: Props) {
           className="v6-signature pointer-events-auto"
           aria-label="Gracián Baena"
         >
-          <span className="v6-signature__name">VØRTICE</span>
+          <img className="v6-brand-icon" src="/favicon.svg" alt="" width="28" height="28" /><span className="v6-signature__name">VØRTICE</span>
           <span className="v6-signature__line" aria-hidden="true" />
           <span className="v6-signature__movement">
             {movement.roman} · {t(movement.name)}
@@ -247,10 +244,6 @@ export function ControlDock({ canvas }: Props) {
         </a>
 
         <div className="v6-actions pointer-events-auto">
-          <div className="v6-preferences" role="group" aria-label={language === "es" ? "Idioma y tema" : "Language and theme"}>
-            <button type="button" aria-label={language === "es" ? "Cambiar a inglés" : "Switch to Spanish"} onClick={() => useUiPreferences.getState().setLanguage(language === "es" ? "en" : "es")}>{language.toUpperCase()}</button>
-            <button type="button" aria-label={language === "es" ? (theme === "dark" ? "Usar tema claro" : "Usar tema oscuro") : (theme === "dark" ? "Use light theme" : "Use dark theme")} aria-pressed={theme === "light"} onClick={() => useUiPreferences.getState().setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? "☀" : "☾"}</button>
-          </div>
           <AmbientToggle className="v6-icon-button" />
           <Button
             type="button"
@@ -337,6 +330,16 @@ export function ControlDock({ canvas }: Props) {
             </button>
           </div>
 
+          <div className="v6-display-settings">
+            <span>{language === "es" ? "Idioma" : "Language"}</span>
+            <div role="group" aria-label={language === "es" ? "Idioma" : "Language"}>
+              {(["es", "en"] as const).map(value => <button key={value} type="button" aria-pressed={language === value} onClick={() => useUiPreferences.getState().setLanguage(value)}>{value.toUpperCase()}</button>)}
+            </div>
+            <span>{language === "es" ? "Apariencia" : "Appearance"}</span>
+            <div role="group" aria-label={language === "es" ? "Apariencia del instrumento" : "Instrument appearance"}>
+              {(["dark", "light"] as const).map(value => <button key={value} type="button" aria-pressed={theme === value} onClick={() => useUiPreferences.getState().setTheme(value)}>{language === "es" ? (value === "dark" ? "Oscuro" : "Claro") : (value === "dark" ? "Dark" : "Light")}</button>)}
+            </div>
+          </div>
           <div className="v6-instrument__scroll">
             <section className="v6-section">
               <div className="v6-section__label">
@@ -397,7 +400,7 @@ export function ControlDock({ canvas }: Props) {
 
               <InstrumentSlider
                 label={t("Muestras")}
-                value={fmt(count)}
+                value={fmt(count, 0, language)}
                 min={COUNT_MIN}
                 max={COUNT_MAX}
                 step={COUNT_STEP}
@@ -406,7 +409,7 @@ export function ControlDock({ canvas }: Props) {
               />
               <InstrumentSlider
                 label={t("Energía")}
-                value={`${fmt(force, 2)}×`}
+                value={`${fmt(force, 2, language)}×`}
                 min={FORCE_MIN}
                 max={FORCE_MAX}
                 step={FORCE_STEP}
@@ -415,7 +418,7 @@ export function ControlDock({ canvas }: Props) {
               />
               <InstrumentSlider
                 label={t("Estela")}
-                value={fmt(trail, 2)}
+                value={fmt(trail, 2, language)}
                 min={TRAIL_MIN}
                 max={TRAIL_MAX}
                 step={TRAIL_STEP}
@@ -453,7 +456,7 @@ export function ControlDock({ canvas }: Props) {
                   <span>{t("Fondo")}</span>
                   <strong>
                     {t(FIELD_BG_OPTIONS.find((item) => item.id === bg)?.label ??
-                      (bg === "custom" ? "Custom" : bg)
+                      (bg === "custom" ? "Personalizado" : bg)
                     ).toUpperCase()}
                   </strong>
                 </div>
