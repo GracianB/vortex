@@ -1,225 +1,68 @@
 <div align="center">
 
-<a href="https://vortex-gilt-xi.vercel.app/">
-  <img src="https://capsule-render.vercel.app/api?type=waving&height=240&color=0:06070A,35:0B1720,65:102A43,100:7AF3FF&text=V%C3%93RTICE&fontColor=F4F3EE&fontSize=62&fontAlignY=36&desc=WEBGL%20%C2%B7%20MUEVE%20EL%20CURSOR&descAlignY=58&descSize=16&animation=twinkling" width="100%" alt="Vórtice. WebGL. Mueve el cursor."/>
-</a>
+<a href="https://vortex-gilt-xi.vercel.app/"><img src="./public/vortex-cover.svg" width="100%" alt="VÓRTICE · campo generativo WebGL y trazos fluidos" /></a>
 
-<a href="https://vortex-gilt-xi.vercel.app/">
-  <img src="https://readme-typing-svg.demolab.com?font=Fraunces&weight=500&size=26&duration=2600&pause=800&color=7AF3FF&center=true&vCenter=true&width=820&height=56&lines=Mueve+el+cursor.;El+campo+responde.;V%C3%B3rtice+%C2%B7+Flujo+%C2%B7+%C3%93rbita+%C2%B7+Onda;Seis+paletas+%C2%B7+sin+cuenta;PLAY+%C2%B7+GracianB" alt="Mueve el cursor. El campo responde."/>
-</a>
+# VØRTICE
 
-<br/>
+**Un instrumento visual. El movimiento lo decides tú.**
 
-<a href="https://vortex-gilt-xi.vercel.app/"><img src="https://img.shields.io/badge/ABRIR_V%C3%93RTICE-7AF3FF?style=for-the-badge&labelColor=06070A" alt="Abrir Vórtice"/></a>
-<a href="https://gracianb.github.io/systems-lab/"><img src="https://img.shields.io/badge/02_LAB-7AF3FF?style=for-the-badge&labelColor=06070A" alt="Systems Lab"/></a>
-<a href="https://gracianb.github.io/project-ohana/"><img src="https://img.shields.io/badge/OHANA-F4F3EE?style=for-the-badge&labelColor=06070A" alt="Ohana"/></a>
-<a href="https://gracianb.github.io/GracianB/"><img src="https://img.shields.io/badge/HUB-C4A574?style=for-the-badge&labelColor=06070A" alt="Hub"/></a>
+[**Abrir la experiencia ↗**](https://vortex-gilt-xi.vercel.app/) · [**Systems Lab ↗**](https://gracianb.github.io/systems-lab/) · [**Portafolio ↗**](https://gracianb.github.io/GracianB/)
 
-<br/><br/>
-
-**No es una captura. Es un instrumento visual en tiempo real.**
-
-Miles de muestras. Cuatro campos. Seis paletas. Presets, audio, captura y respuesta WebGL en tiempo real.
-
-<br/>
-
-[Español](#español) · [English](#english)
+React 19 · TypeScript · WebGL · Vite · interacción en tiempo real
 
 </div>
 
 ---
 
-## V6 · Experiencia audiovisual generativa
+## No es un vídeo: es un sistema que responde
 
-Vórtice convierte una regla matemática mínima en una experiencia audiovisual manipulable. V5 cerró la arquitectura; **V6 cierra la obra**. El campo ocupa la pantalla, la interfaz se retira y los controles aparecen solo cuando hacen falta. El cursor no navega por Vórtice: forma parte de él. Cada gesto, movimiento y pulso altera un instrumento WebGL que puede explorarse, escucharse, capturarse y compartir su estado exacto.
+Mueve el cursor, cambia el campo, modifica su intensidad o simplemente deja que el movimiento respire. El proyecto se ejecuta en el navegador y no requiere iniciar sesión.
 
-**Stack:** React 19 · TypeScript · WebGL · Zustand · Vite 8
-
-**Contrato de calidad:** TypeScript estricto + ESLint sin warnings + tests unitarios + build reproducible + E2E real en Chromium + auditoría de dependencias de producción.
-
-### V6 · Qué cambia por fuera
-
-- **canvas-first**: la obra se abre sin un dashboard ocupando la composición;
-- cuatro movimientos tratados como capítulos: **I VÓRTICE · II FLUJO · III ÓRBITA · IV ONDA**;
-- seis estados maestros: **VOID · AURORA · SOLAR · EMBER · ICE · PAPER**;
-- instrumento avanzado bajo demanda con `I` y lienzo puro con `H`;
-- apertura cinematográfica, transiciones de movimiento e identidad de reposo;
-- `Sustained Focus` alimenta una respuesta Web Audio deliberadamente sutil;
-- al dejar el campo quieto, el chrome desaparece y vuelve la firma de la pieza.
-
-### Lo que demuestra
-
-- rendering WebGL interactivo con miles de muestras;
-- estado persistente y presets reproducibles;
-- interacción por puntero, teclado y controles táctiles;
-- accesibilidad con reduced-motion y semántica de controles;
-- captura PNG, fullscreen, audio ambiental y modo embed;
-- escenas reproducibles mediante URL: comparte el estado exacto del campo;
-- modo lienzo inmersivo con `H`, sin chrome alrededor de la pieza;
-- pausa del renderer en pestañas ocultas y recuperación de contexto WebGL;
-- diseño responsive, mobile-first y degradación controlada cuando WebGL no está disponible.
-
-## Lo que hace
-
-```mermaid
-%%{init: {'theme':'dark'}}%%
-flowchart LR
-  U[Cursor] --> P[Posición]
-  P --> F[Fuerza]
-  F --> C[Campo]
-  C --> V[Vórtice]
-  C --> L[Flujo]
-  C --> O[Órbita]
-  C --> W[Onda]
-  V --> R[WebGL]
-  L --> R
-  O --> R
-  W --> R
-```
-
-<div align="center">
-
-### [Abrir Vórtice](https://vortex-gilt-xi.vercel.app/)
-
-</div>
-
----
-
-<a id="español"></a>
-
-## Español
-
-Vórtice es un campo de partículas en WebGL, del mundo Play de [GracianB](https://gracianb.github.io/GracianB/). No hay un vídeo que se reproduzca. Hay una regla, muchas muestras, y el cursor.
-
-La entrada es mínima. La respuesta no. Atraes, pulsas, dejas estela, cambias la regla, la paleta, el fondo, la densidad y la energía. No hay una configuración correcta. Hay una que te gusta.
-
-### Cuatro campos
-
-La misma simulación, cuatro comportamientos. Se cambian con `1` `2` `3` `4` o desde el panel.
-
-| Tecla | Campo | Qué hace |
+| Cuatro movimientos | Seis estados maestros | Herramientas |
 | --- | --- | --- |
-| `1` | Vórtice | Las muestras giran hacia el puntero |
-| `2` | Flujo | Siguen una corriente |
-| `3` | Órbita | Rodean el centro, en dos radios |
-| `4` | Onda | El campo responde como un pulso |
+| **1 Vórtice** · 2 Flujo · 3 Órbita · 4 Onda | VOID · AURORA · SOLAR · EMBER · ICE · PAPER | Paletas y densidad; audio ambiental; captura PNG; compartir escena; modo lienzo |
 
-### Mandos
+### Prueba estos controles
 
-| | |
+| Acción | Control |
 | --- | --- |
-| Puntero | El campo sigue al cursor |
-| Clic y mantener | Fuerza local. Si arrastras, la fuerza se mueve y deja estela |
-| `Espacio` | Pulso de todo el campo |
-| `F` | Pantalla completa |
-| `C` | Limpia las estelas |
-| `R` | Reinicia las muestras |
-| `S` | Guarda un PNG |
-| `M` | Activa o silencia el audio |
-| `H` | Oculta/muestra toda la interfaz y deja solo el lienzo |
-| `I` | Abre/cierra el instrumento avanzado |
+| Cambiar movimiento | `1`, `2`, `3`, `4` |
+| Pulso | `Espacio` |
+| Abrir el instrumento | `I` |
+| Interfaz mínima | `H` |
+| Reiniciar / limpiar | `R` / `C` |
+| Captura / pantalla completa | `S` / `F` |
+| Audio ambiental | `M` |
 
-En el panel: cantidad de muestras, energía, estela, paleta y fondo. **Compartir** genera una URL que conserva la escena exacta, para que otra persona abra el mismo campo, paleta, densidad, energía y estela.
+**Diseñado también para móvil:** controles táctiles, ajuste de calidad, respeto a movimiento reducido y aviso cuando WebGL no está disponible. La URL de compartir conserva los parámetros de la escena.
 
-### Color
+## Ejecutar y verificar
 
-Seis paletas, no cinco: Espectro, Aurora, Brasa, Hielo, Plata y Solar. Hielo es el acento de Play, `#7AF3FF`, sobre `#06070A`.
-
-Seis fondos: Vacío, Tinta, Abismo, Pizarra, Niebla y Papel. Papel es el claro.
-
-Unas combinaciones para empezar, no para obedecer:
-
-| | | |
-| --- | --- | --- |
-| Vórtice | Hielo | Vacío |
-| Flujo | Aurora | Niebla |
-| Órbita | Plata | Abismo |
-| Onda | Brasa | Pizarra |
-
-### Por qué WebGL
-
-Miles de puntos, cada frame, con estela. Una regla pequeña, repetida, se ve como un campo vivo. Más muestras tienen que sentirse como más atmósfera, no como más espera. Por eso la densidad se puede bajar.
-
-La experiencia incluye audio ambiental integrado y una capa visual pensada como pieza interactiva, no como demo técnica. En V6, **Sustained Focus** alimenta un analizador Web Audio: graves y medios modifican de forma contenida la respiración, el color y la luminosidad del campo. No dirige la pieza; la hace respirar. También está en [Suno](https://suno.com/s/Zq81WeM02AVZnhuC).
-
-### Dónde vive
-
-Ohana es el juego: estado, salas, evolución. Vórtice es el campo: rendering, movimiento, densidad. Los dos hacen lo mismo desde lados distintos. Una regla se convierte en experiencia.
-
-| | |
-| --- | --- |
-| Lab | [Systems Lab](https://gracianb.github.io/systems-lab/) |
-| Juego | [Ohana](https://gracianb.github.io/project-ohana/) |
-| Hub | [GracianB](https://gracianb.github.io/GracianB/) |
-| Deck | [Professional Deck](https://gracianb.github.io/professional-deck/) |
-| Yoga | [Yoga](https://gracianb.github.io/yoga-instructor/) |
-
-La experiencia que se abre no pide cuenta. El campo corre en el navegador.
-
-Para verlo en local:
+Requiere **Node 24**.
 
 ```bash
-git clone https://github.com/GracianB/vortex.git
-cd vortex
 npm ci
 npm run dev
 ```
 
-Abre [http://localhost:8080](http://localhost:8080). Hace falta Node 24. `npm run dev` levanta Vite en el puerto 8080.
-
-Contrato local de release:
+Abre [localhost:8080](http://localhost:8080/). Para validar una versión:
 
 ```bash
 npm run quality
 npm run test:browser
 ```
 
-`quality` exige tipos, lint sin warnings, tests y build. El E2E levanta la aplicación real y valida desktop, móvil, reduced-motion, navegación por teclado, escenas compartibles, overflow y consola limpia.
+El primer comando verifica tipos, lint, pruebas, compilación y presupuesto de tamaño. El segundo valida el navegador real con Playwright. CI comprueba ambos en GitHub. La disponibilidad del despliegue de Vercel debe validarse **independientemente** de esos controles.
 
-El despliegue live es Vercel: [vortex-gilt-xi.vercel.app](https://vortex-gilt-xi.vercel.app/).
+## Arquitectura y evidencia
 
----
+- **`src/lib/particles.ts`:** motor WebGL, dinámica, renderizado y gestión de recursos.
+- **`src/lib/settings.ts`:** estados y parámetros persistentes.
+- **`src/components/particle-canvas.tsx`:** ciclo de vida, recuperación del contexto y fallback.
+- **`src/components/control-dock.tsx`:** controles de instrumento y accesibilidad.
+- **`src/lib/ambient.ts`:** capa sonora y respuesta del campo.
+- **`scripts/`:** contratos, auditoría de seguridad, presupuesto, E2E y prueba de disponibilidad pública.
 
-<a id="english"></a>
+[**Certificado técnico V6**](RELEASE_V6.md) · [**Documentación ampliada**](docs/V6_REFERENCE.md) · [**Auditoría GitHub**](docs/REPOSITORY_REVIEW.md) · [**Cambios**](CHANGELOG.md) · [**CI**](https://github.com/GracianB/vortex/actions)
 
-## English
-
-### V6 · Generative audiovisual experience
-
-Vórtice turns a minimal mathematical rule into a generative audiovisual experience. V5 closed the architecture; **V6 closes the artwork**. The field leads, the interface recedes, four behaviours become movements, and six curated states become distinct visual worlds. Sustained Focus contributes a restrained Web Audio signal to motion and luminosity. Built with React 19, TypeScript, WebGL, Zustand and Vite, with automated gates for strict type safety, zero-warning linting, unit tests, production build, dependency audit and real Chromium E2E.
-
-Vórtice is a WebGL particle field. Not a video. A rule, many samples, and the cursor.
-
-Four behaviours, keys `1` to `4`: vortex (samples turn toward the pointer), flow (a current), orbit (two radii around the centre), wave (the field answers like a pulse).
-
-Pointer follows. Click and hold is a local force; drag it and it leaves a trail. Space is a global pulse. `F` fullscreen, `C` clears trails, `R` resets, `S` saves a PNG, `M` toggles audio, `I` opens the instrument, and `H` switches to a pure canvas-only mode.
-
-Six palettes: Spectrum, Aurora, Ember, Ice, Silver, Solar. Six backgrounds: Void, Ink, Abyss, Slate, Fog, Paper.
-
-The open experience asks for no account. The field runs in the browser. Scenes can be shared as URLs that preserve their exact visual state. Locally: Node 24, `npm ci`, `npm run dev`, port 8080.
-
-It sits next to [Ohana](https://gracianb.github.io/project-ohana/) in [Play](https://gracianb.github.io/systems-lab/). Ohana is the game. Vórtice is the field. Same idea: a rule becomes an experience.
-
-[Open it](https://vortex-gilt-xi.vercel.app/).
-
----
-
-<div align="center">
-
-<a href="https://calendar.app.google/n99psBFktwYyoAWi9"><img src="https://img.shields.io/badge/30_min-F4F3EE?style=for-the-badge&labelColor=06070A" alt="Reservar 30 minutos"/></a>
-<a href="mailto:gracianbaenagonzalez@gmail.com"><img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white&labelColor=06070A" alt="Email"/></a>
-<a href="https://www.linkedin.com/in/gracianbaena"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=06070A" alt="LinkedIn"/></a>
-
-<br/><br/>
-
-[Vórtice](https://vortex-gilt-xi.vercel.app/) · [Lab](https://gracianb.github.io/systems-lab/) · [Ohana](https://gracianb.github.io/project-ohana/) · [Hub](https://gracianb.github.io/GracianB/)
-
-<br/>
-
-<a href="https://vortex-gilt-xi.vercel.app/">
-  <img src="https://capsule-render.vercel.app/api?type=waving&height=110&section=footer&reversal=true&color=0:7AF3FF,40:102A43,100:06070A&text=MUEVE%20EL%20CURSOR&fontColor=F4F3EE&fontSize=22&fontAlignY=64&animation=fadeIn" width="100%" alt="Mueve el cursor."/>
-</a>
-
-<sub>Murcia · 2026</sub>
-
-</div>
+<sub>Una experiencia interactiva propia dentro del ecosistema GracianB. Las imágenes de portada explican la pieza, pero no sustituyen a la simulación viva.</sub>
