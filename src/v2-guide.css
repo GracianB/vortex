@@ -1,0 +1,16 @@
+/* V2: discoverable accessible field guide */
+.v2-help-trigger{position:fixed;bottom:24px;right:22px;z-index:46;width:42px;height:42px;border:1px solid var(--border);border-radius:50%;background:var(--background);color:var(--foreground);font-weight:700;cursor:pointer;transition:transform .2s,border-color .2s}
+.v2-help-trigger:hover{transform:scale(1.08);border-color:currentColor}
+.v2-help-backdrop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:18px;background:rgba(1,8,17,.78);backdrop-filter:blur(12px)}
+.v2-help-panel{width:min(100%,480px);max-height:85vh;overflow-y:auto;padding:clamp(22px,4vw,35px);border:1px solid rgba(180,224,255,.26);border-radius:20px;background:#091522;color:#ecf7ff;box-shadow:0 30px 100px rgba(0,0,0,.55);user-select:text}
+.v2-help-heading{display:flex;align-items:start;justify-content:space-between;gap:16px}
+.v2-help-heading small{letter-spacing:.18em;color:#99bed3;font:600 10px monospace}
+.v2-help-heading h2{font-size:clamp(23px,4vw,32px);margin:6px 0 12px}
+.v2-help-heading button{padding:4px 10px;font-size:30px;line-height:1;cursor:pointer}
+.v2-help-panel p{color:#b2c9d8;font-size:14px;line-height:1.6}
+.v2-help-panel dl{margin:22px 0;display:grid;gap:0}
+.v2-help-panel dl div{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:11px 0;border-bottom:1px solid rgba(180,224,255,.13)}
+.v2-help-panel dt{font:700 12px monospace;white-space:nowrap;color:#8fe5f7}
+.v2-help-panel dd{margin:0;text-align:right;font-size:13px;color:#d6e4ef}
+.v2-help-done{display:block;width:100%;border-radius:10px;padding:13px;background:#bdeefa;color:#05111c;font-weight:700;cursor:pointer}
+@media(prefers-reduced-motion:reduce){.v2-help-trigger{transition:none}.v2-help-backdrop{backdrop-filter:none}}

@@ -27,6 +27,7 @@ export function App() {
   const movement = movementFor(mode);
 
   const [hint, setHint] = useState(true);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [intro, setIntro] = useState(true);
   const [introDone, setIntroDone] = useState(false);
   const [embed, setEmbed] = useState(false);
@@ -192,6 +193,21 @@ export function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (embed) return;
+    const shortcut = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || target.closest("input,textarea,select"))) return;
+      if (event.key === "?" && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        setHelpOpen((open) => !open);
+      }
+      if (event.key === "Escape") setHelpOpen(false);
+    };
+    window.addEventListener("keydown", shortcut);
+    return () => window.removeEventListener("keydown", shortcut);
+  }, [embed]);
+
   return (
     <main
       data-testid="vortex-root"
@@ -250,6 +266,19 @@ export function App() {
         </div>
       ) : null}
 
+      {!embed ? (
+        <button type="button" data-ui className="v2-help-trigger" onClick={() => setHelpOpen(true)} aria-label="Show controls" aria-keyshortcuts="?" title="Keyboard shortcuts (?)">?</button>
+      ) : null}
+      {helpOpen && !embed ? (
+        <div className="v2-help-backdrop" data-ui onPointerDown={(event) => { if (event.target === event.currentTarget) setHelpOpen(false); }}>
+          <section className="v2-help-panel" role="dialog" aria-modal="true" aria-label={t("Vórtice controls")}>
+            <div className="v2-help-heading"><div><small>VØRTICE / GUIDE</small><h2>{t("Explore the field")}</h2></div><button type="button" onClick={() => setHelpOpen(false)} aria-label="Close controls">×</button></div>
+            <p>{t("Move the pointer to disturb the particles. Hold to create a stronger interaction.")}</p>
+            <dl><div><dt>1 · 2 · 3 · 4</dt><dd>{t("Change movement")}</dd></div><div><dt>SPACE</dt><dd>{t("Pulse the field")}</dd></div><div><dt>I</dt><dd>{t("Instrument panel")}</dd></div><div><dt>H</dt><dd>{t("Hide interface")}</dd></div><div><dt>M</dt><dd>{t("Toggle ambient audio")}</dd></div><div><dt>S</dt><dd>{t("Save image")}</dd></div><div><dt>ESC / ?</dt><dd>{t("Close this guide")}</dd></div></dl>
+            <button type="button" className="v2-help-done" onClick={() => setHelpOpen(false)}>{t("Back to the field")} ↗</button>
+          </section>
+        </div>
+      ) : null}
       {!embed ? (
         <div className="pointer-events-none absolute inset-0">
           <ControlDock canvas={canvasRef} />
