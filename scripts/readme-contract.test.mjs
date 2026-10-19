@@ -10,3 +10,9 @@ test('repository readme links to actual Vórtice source, live entry and concise 
  assert.match(readme,/Production Smoke/);
  assert.doesNotMatch(readme,/127\.0\.0\.1:8001/);
 });
+
+test('lockfile does not install unused TanStack Start server packages',()=>{
+ const lock=JSON.parse(readFileSync('package-lock.json','utf8'));
+ const installed=Object.keys(lock.packages).filter(path=>path.startsWith('node_modules/@tanstack/'));
+ assert.deepEqual(installed,[],'orphaned optional server packages should not be locked into this client-only app');
+});
