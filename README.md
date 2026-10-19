@@ -1,68 +1,67 @@
 <div align="center">
 
-<a href="https://vortex-gilt-xi.vercel.app/"><img src="./public/vortex-cover.svg" width="100%" alt="VÓRTICE · campo generativo WebGL y trazos fluidos" /></a>
+<a href="https://vortex-gilt-xi.vercel.app/">
+  <img src="./public/vortex-cover.svg" alt="Vórtice: campo generativo interactivo" width="100%">
+</a>
 
 # VØRTICE
 
-**Un instrumento visual. El movimiento lo decides tú.**
+**El campo responde.**
 
-[**Abrir la experiencia ↗**](https://vortex-gilt-xi.vercel.app/) · [**Systems Lab ↗**](https://gracianb.github.io/systems-lab/) · [**Portafolio ↗**](https://gracianb.github.io/GracianB/)
+Arte generativo audiovisual en **WebGL**. No es un vídeo: miles de puntos reaccionan al movimiento, el ritmo y las decisiones del visitante.
 
-React 19 · TypeScript · WebGL · Vite · interacción en tiempo real
+[**Abrir experiencia ↗**](https://vortex-gilt-xi.vercel.app/) · [**Entrar desde Systems Lab ↗**](https://gracianb.github.io/systems-lab/#vortex-live) · [**Controles**](docs/CONTROLS.md) · [**English**](#english)
 
 </div>
 
 ---
 
-## No es un vídeo: es un sistema que responde
+## Un instrumento, cuatro movimientos
 
-Mueve el cursor, cambia el campo, modifica su intensidad o simplemente deja que el movimiento respire. El proyecto se ejecuta en el navegador y no requiere iniciar sesión.
+| 01 Vórtice | 02 Flujo | 03 Órbita | 04 Onda |
+| --- | --- | --- | --- |
+| Atracción hacia el puntero | Corrientes y estelas | Movimiento orbital | Pulsos que modifican el campo |
 
-| Cuatro movimientos | Seis estados maestros | Herramientas |
-| --- | --- | --- |
-| **1 Vórtice** · 2 Flujo · 3 Órbita · 4 Onda | VOID · AURORA · SOLAR · EMBER · ICE · PAPER | Paletas y densidad; audio ambiental; captura PNG; compartir escena; modo lienzo |
+**Haz algo, y el campo responde:** mueve el cursor, mantén pulsado, cambia el movimiento o abre el panel de instrumentos. Seis estados maestros combinan color y ambiente: Void, Aurora, Solar, Ember, Ice y Paper.
 
-### Prueba estos controles
+Los controles están diseñados para exploración: `1–4` movimientos, `I` panel, `H` solo lienzo, `Espacio` pulso, `M` audio, `S` captura PNG. [Ver todos los controles ↗](docs/CONTROLS.md).
 
-| Acción | Control |
-| --- | --- |
-| Cambiar movimiento | `1`, `2`, `3`, `4` |
-| Pulso | `Espacio` |
-| Abrir el instrumento | `I` |
-| Interfaz mínima | `H` |
-| Reiniciar / limpiar | `R` / `C` |
-| Captura / pantalla completa | `S` / `F` |
-| Audio ambiental | `M` |
+## Lo que demuestra
 
-**Diseñado también para móvil:** controles táctiles, ajuste de calidad, respeto a movimiento reducido y aviso cuando WebGL no está disponible. La URL de compartir conserva los parámetros de la escena.
+- Motor WebGL con simulación en tiempo real y recuperación del contexto.
+- React 19 + TypeScript, Vite y estado compartible por URL.
+- Adaptación al rendimiento del dispositivo, móvil y movimiento reducido.
+- Audio ambiental opcional y sutil; sin cuenta de usuario.
+- Cuatro movimientos, presets/estados visuales, modo embed y captura.
+- Calidad reproducible con TypeScript, ESLint, pruebas unitarias y E2E Chromium.
 
-## Ejecutar y verificar
+## Ejecutarlo localmente
 
-Requiere **Node 24**.
+**Node 24** (ver `.nvmrc`).
 
 ```bash
+git clone https://github.com/GracianB/vortex.git
+cd vortex
 npm ci
 npm run dev
 ```
 
-Abre [localhost:8080](http://localhost:8080/). Para validar una versión:
+Abre **http://localhost:8080/**.
 
 ```bash
-npm run quality
-npm run test:browser
+npm run quality          # tipos, lint, tests, build y presupuesto
+npm run test:browser     # E2E Chromium real
+npm run smoke:live       # comprueba la URL pública externa
 ```
 
-El primer comando verifica tipos, lint, pruebas, compilación y presupuesto de tamaño. El segundo valida el navegador real con Playwright. CI comprueba ambos en GitHub. La disponibilidad del despliegue de Vercel debe validarse **independientemente** de esos controles.
+El workflow **Vórtice Quality** protege los cambios. El workflow manual **Vórtice Production Smoke** verifica la URL pública, sus cabeceras y E2E directo. Una ejecución verde de Quality **no garantiza** que Vercel haya publicado el commit actual.
 
 ## Arquitectura y evidencia
 
-- **`src/lib/particles.ts`:** motor WebGL, dinámica, renderizado y gestión de recursos.
-- **`src/lib/settings.ts`:** estados y parámetros persistentes.
-- **`src/components/particle-canvas.tsx`:** ciclo de vida, recuperación del contexto y fallback.
-- **`src/components/control-dock.tsx`:** controles de instrumento y accesibilidad.
-- **`src/lib/ambient.ts`:** capa sonora y respuesta del campo.
-- **`scripts/`:** contratos, auditoría de seguridad, presupuesto, E2E y prueba de disponibilidad pública.
+[**Estructura y decisiones**](docs/ARCHITECTURE.md) · [**Controles y accesibilidad**](docs/CONTROLS.md) · [**Pruebas y estado del release**](docs/RELEASE_STATUS.md) · [**Certificado histórico V6**](RELEASE_V6.md) · [**CI**](https://github.com/GracianB/vortex/actions) · [**GitHub Settings**](docs/REPOSITORY_SETTINGS.md)
 
-[**Certificado técnico V6**](RELEASE_V6.md) · [**Documentación ampliada**](docs/V6_REFERENCE.md) · [**Auditoría GitHub**](docs/REPOSITORY_REVIEW.md) · [**Cambios**](CHANGELOG.md) · [**CI**](https://github.com/GracianB/vortex/actions)
+El laboratorio principal conserva un **póster estático** de Vórtice en claro/oscuro y solo carga el iframe al activarlo. El render WebGL vive en este proyecto, no en Systems Lab.
 
-<sub>Una experiencia interactiva propia dentro del ecosistema GracianB. Las imágenes de portada explican la pieza, pero no sustituyen a la simulación viva.</sub>
+## English
+
+Vórtice is a real-time **WebGL audiovisual instrument**, not a pre-rendered video. Four movements, six curated visual states and optional ambient audio respond to pointer and keyboard input. Its shared URLs preserve scene settings. The renderer adapts to device capabilities and honors reduced motion. [Launch](https://vortex-gilt-xi.vercel.app/) · [Controls](docs/CONTROLS.md) · [Local setup](#ejecutarlo-localmente).

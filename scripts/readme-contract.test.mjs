@@ -1,14 +1,18 @@
-import {test} from "node:test";
-import assert from "node:assert/strict";
-import {readFileSync,existsSync} from "node:fs";
-const readme=readFileSync(new URL("../README.md",import.meta.url),"utf8");
-test("Vórtice README is an honest, self-hosted repository storefront",()=>{
-  assert.ok(readme.length<6000);
-  for(const name of ["public/vortex-cover.svg","docs/V6_REFERENCE.md","docs/REPOSITORY_REVIEW.md","RELEASE_V6.md"]) {
-    assert.ok(existsSync(new URL("../"+name,import.meta.url)),name+" is missing");
-  }
-  assert.match(readme,/npm run quality/);
-  assert.match(readme,/npm run test:browser/);
-  assert.match(readme,/independientemente/);
-  assert.doesNotMatch(readme,/capsule-render\.vercel|readme-typing-svg\.demolab/);
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {existsSync,readFileSync} from 'node:fs';
+test('repository readme links to actual Vórtice source, live entry and concise guides',()=>{
+ const readme=readFileSync('README.md','utf8');
+ assert.ok(readme.length<7000);
+ for(const file of ['public/vortex-cover.svg','docs/ARCHITECTURE.md','docs/CONTROLS.md','docs/RELEASE_STATUS.md','RELEASE_V6.md']) assert.ok(existsSync(file),'missing '+file);
+ assert.match(readme,/vortex-gilt-xi\.vercel\.app/);
+ assert.match(readme,/WebGL/);
+ assert.match(readme,/Production Smoke/);
+ assert.doesNotMatch(readme,/127\.0\.0\.1:8001/);
+});
+
+test('lockfile does not install unused TanStack Start server packages',()=>{
+ const lock=JSON.parse(readFileSync('package-lock.json','utf8'));
+ const installed=Object.keys(lock.packages).filter(path=>path.startsWith('node_modules/@tanstack/'));
+ assert.deepEqual(installed,[],'orphaned optional server packages should not be locked into this client-only app');
 });
