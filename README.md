@@ -58,7 +58,7 @@ El workflow **Vórtice Quality** protege los cambios. El workflow manual **Vórt
 
 ## Arquitectura y evidencia
 
-[**Estructura y decisiones**](docs/ARCHITECTURE.md) · [**Controles y accesibilidad**](docs/CONTROLS.md) · [**Pruebas y estado del release**](docs/RELEASE_STATUS.md) · [**Certificado histórico V6**](RELEASE_V6.md) · [**CI**](https://github.com/GracianB/vortex/actions)
+[**Estructura y decisiones**](docs/ARCHITECTURE.md) · [**Controles y accesibilidad**](docs/CONTROLS.md) · [**Pruebas y estado del release**](docs/RELEASE_STATUS.md) · [**Certificado histórico V6**](RELEASE_V6.md) · [**CI**](https://github.com/GracianB/vortex/actions) · [**GitHub Settings**](docs/REPOSITORY_SETTINGS.md)
 
 El laboratorio principal conserva un **póster estático** de Vórtice en claro/oscuro y solo carga el iframe al activarlo. El render WebGL vive en este proyecto, no en Systems Lab.
 
