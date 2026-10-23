@@ -54,6 +54,9 @@ npm run test:browser     # E2E Chromium real
 npm run smoke:live       # comprueba la URL pública externa
 ```
 
+Si Chromium está instalado por el sistema o por otro entorno y Playwright no lo encuentra, el E2E admite **`CHROMIUM_BIN`** como ruta absoluta al ejecutable. En Linux, por ejemplo: `CHROMIUM_BIN=/usr/bin/chromium npm run test:browser`. La prueba aísla Google Fonts con una hoja CSS vacía para que un proveedor externo lento no bloquee el instrumento WebGL; **la aplicación de producción no se modifica**. Un PASS local no certifica Vercel ni sustituye `npm run smoke:live`.
+
+
 El workflow **Vórtice Quality** protege los cambios. El workflow manual **Vórtice Production Smoke** verifica la URL pública, sus cabeceras y E2E directo. Una ejecución verde de Quality **no garantiza** que Vercel haya publicado el commit actual.
 
 ## Arquitectura y evidencia
