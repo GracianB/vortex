@@ -92,8 +92,20 @@ async function waitForIntro(page) {
     .waitFor({ state: "detached", timeout: 5_000 });
 }
 
+// Optional OS-managed Chromium when Playwright's bundled browser is absent.
+// CI keeps its current bundled Chromium unless CHROMIUM_BIN is explicitly set.
+async function createTestContext(browser, options) {
+  const context=await browser.newContext(options);
+  // The test exercises WebGL and interaction, not third-party font hosting.
+  // Prevent Google Fonts from indefinitely stalling CI/offline previews.
+  // Return a valid empty stylesheet without generating console network errors.
+  await context.route(/^https:\/\/fonts\.googleapis\.com\//,route=>
+    route.fulfill({status:200,contentType:"text/css; charset=utf-8",body:""}));
+  return context;
+}
+
 async function runDesktop(browser) {
-  const context = await browser.newContext({
+  const context = await createTestContext(browser, {
     viewport: { width: 1440, height: 900 },
   });
   await context.grantPermissions(["clipboard-read", "clipboard-write"], {
@@ -188,7 +200,7 @@ async function runDesktop(browser) {
 }
 
 async function runMobile(browser) {
-  const context = await browser.newContext({
+  const context = await createTestContext(browser, {
     viewport: { width: 390, height: 844 },
     isMobile: true,
     hasTouch: true,
@@ -239,7 +251,7 @@ async function runMobile(browser) {
 }
 
 async function runNarrowMobile(browser) {
-  const context = await browser.newContext({
+  const context = await createTestContext(browser, {
     viewport: { width: 320, height: 568 },
     isMobile: true,
     hasTouch: true,
@@ -279,7 +291,7 @@ async function runNarrowMobile(browser) {
 }
 
 async function runEmbed(browser) {
-  const context = await browser.newContext({
+  const context = await createTestContext(browser, {
     viewport: { width: 1280, height: 720 },
   });
   const page = await context.newPage();
@@ -306,7 +318,7 @@ async function runEmbed(browser) {
 }
 
 async function runReducedMotion(browser) {
-  const context = await browser.newContext({
+  const context = await createTestContext(browser, {
     viewport: { width: 1280, height: 800 },
     reducedMotion: "reduce",
   });
@@ -351,12 +363,13 @@ async function main() {
   let browser;
   try {
     browser = await chromium.launch({
+      ...(process.env.CHROMIUM_BIN ? { executablePath: process.env.CHROMIUM_BIN } : {}),
       headless: true,
       args: ["--no-sandbox", "--disable-dev-shm-usage"],
     });
   } catch (err) {
     throw new Error(
-      `Chromium is unavailable. Run "npx playwright install chromium". Original error: ${String(
+      `Chromium is unavailable. Install Playwright Chromium or set CHROMIUM_BIN to an installed executable. Original error: ${String(
         err?.message || err,
       )}`,
     );

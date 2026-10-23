@@ -30,7 +30,18 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run budget
-      - name: Full dependency audit
+  security:
+    name: Dependency security (blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Full dependency audit (must pass before release)
         run: npm audit --audit-level=high
 
   browser:
