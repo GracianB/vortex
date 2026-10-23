@@ -1,0 +1,36 @@
+name: Vortex one-time audited lock refresh
+
+on:
+  push:
+    branches: [fix/chromium-bin-fonts-e2e-20261023]
+    paths: [.github/workflows/vortex-lock-refresh.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.repository == 'GracianB/vortex' && github.ref == 'refs/heads/fix/chromium-bin-fonts-e2e-20261023'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Refresh only vulnerable lockfile resolutions (no scripts)
+        run: npm audit fix --package-lock-only --ignore-scripts
+      - name: Validate refreshed lockfile
+        run: npm audit --audit-level=high
+      - name: Commit lockfile to review branch only
+        shell: bash
+        run: |
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m "fix(deps): refresh patched Vite and Zod lockfile"
+            git push origin HEAD:fix/chromium-bin-fonts-e2e-20261023
+          fi
