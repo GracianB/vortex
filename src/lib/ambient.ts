@@ -5,9 +5,9 @@ const VOL_KEY = "vortex-music-vol";
 
 export function readAmbientOn() {
   try {
-    return localStorage.getItem(ON_KEY) !== "0";
+    return localStorage.getItem(ON_KEY) === "1";
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -38,7 +38,7 @@ type AmbientState = {
 };
 
 export const useAmbient = create<AmbientState>((set, get) => ({
-  on: true,
+  on: false,
   volume: 0.45,
   energy: 0,
   setOn: (on) => {

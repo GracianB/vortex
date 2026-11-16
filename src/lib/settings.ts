@@ -102,8 +102,8 @@ export const TRAIL_MAX = 0.97;
 export const TRAIL_STEP = 0.01;
 
 export function defaultCount(): number {
-  if (typeof window === "undefined") return 8000;
-  return window.matchMedia("(max-width: 640px)").matches ? 4000 : 8000;
+  if (typeof window === "undefined") return 18000;
+  return window.matchMedia("(max-width: 640px)").matches ? 14000 : 18000;
 }
 
 export type SettingsSnapshot = {
@@ -256,9 +256,9 @@ type SettingsStore = SettingsSnapshot & {
 };
 
 export const useSettings = create<SettingsStore>((set, get) => ({
-  count: 8000,
+  count: 18000,
   force: 1,
-  trail: 0.92,
+  trail: 0,
   palette: "ice",
   mode: "vortex",
   bg: "void",
@@ -333,7 +333,7 @@ export const useSettings = create<SettingsStore>((set, get) => ({
     set({
       count: defaultCount(),
       force: 1,
-      trail: 0.92,
+      trail: 0,
       palette: "ice",
       mode: "vortex",
       bg: "void",
