@@ -128,7 +128,7 @@ export function ControlDock({ canvas }: Props) {
     [canvas],
   );
 
-  const applyMasterScene = (id: string) => {
+  const applyMasterScene = useCallback((id: string) => {
     const scene = MASTER_SCENES.find((item) => item.id === id);
     if (!scene) return;
     useSettings.getState().applyScene({
@@ -151,7 +151,7 @@ export function ControlDock({ canvas }: Props) {
       );
       canvas.current?.pulse();
     }, 40);
-  };
+  }, [canvas]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -209,7 +209,7 @@ export function ControlDock({ canvas }: Props) {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [canvas, setMovement]);
+  }, [canvas, setMovement, applyMasterScene]);
 
   const capture = () => {
     canvas.current?.capturePng();
