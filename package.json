@@ -1,6 +1,6 @@
 {
   "name": "vortex",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "private": true,
   "sideEffects": false,
   "type": "module",

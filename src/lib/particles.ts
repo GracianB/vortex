@@ -30,6 +30,7 @@ const PALETTE_INDEX: Record<PaletteId, number> = {
   ice: 3,
   silver: 4,
   solar: 5,
+  nebula: 6,
 };
 
 const POINT_VS = `
@@ -86,10 +87,14 @@ vec3 tone() {
     h = 210.0;
     s = u_light > 0.5 ? 0.08 : 0.14;
     l = u_light > 0.5 ? 0.28 + spd * 0.10 : 0.74 + spd * 0.14;
-  } else if (u_palette > 4.5) {
+  } else if (u_palette > 4.5 && u_palette < 5.5) {
     h = 45.0 - spd * 105.0;
     s = u_light > 0.5 ? 0.80 : 0.95;
     l = u_light > 0.5 ? 0.34 + spd * 0.12 : 0.54 + spd * 0.24;
+  } else if (u_palette > 5.5) {
+    h = 280.0 + sin(v_hue * 0.02) * 50.0 + spd * 30.0;
+    s = u_light > 0.5 ? 0.70 : 0.88;
+    l = u_light > 0.5 ? 0.35 + spd * 0.15 : 0.60 + spd * 0.20;
   } else {
     s = u_light > 0.5 ? 0.62 : 0.82;
     l = u_light > 0.5 ? 0.34 + spd * 0.12 : 0.58 + spd * 0.24;
@@ -409,6 +414,7 @@ export function createEngine(
       if (mode === "orbit") tr = seed[i] < 0.45 ? 44 : 108;
       else if (mode === "flow") tr = 58 + seed[i] * 36;
       else if (mode === "wave") tr = 64 + seed[i] * 28;
+      else if (mode === "chaos") tr = 30 + seed[i] * 120;
       else tr = RING_R + (seed[i] - 0.5) * 12;
       const tx = cx + Math.cos(ang) * tr;
       const ty = cy + Math.sin(ang) * tr;
@@ -512,8 +518,13 @@ export function createEngine(
           accY += fy * 420 * force * w;
         } else if (mode === "wave") {
           rest = 70 + Math.sin(hueShift * 0.55 + seed[i] * 6.2) * 38;
+        } else if (mode === "chaos") {
+          rest = 20 + seed[i] * 140;
+          const repel = dist < 60 ? (1 - dist / 60) * 1200 * force : 0;
+          accX = -nx * repel + (seed[i] - 0.5) * 800 * force;
+          accY = -ny * repel + ((seed[i] * 13) % 1 - 0.5) * 800 * force;
         }
-        if (mode !== "flow") {
+        if (mode !== "flow" && mode !== "chaos") {
           const err = dist - rest;
           accX = nx * err * (92 + force * 70) * w2 + tx * (980 + force * 620) * (0.35 + w);
           accY = ny * err * (92 + force * 70) * w2 + ty * (980 + force * 620) * (0.35 + w);
@@ -546,6 +557,13 @@ export function createEngine(
         const mag = Math.sin(phase) * 460 * force;
         accX = -nx * mag + tx * 260 * force;
         accY = -ny * mag + ty * 260 * force;
+      } else if (mode === "chaos") {
+        const brownianX = Math.sin(hueShift * 0.25 + seed[i] * 31.4) * 580 * force;
+        const brownianY = Math.cos(hueShift * 0.22 + seed[i] * 27.8) * 580 * force;
+        const turbulentPull = nx * pullK * inv * 0.45;
+        const turbulentSpin = tx * spinK * inv * 0.8;
+        accX = brownianX + turbulentPull + turbulentSpin;
+        accY = brownianY + ny * pullK * inv * 0.45 + ty * spinK * inv * 0.8;
       } else {
         accX = nx * pullK * inv + tx * (spinK * inv + force * 720 * near);
         accY = ny * pullK * inv + ty * (spinK * inv + force * 720 * near);
@@ -594,6 +612,8 @@ export function createEngine(
           glowSp += (0.5 + 0.5 * Math.sin(hueShift * 0.55 + seed[i] * 6)) * 52 * w;
         } else if (mode === "flow") {
           glowSp += 36 * w + holdAcc * 10;
+        } else if (mode === "chaos") {
+          glowSp += (45 + seed[i] * 40) * w;
         } else {
           glowSp += Math.exp((-((dist - RING_R) * (dist - RING_R))) / 500) * 58 * w;
         }

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { MASTER_SCENES, MOVEMENTS, movementFor } from "./movements.ts";
 
-test("V6 defines exactly four ordered movements", () => {
+test("defines five ordered movements", () => {
   assert.deepEqual(
     MOVEMENTS.map(({ id, roman }) => [id, roman]),
     [
@@ -10,14 +10,15 @@ test("V6 defines exactly four ordered movements", () => {
       ["flow", "II"],
       ["orbit", "III"],
       ["wave", "IV"],
+      ["chaos", "V"],
     ],
   );
 });
 
-test("every V6 master scene has a unique identity and valid movement", () => {
-  assert.equal(MASTER_SCENES.length, 6);
-  assert.equal(new Set(MASTER_SCENES.map((scene) => scene.id)).size, 6);
-  assert.equal(new Set(MASTER_SCENES.map((scene) => scene.code)).size, 6);
+test("every master scene has a unique identity and valid movement", () => {
+  assert.equal(MASTER_SCENES.length, 8);
+  assert.equal(new Set(MASTER_SCENES.map((scene) => scene.id)).size, 8);
+  assert.equal(new Set(MASTER_SCENES.map((scene) => scene.code)).size, 8);
 
   const validModes = new Set(MOVEMENTS.map((movement) => movement.id));
   for (const scene of MASTER_SCENES) {
@@ -31,4 +32,6 @@ test("every V6 master scene has a unique identity and valid movement", () => {
 test("movement lookup always resolves the canonical chapter", () => {
   assert.equal(movementFor("orbit").roman, "III");
   assert.equal(movementFor("wave").name, "ONDA");
+  assert.equal(movementFor("chaos").roman, "V");
+  assert.equal(movementFor("chaos").name, "CAOS");
 });

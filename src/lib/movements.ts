@@ -2,7 +2,7 @@ import type { FieldMode, Preset } from "./settings.ts";
 
 export type Movement = {
   id: FieldMode;
-  roman: "I" | "II" | "III" | "IV";
+  roman: "I" | "II" | "III" | "IV" | "V";
   name: string;
   verb: string;
   description: string;
@@ -36,6 +36,13 @@ export const MOVEMENTS: Movement[] = [
     name: "ONDA",
     verb: "RESONAR",
     description: "Impulsos que atraviesan el campo y vuelven convertidos en forma.",
+  },
+  {
+    id: "chaos",
+    roman: "V",
+    name: "CAOS",
+    verb: "COLAPSAR",
+    description: "Turbulencia browniana: repulsión, colisión y entropía total.",
   },
 ];
 
@@ -113,6 +120,30 @@ export const MASTER_SCENES: Array<
     count: 5600,
     force: 0.85,
     trail: 0.88,
+  },
+  {
+    id: "storm-v7",
+    code: "06",
+    label: "STORM",
+    note: "caos / tormenta",
+    mode: "chaos",
+    palette: "spectrum",
+    bg: "slate",
+    count: 14000,
+    force: 2.1,
+    trail: 0.82,
+  },
+  {
+    id: "galaxy-v7",
+    code: "07",
+    label: "GALAXY",
+    note: "nebulosa / infinito",
+    mode: "orbit",
+    palette: "nebula",
+    bg: "void",
+    count: 16000,
+    force: 1.0,
+    trail: 0.96,
   },
 ];
 

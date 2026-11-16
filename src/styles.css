@@ -436,8 +436,8 @@
   bottom: max(1.2rem, env(safe-area-inset-bottom));
   z-index: 19;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: min(36rem, calc(100vw - 2rem));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  width: min(44rem, calc(100vw - 2rem));
   transform: translateX(-50%);
   border-top: 1px solid rgba(241,240,235,.16);
   border-radius: 0 0 .65rem .65rem;
@@ -828,6 +828,9 @@
 }
 .v6-palette[data-palette="solar"] > span {
   background: linear-gradient(135deg, #fff27c, #ff9d42, #ec4f86);
+}
+.v6-palette[data-palette="nebula"] > span {
+  background: linear-gradient(135deg, #c084fc, #ec4899, #38bdf8);
 }
 
 .v6-bg--custom {

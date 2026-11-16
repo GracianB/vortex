@@ -183,6 +183,12 @@ export function ControlDock({ canvas }: Props) {
         setMovement("orbit");
       } else if (event.code === "Digit4") {
         setMovement("wave");
+      } else if (event.code === "Digit5") {
+        setMovement("chaos");
+      } else if (event.code === "KeyP" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        const randScene = MASTER_SCENES[Math.floor(Math.random() * MASTER_SCENES.length)];
+        if (randScene) applyMasterScene(randScene.id);
       } else if (event.code === "KeyH" && !event.metaKey && !event.ctrlKey) {
         event.preventDefault();
         setChromeHidden((value) => !value);

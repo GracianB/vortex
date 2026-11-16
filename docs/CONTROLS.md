@@ -4,8 +4,9 @@
 | --- | --- |
 | Puntero | Dirige el campo |
 | Mantener pulsado y arrastrar | Aplica fuerza al entorno |
-| `1` `2` `3` `4` | Vórtice, Flujo, Órbita, Onda |
+| `1` `2` `3` `4` `5` | Vórtice, Flujo, Órbita, Onda, Caos |
 | `Espacio` | Pulso |
+| `P` | Escena aleatoria |
 | `I` | Abrir/cerrar instrumento avanzado |
 | `H` | Alternar interfaz y lienzo puro |
 | `F` | Pantalla completa |
@@ -14,7 +15,7 @@
 | `S` | Guardar captura PNG |
 | `M` | Activar o silenciar audio |
 
-El panel controla energía, densidad, estelas, movimiento, color y fondo. Los **seis estados maestros** son Void, Aurora, Solar, Ember, Ice y Paper.
+El panel controla energía, densidad, estelas, movimiento, color y fondo. Los **ocho estados maestros** son Void, Aurora, Solar, Ember, Ice, Paper, Storm y Galaxy.
 
 ### Accesibilidad y rendimiento
 

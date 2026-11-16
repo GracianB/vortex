@@ -16,15 +16,15 @@ Arte generativo audiovisual en **WebGL**. No es un vídeo: miles de puntos reacc
 
 ---
 
-## Un instrumento, cuatro movimientos
+## Un instrumento, cinco movimientos
 
-| 01 Vórtice | 02 Flujo | 03 Órbita | 04 Onda |
-| --- | --- | --- | --- |
-| Atracción hacia el puntero | Corrientes y estelas | Movimiento orbital | Pulsos que modifican el campo |
+| 01 Vórtice | 02 Flujo | 03 Órbita | 04 Onda | 05 Caos |
+| --- | --- | --- | --- | --- |
+| Atracción hacia el puntero | Corrientes y estelas | Movimiento orbital | Pulsos que modifican el campo | Entropía y turbulencia browniana |
 
-**Haz algo, y el campo responde:** mueve el cursor, mantén pulsado, cambia el movimiento o abre el panel de instrumentos. Seis estados maestros combinan color y ambiente: Void, Aurora, Solar, Ember, Ice y Paper.
+**Haz algo, y el campo responde:** mueve el cursor, mantén pulsado, cambia el movimiento o abre el panel de instrumentos. Ocho estados maestros combinan color y ambiente: Void, Aurora, Solar, Ember, Ice, Paper, Storm y Galaxy.
 
-Los controles están diseñados para exploración: `1–4` movimientos, `I` panel, `H` solo lienzo, `Espacio` pulso, `M` audio, `S` captura PNG. [Ver todos los controles ↗](docs/CONTROLS.md).
+Los controles están diseñados para exploración: `1–5` movimientos, `P` escena aleatoria, `I` panel, `H` solo lienzo, `Espacio` pulso, `M` audio, `S` captura PNG. [Ver todos los controles ↗](docs/CONTROLS.md).
 
 ## Lo que demuestra
 
@@ -32,7 +32,7 @@ Los controles están diseñados para exploración: `1–4` movimientos, `I` pane
 - React 19 + TypeScript, Vite y estado compartible por URL.
 - Adaptación al rendimiento del dispositivo, móvil y movimiento reducido.
 - Audio ambiental opcional y sutil; sin cuenta de usuario.
-- Cuatro movimientos, presets/estados visuales, modo embed y captura.
+- Cinco movimientos, 8 presets/estados visuales y paleta Nebulosa, modo embed y captura.
 - Calidad reproducible con TypeScript, ESLint, pruebas unitarias y E2E Chromium.
 
 ## Ejecutarlo localmente
@@ -64,4 +64,4 @@ El laboratorio principal conserva un **póster estático** de Vórtice en claro/
 
 ## English
 
-Vórtice is a real-time **WebGL audiovisual instrument**, not a pre-rendered video. Four movements, six curated visual states and optional ambient audio respond to pointer and keyboard input. Its shared URLs preserve scene settings. The renderer adapts to device capabilities and honors reduced motion. [Launch](https://vortex-gilt-xi.vercel.app/) · [Controls](docs/CONTROLS.md) · [Local setup](#ejecutarlo-localmente).
+Vórtice is a real-time **WebGL audiovisual instrument**, not a pre-rendered video. Five movements, eight curated visual states and optional ambient audio respond to pointer and keyboard input. Its shared URLs preserve scene settings. The renderer adapts to device capabilities and honors reduced motion. [Launch](https://vortex-gilt-xi.vercel.app/) · [Controls](docs/CONTROLS.md) · [Local setup](#ejecutarlo-localmente).

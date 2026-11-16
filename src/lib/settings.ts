@@ -3,8 +3,8 @@ import { create } from "zustand";
 export const STORAGE_KEY = "vortex-settings-v4";
 export const SETTINGS_VERSION = 4;
 
-export type PaletteId = "spectrum" | "aurora" | "ember" | "ice" | "silver" | "solar";
-export type FieldMode = "vortex" | "flow" | "orbit" | "wave";
+export type PaletteId = "spectrum" | "aurora" | "ember" | "ice" | "silver" | "solar" | "nebula";
+export type FieldMode = "vortex" | "flow" | "orbit" | "wave" | "chaos";
 export type FieldBgId =
   | "void"
   | "ink"
@@ -30,6 +30,7 @@ export const PALETTES: { id: PaletteId; label: string }[] = [
   { id: "ice", label: "Hielo" },
   { id: "silver", label: "Plata" },
   { id: "solar", label: "Solar" },
+  { id: "nebula", label: "Nebulosa" },
 ];
 
 export const FIELD_MODES: { id: FieldMode; label: string }[] = [
@@ -37,6 +38,7 @@ export const FIELD_MODES: { id: FieldMode; label: string }[] = [
   { id: "flow", label: "Flujo" },
   { id: "orbit", label: "Órbita" },
   { id: "wave", label: "Onda" },
+  { id: "chaos", label: "Caos" },
 ];
 
 export const FIELD_BG_OPTIONS: { id: Exclude<FieldBgId, "custom">; label: string }[] =

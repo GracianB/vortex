@@ -2,6 +2,20 @@
 
 All notable changes to Vórtice are documented here.
 
+## 7.0.0 — 2026-11-16
+
+### Generative Field & Movements
+- Added 5th movement: **CAOS** (Movement V: *COLAPSAR*), introducing brownian turbulence, entropy dynamics, and local repulsive forces.
+- Added **Nebula** palette with deep violet, magenta, and cyan hues tailored for space and stellar visualization.
+- Added 2 curated master states: **STORM** (Code 06, high energy slate chaos) and **GALAXY** (Code 07, cosmic nebula orbit).
+- Added shortcut `P` to shuffle through curated master scenes dynamically.
+- Added shortcut `5` for instantaneous transition into the Caos movement.
+
+### Controls & Architecture
+- Extended responsive movement rail to dynamically accommodate 5 canonical movements across desktop and mobile viewports.
+- Updated bilingual dictionary (ES/EN) with complete translations for all new movements, presets, and interaction strings.
+- Updated test suites with verification for the 5 movements and 8 master scenes.
+
 ## 6.0.0 — 2026-10-07
 
 ### Final experience
