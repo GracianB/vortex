@@ -16,23 +16,23 @@ Arte generativo audiovisual en **WebGL**. No es un vídeo: miles de puntos reacc
 
 ---
 
-## Un instrumento, cinco movimientos
+## Un instrumento, siete movimientos
 
-| 01 Vórtice | 02 Flujo | 03 Órbita | 04 Onda | 05 Caos |
-| --- | --- | --- | --- | --- |
-| Atracción hacia el puntero | Corrientes y estelas | Movimiento orbital | Pulsos que modifican el campo | Entropía y turbulencia browniana |
+| 01 Vórtice | 02 Flujo | 03 Órbita | 04 Onda | 05 Caos | 06 Singularidad | 07 Supernova |
+| --- | --- | --- | --- | --- | --- | --- |
+| Atracción centrípeta | Corrientes y estelas | Gravitación orbital | Pulsos y resonancia | Turbulencia browniana | Horizonte y chorros cuánticos | Detonación y dispersión |
 
-**Haz algo, y el campo responde:** mueve el cursor, mantén pulsado, cambia el movimiento o abre el panel de instrumentos. Ocho estados maestros combinan color y ambiente: Void, Aurora, Solar, Ember, Ice, Paper, Storm y Galaxy.
+**Haz algo, y el campo responde:** mueve el cursor, inclina el móvil, mantén pulsado, cambia el movimiento o abre el panel de instrumentos. Once estados maestros combinan color, física y atmósfera: Void, Aurora, Solar, Ember, Ice, Paper, Storm, Galaxy, Singularity, Supernova y Celestial.
 
-Los controles están diseñados para exploración: `1–5` movimientos, `P` escena aleatoria, `I` panel, `H` solo lienzo, `Espacio` pulso, `M` audio, `S` captura PNG. [Ver todos los controles ↗](docs/CONTROLS.md).
+Los controles están diseñados para exploración: `1–7` movimientos, `P` escena aleatoria, `I` panel, `H` solo lienzo, `Espacio` pulso con onda de choque, `M` audio y sintetizador armónico, `S` captura PNG, `V` grabación de vídeo cinemático WebM. [Ver todos los controles ↗](docs/CONTROLS.md).
 
 ## Lo que demuestra
 
-- Motor WebGL con simulación en tiempo real y recuperación del contexto.
-- React 19 + TypeScript, Vite y estado compartible por URL.
-- Adaptación al rendimiento del dispositivo, móvil y movimiento reducido.
-- Audio ambiental opcional y sutil; sin cuenta de usuario.
-- Cinco movimientos, 8 presets/estados visuales y paleta Nebulosa, modo embed y captura.
+- Motor WebGL de alto rendimiento con hasta 32.000 partículas en tiempo real y recuperación del contexto.
+- React 19 + TypeScript, Vite y persistencia de escena compartible por URL.
+- Adaptación al rendimiento del dispositivo, móvil con soporte giroscópico y movimiento reducido.
+- Síntesis armónica procedural Web Audio combinada con audio ambiental opcional.
+- Siete movimientos, 11 presets maestros, ondas de choque físicas, grabación de vídeo WebM y captura.
 - Calidad reproducible con TypeScript, ESLint, pruebas unitarias y E2E Chromium.
 
 ## Ejecutarlo localmente
@@ -64,4 +64,4 @@ El laboratorio principal conserva un **póster estático** de Vórtice en claro/
 
 ## English
 
-Vórtice is a real-time **WebGL audiovisual instrument**, not a pre-rendered video. Five movements, eight curated visual states and optional ambient audio respond to pointer and keyboard input. Its shared URLs preserve scene settings. The renderer adapts to device capabilities and honors reduced motion. [Launch](https://vortex-gilt-xi.vercel.app/) · [Controls](docs/CONTROLS.md) · [Local setup](#ejecutarlo-localmente).
+Vórtice is a real-time **WebGL audiovisual instrument**, not a pre-rendered video. Seven movements, eleven curated visual states, physical shockwaves, WebM cinematic video recording, mobile gyroscope tilt dynamics, and generative harmonic audio respond to pointer, motion and keyboard input. Its shared URLs preserve scene settings. The renderer adapts to device capabilities and honors reduced motion. [Launch](https://vortex-gilt-xi.vercel.app/) · [Controls](docs/CONTROLS.md) · [Local setup](#ejecutarlo-localmente).

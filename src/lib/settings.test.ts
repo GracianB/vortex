@@ -37,7 +37,7 @@ test("scene parser clamps numeric values and ignores invalid enums", () => {
     {
       palette: "ice",
       bg: "void",
-      count: 20000,
+      count: 32000,
       force: 0.15,
       trail: 0.97,
     },

@@ -7,7 +7,13 @@ export type ParticleCanvasHandle = {
   clearTrails: () => void;
   resetParticles: () => void;
   capturePng: () => void;
+  captureWallpaper4K: () => void;
+  captureVideo: (
+    durationMs?: number,
+    onStatus?: (status: "recording" | "processing" | "ready") => void,
+  ) => Promise<void>;
   pulse: () => void;
+  shockwave: (x: number, y: number, strength?: number) => void;
 };
 
 type Props = {
@@ -24,7 +30,13 @@ export function ParticleCanvas({ ref }: Props) {
     clearTrails: () => engineRef.current?.clearTrails(),
     resetParticles: () => engineRef.current?.resetParticles(),
     capturePng: () => engineRef.current?.capturePng(),
+    captureWallpaper4K: () => engineRef.current?.captureWallpaper4K(),
+    captureVideo: (durationMs, onStatus) =>
+      engineRef.current
+        ? engineRef.current.captureVideo(durationMs, onStatus)
+        : Promise.resolve(),
     pulse: () => engineRef.current?.pulse(),
+    shockwave: (x, y, strength) => engineRef.current?.shockwave(x, y, strength),
   }));
 
   useEffect(() => {
@@ -69,7 +81,13 @@ export function ParticleCanvas({ ref }: Props) {
       clear: () => engineRef.current?.clearTrails(),
       reset: () => engineRef.current?.resetParticles(),
       capture: () => engineRef.current?.capturePng(),
+      wallpaper: () => engineRef.current?.captureWallpaper4K(),
+      video: (durationMs, onStatus) =>
+        engineRef.current
+          ? engineRef.current.captureVideo(durationMs, onStatus)
+          : Promise.resolve(),
       pulse: () => engineRef.current?.pulse(),
+      shockwave: (x, y, s) => engineRef.current?.shockwave(x, y, s),
     };
 
     const onContextLost = (event: Event) => {
@@ -126,7 +144,13 @@ declare global {
       clear: () => void;
       reset: () => void;
       capture: () => void;
+      wallpaper: () => void;
+      video: (
+        durationMs?: number,
+        onStatus?: (status: "recording" | "processing" | "ready") => void,
+      ) => Promise<void>;
       pulse: () => void;
+      shockwave: (x: number, y: number, strength?: number) => void;
     };
   }
 }

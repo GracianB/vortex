@@ -3,8 +3,25 @@ import { create } from "zustand";
 export const STORAGE_KEY = "vortex-settings-v4";
 export const SETTINGS_VERSION = 4;
 
-export type PaletteId = "spectrum" | "aurora" | "ember" | "ice" | "silver" | "solar" | "nebula";
-export type FieldMode = "vortex" | "flow" | "orbit" | "wave" | "chaos";
+export type PaletteId =
+  | "spectrum"
+  | "aurora"
+  | "ember"
+  | "ice"
+  | "silver"
+  | "solar"
+  | "nebula"
+  | "celestial";
+
+export type FieldMode =
+  | "vortex"
+  | "flow"
+  | "orbit"
+  | "wave"
+  | "chaos"
+  | "singularity"
+  | "supernova";
+
 export type FieldBgId =
   | "void"
   | "ink"
@@ -31,6 +48,7 @@ export const PALETTES: { id: PaletteId; label: string }[] = [
   { id: "silver", label: "Plata" },
   { id: "solar", label: "Solar" },
   { id: "nebula", label: "Nebulosa" },
+  { id: "celestial", label: "Celestial" },
 ];
 
 export const FIELD_MODES: { id: FieldMode; label: string }[] = [
@@ -39,6 +57,8 @@ export const FIELD_MODES: { id: FieldMode; label: string }[] = [
   { id: "orbit", label: "Órbita" },
   { id: "wave", label: "Onda" },
   { id: "chaos", label: "Caos" },
+  { id: "singularity", label: "Singularidad" },
+  { id: "supernova", label: "Supernova" },
 ];
 
 export const FIELD_BG_OPTIONS: { id: Exclude<FieldBgId, "custom">; label: string }[] =
@@ -72,7 +92,7 @@ export const PRESETS: Preset[] = [
 ];
 
 export const COUNT_MIN = 800;
-export const COUNT_MAX = 20000;
+export const COUNT_MAX = 32000;
 export const COUNT_STEP = 200;
 export const FORCE_MIN = 0.15;
 export const FORCE_MAX = 3;

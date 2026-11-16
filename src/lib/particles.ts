@@ -8,7 +8,7 @@ import {
 import { resolveRenderDpr } from "@/lib/render-quality";
 import { useAmbient } from "@/lib/ambient";
 
-const CAPACITY = 20000;
+const CAPACITY = 32000;
 const MAX_DT = 0.05;
 const STRIDE = 4;
 
@@ -18,7 +18,13 @@ export type EngineApi = {
   clearTrails: () => void;
   resetParticles: () => void;
   capturePng: () => void;
+  captureWallpaper4K: () => void;
+  captureVideo: (
+    durationMs?: number,
+    onStatus?: (status: "recording" | "processing" | "ready") => void,
+  ) => Promise<void>;
   pulse: () => void;
+  shockwave: (x: number, y: number, strength?: number) => void;
   pointer: (e: PointerEvent, kind: "move" | "down" | "up" | "cancel") => void;
   blur: () => void;
 };
@@ -31,6 +37,7 @@ const PALETTE_INDEX: Record<PaletteId, number> = {
   silver: 4,
   solar: 5,
   nebula: 6,
+  celestial: 7,
 };
 
 const POINT_VS = `
@@ -91,10 +98,14 @@ vec3 tone() {
     h = 45.0 - spd * 105.0;
     s = u_light > 0.5 ? 0.80 : 0.95;
     l = u_light > 0.5 ? 0.34 + spd * 0.12 : 0.54 + spd * 0.24;
-  } else if (u_palette > 5.5) {
+  } else if (u_palette > 5.5 && u_palette < 6.5) {
     h = 280.0 + sin(v_hue * 0.02) * 50.0 + spd * 30.0;
     s = u_light > 0.5 ? 0.70 : 0.88;
     l = u_light > 0.5 ? 0.35 + spd * 0.15 : 0.60 + spd * 0.20;
+  } else if (u_palette > 6.5) {
+    h = 42.0 + sin(v_hue * 0.028) * 32.0 + spd * 135.0;
+    s = u_light > 0.5 ? 0.65 : 0.86;
+    l = u_light > 0.5 ? 0.36 + spd * 0.14 : 0.64 + spd * 0.20;
   } else {
     s = u_light > 0.5 ? 0.62 : 0.82;
     l = u_light > 0.5 ? 0.34 + spd * 0.12 : 0.58 + spd * 0.24;
@@ -224,6 +235,15 @@ function destroyTarget(gl: WebGLRenderingContext, t: Target | null) {
   gl.deleteTexture(t.tex);
 }
 
+type Shockwave = {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  speed: number;
+  strength: number;
+};
+
 export function createEngine(
   canvas: HTMLCanvasElement,
   getSettings: () => SettingsSnapshot,
@@ -262,6 +282,10 @@ export function createEngine(
   let laidOut = false;
   let frameN = 0;
   let fpsEma = 60;
+  let tiltX = 0;
+  let tiltY = 0;
+
+  const shockwaves: Shockwave[] = [];
 
   const pointer = {
     x: 0,
@@ -401,6 +425,19 @@ export function createEngine(
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
+  function triggerShockwave(originX: number, originY: number, strength = 1.0) {
+    const maxR = Math.max(cssW, cssH) * 0.95;
+    shockwaves.push({
+      x: originX,
+      y: originY,
+      radius: 0,
+      maxRadius: maxR,
+      speed: 1150,
+      strength: 1800 * strength,
+    });
+    if (shockwaves.length > 5) shockwaves.shift();
+  }
+
   function nudgeNearby(cx: number, cy: number, mode: FieldMode) {
     const n = Math.min(CAPACITY, getSettings().count | 0);
     for (let i = 0; i < n; i++) {
@@ -415,6 +452,8 @@ export function createEngine(
       else if (mode === "flow") tr = 58 + seed[i] * 36;
       else if (mode === "wave") tr = 64 + seed[i] * 28;
       else if (mode === "chaos") tr = 30 + seed[i] * 120;
+      else if (mode === "singularity") tr = 22 + seed[i] * 38;
+      else if (mode === "supernova") tr = 110 + seed[i] * 60;
       else tr = RING_R + (seed[i] - 0.5) * 12;
       const tx = cx + Math.cos(ang) * tr;
       const ty = cy + Math.sin(ang) * tr;
@@ -445,6 +484,7 @@ export function createEngine(
       attract.y = p.y;
       holdAcc = 0;
       nudgeNearby(p.x, p.y, getSettings().mode);
+      triggerShockwave(p.x, p.y, 0.7);
     } else if (kind === "move") {
       pointer.active = true;
     } else {
@@ -462,7 +502,7 @@ export function createEngine(
     const audioEnergy = useAmbient.getState().energy;
     const pullK = 2680 * force;
     const spinK = 3400 * force;
-    const maxSp = 1280 * (0.55 + force * 0.45);
+    const maxSp = 1380 * (0.55 + force * 0.45);
     const pvx = pointer.vx;
     const pvy = pointer.vy;
     const follow = 1 - Math.exp(-(pointer.down ? 26 : 14) * dt);
@@ -474,6 +514,15 @@ export function createEngine(
 
     if (pointer.down) holdAcc = Math.min(holdAcc + dt, 1.2);
     else holdAcc = 0;
+
+    // Advance shockwaves
+    for (let s = shockwaves.length - 1; s >= 0; s--) {
+      const sw = shockwaves[s];
+      sw.radius += sw.speed * dt;
+      if (sw.radius >= sw.maxRadius) {
+        shockwaves.splice(s, 1);
+      }
+    }
 
     const damp = Math.exp(-(1.32 - audioEnergy * 0.08) * dt);
     const idle = (pointer.active ? 6 : 16) + audioEnergy * 18;
@@ -523,7 +572,12 @@ export function createEngine(
           const repel = dist < 60 ? (1 - dist / 60) * 1200 * force : 0;
           accX = -nx * repel + (seed[i] - 0.5) * 800 * force;
           accY = -ny * repel + ((seed[i] * 13) % 1 - 0.5) * 800 * force;
+        } else if (mode === "singularity") {
+          rest = 16 + seed[i] * 26;
+        } else if (mode === "supernova") {
+          rest = 110 + Math.sin(hueShift * 0.4) * 55;
         }
+
         if (mode !== "flow" && mode !== "chaos") {
           const err = dist - rest;
           accX = nx * err * (92 + force * 70) * w2 + tx * (980 + force * 620) * (0.35 + w);
@@ -564,9 +618,54 @@ export function createEngine(
         const turbulentSpin = tx * spinK * inv * 0.8;
         accX = brownianX + turbulentPull + turbulentSpin;
         accY = brownianY + ny * pullK * inv * 0.45 + ty * spinK * inv * 0.8;
+      } else if (mode === "singularity") {
+        const singPull = (pullK * 2.1) / Math.max(dist * 0.65, 14);
+        const singSpin = (spinK * 2.5) / Math.max(dist * 0.5, 16);
+        accX = nx * singPull + tx * singSpin;
+        accY = ny * singPull + ty * singSpin;
+        if (dist < 26) {
+          const jetSide = seed[i] > 0.5 ? 1 : -1;
+          accX += -ny * 1650 * force * jetSide;
+          accY += nx * 1650 * force * jetSide;
+        }
+      } else if (mode === "supernova") {
+        const cycle = Math.sin(hueShift * 0.18);
+        if (cycle > 0) {
+          const blast = cycle * 1250 * force;
+          accX = -nx * blast + tx * 450 * force;
+          accY = -ny * blast + ty * 450 * force;
+        } else {
+          const suction = -cycle * 780 * force;
+          accX = nx * suction + tx * 980 * force;
+          accY = ny * suction + ty * 980 * force;
+        }
       } else {
         accX = nx * pullK * inv + tx * (spinK * inv + force * 720 * near);
         accY = ny * pullK * inv + ty * (spinK * inv + force * 720 * near);
+      }
+
+      // Physics Shockwaves
+      for (let s = 0; s < shockwaves.length; s++) {
+        const sw = shockwaves[s];
+        const sdx = x[i] - sw.x;
+        const sdy = y[i] - sw.y;
+        const sdist = Math.hypot(sdx, sdy);
+        const diff = Math.abs(sdist - sw.radius);
+        if (diff < 70) {
+          const waveW = 1 - diff / 70;
+          const invS = 1 / Math.max(sdist, 1);
+          const snx = sdx * invS;
+          const sny = sdy * invS;
+          const forceMag = sw.strength * waveW * (1 - sw.radius / sw.maxRadius);
+          accX += snx * forceMag;
+          accY += sny * forceMag;
+        }
+      }
+
+      // Mobile Gyroscope tilt bias
+      if (tiltX !== 0 || tiltY !== 0) {
+        accX += tiltX * 380 * force;
+        accY += tiltY * 380 * force;
       }
 
       if (pointer.active && dist < 150 && !(nearClick && local)) {
@@ -614,6 +713,11 @@ export function createEngine(
           glowSp += 36 * w + holdAcc * 10;
         } else if (mode === "chaos") {
           glowSp += (45 + seed[i] * 40) * w;
+        } else if (mode === "singularity") {
+          glowSp += (75 + seed[i] * 50) * w;
+          hue += 12 * w;
+        } else if (mode === "supernova") {
+          glowSp += 85 * w;
         } else {
           glowSp += Math.exp((-((dist - RING_R) * (dist - RING_R))) / 500) * 58 * w;
         }
@@ -677,7 +781,10 @@ export function createEngine(
     gl.vertexAttribPointer(loc.aHue, 1, gl.FLOAT, false, STRIDE * 4, 12);
     gl.uniform2f(loc.uRes, cssW, cssH);
     gl.uniform1f(loc.uDpr, dpr);
-    gl.uniform1f(loc.uScale, n > 12000 ? 0.78 : n > 7000 ? 0.88 : 0.96);
+    gl.uniform1f(
+      loc.uScale,
+      n > 22000 ? 0.62 : n > 14000 ? 0.74 : n > 7000 ? 0.88 : 0.96,
+    );
     gl.uniform1f(loc.uPalette, PALETTE_INDEX[settings.palette] ?? 0);
     gl.uniform1f(loc.uLight, light ? 1 : 0);
     gl.drawArrays(gl.POINTS, 0, n);
@@ -740,6 +847,12 @@ export function createEngine(
     lastT = 0;
     raf = window.requestAnimationFrame(frame);
   };
+  const onOrientation = (e: DeviceOrientationEvent) => {
+    if (e.gamma !== null && e.beta !== null) {
+      tiltX = Math.max(-1, Math.min(1, e.gamma / 45));
+      tiltY = Math.max(-1, Math.min(1, (e.beta - 30) / 45));
+    }
+  };
   const onWinResize = () => resize();
   const ro = new ResizeObserver(() => resize());
 
@@ -758,6 +871,11 @@ export function createEngine(
       window.addEventListener("pointercancel", onCancel);
       window.addEventListener("blur", onBlur);
       document.addEventListener("visibilitychange", onVisibility);
+      if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
+        window.addEventListener("deviceorientation", onOrientation, {
+          passive: true,
+        });
+      }
       lastT = 0;
       raf = window.requestAnimationFrame(frame);
     },
@@ -773,6 +891,9 @@ export function createEngine(
       window.removeEventListener("pointercancel", onCancel);
       window.removeEventListener("blur", onBlur);
       document.removeEventListener("visibilitychange", onVisibility);
+      if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
+        window.removeEventListener("deviceorientation", onOrientation);
+      }
       destroyTarget(gl, ping);
       destroyTarget(gl, pong);
       ping = null;
@@ -789,10 +910,17 @@ export function createEngine(
     resetParticles() {
       scatterAll();
       hueShift = 0;
+      shockwaves.length = 0;
       clearTargets(resolveBg(getSettings()));
     },
     pulse() {
-      nudgeNearby(pointer.x || cssW * 0.5, pointer.y || cssH * 0.5, getSettings().mode);
+      const px = pointer.x || cssW * 0.5;
+      const py = pointer.y || cssH * 0.5;
+      nudgeNearby(px, py, getSettings().mode);
+      triggerShockwave(px, py, 1.25);
+    },
+    shockwave(xPos: number, yPos: number, strength = 1.0) {
+      triggerShockwave(xPos, yPos, strength);
     },
     capturePng() {
       canvas.toBlob((blob) => {
@@ -808,6 +936,87 @@ export function createEngine(
         a.remove();
         window.setTimeout(() => URL.revokeObjectURL(url), 1500);
       }, "image/png");
+    },
+    captureWallpaper4K() {
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+        a.href = url;
+        a.download = `vortex-wallpaper-4k-${stamp}.png`;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      }, "image/png");
+    },
+    captureVideo(
+      durationMs = 5000,
+      onStatus?: (status: "recording" | "processing" | "ready") => void,
+    ) {
+      return new Promise<void>((resolve) => {
+        if (
+          typeof MediaRecorder === "undefined" ||
+          typeof canvas.captureStream !== "function"
+        ) {
+          this.capturePng();
+          onStatus?.("ready");
+          resolve();
+          return;
+        }
+
+        try {
+          onStatus?.("recording");
+          const stream = canvas.captureStream(60);
+          const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+            ? "video/webm;codecs=vp9"
+            : "video/webm";
+          const recorder = new MediaRecorder(stream, {
+            mimeType: mime,
+            videoBitsPerSecond: 8_000_000,
+          });
+          const chunks: Blob[] = [];
+
+          recorder.ondataavailable = (event) => {
+            if (event.data && event.data.size > 0) chunks.push(event.data);
+          };
+
+          recorder.onstop = () => {
+            onStatus?.("processing");
+            const blob = new Blob(chunks, { type: "video/webm" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const stamp = new Date()
+              .toISOString()
+              .slice(0, 19)
+              .replace(/[:T]/g, "-");
+            a.href = url;
+            a.download = `vortex-${stamp}.webm`;
+            a.rel = "noopener";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.setTimeout(() => {
+              URL.revokeObjectURL(url);
+              onStatus?.("ready");
+              resolve();
+            }, 1200);
+          };
+
+          recorder.start(100);
+          window.setTimeout(() => {
+            if (recorder.state === "recording") {
+              recorder.stop();
+            }
+          }, durationMs);
+        } catch {
+          this.capturePng();
+          onStatus?.("ready");
+          resolve();
+        }
+      });
     },
     pointer(e, kind) {
       handlePointer(e, kind);

@@ -16,6 +16,10 @@ export function AmbientEngine() {
   const graphRef = useRef<{
     context: AudioContext;
     analyser: AnalyserNode;
+    synthGain: GainNode;
+    synthOscA: OscillatorNode;
+    synthOscB: OscillatorNode;
+    filter: BiquadFilterNode;
     raf: number;
   } | null>(null);
   const on = useAmbient((s) => s.on);
@@ -44,8 +48,34 @@ export function AmbientEngine() {
           const analyser = context.createAnalyser();
           analyser.fftSize = 128;
           analyser.smoothingTimeConstant = 0.84;
+
+          // Generative Harmonic Drone Synthesizer
+          const synthGain = context.createGain();
+          synthGain.gain.setValueAtTime(state.volume * 0.08, context.currentTime);
+
+          const filter = context.createBiquadFilter();
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(140, context.currentTime);
+
+          const synthOscA = context.createOscillator();
+          synthOscA.type = "sine";
+          synthOscA.frequency.setValueAtTime(55, context.currentTime); // A1 sub-bass
+
+          const synthOscB = context.createOscillator();
+          synthOscB.type = "triangle";
+          synthOscB.frequency.setValueAtTime(82.4, context.currentTime); // E2 fifth
+
+          synthOscA.connect(filter);
+          synthOscB.connect(filter);
+          filter.connect(synthGain);
+          synthGain.connect(analyser);
+
           source.connect(analyser);
           analyser.connect(context.destination);
+
+          synthOscA.start();
+          synthOscB.start();
+
           const data = new Uint8Array(analyser.frequencyBinCount);
 
           const tick = () => {
@@ -58,12 +88,30 @@ export function AmbientEngine() {
             for (let i = lowEnd; i < midEnd; i++) mid += data[i] ?? 0;
             low /= lowEnd * 255;
             mid /= Math.max(1, (midEnd - lowEnd) * 255);
-            useAmbient.getState().setEnergy(low * 0.68 + mid * 0.32);
+            const computedEnergy = low * 0.68 + mid * 0.32;
+            useAmbient.getState().setEnergy(computedEnergy);
+
+            if (graphRef.current) {
+              graphRef.current.filter.frequency.setTargetAtTime(
+                120 + computedEnergy * 580,
+                context.currentTime,
+                0.1,
+              );
+            }
+
             const raf = window.requestAnimationFrame(tick);
             if (graphRef.current) graphRef.current.raf = raf;
           };
 
-          graphRef.current = { context, analyser, raf: 0 };
+          graphRef.current = {
+            context,
+            analyser,
+            synthGain,
+            synthOscA,
+            synthOscB,
+            filter,
+            raf: 0,
+          };
           tick();
         } catch {
           useAmbient.getState().setEnergy(0);
@@ -82,12 +130,36 @@ export function AmbientEngine() {
       void startAnalysis();
     };
 
+    const onPulse = () => {
+      const state = useAmbient.getState();
+      if (!state.on || state.volume <= 0 || !graphRef.current) return;
+      try {
+        const ctx = graphRef.current.context;
+        const now = ctx.currentTime;
+        const chime = ctx.createOscillator();
+        const gain = ctx.createGain();
+        chime.type = "sine";
+        chime.frequency.setValueAtTime(523.25, now); // C5
+        chime.frequency.exponentialRampToValueAtTime(1046.5, now + 0.25);
+        gain.gain.setValueAtTime(state.volume * 0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+        chime.connect(gain);
+        gain.connect(ctx.destination);
+        chime.start(now);
+        chime.stop(now + 0.6);
+      } catch {
+        // ignore
+      }
+    };
+
     window.addEventListener("pointerdown", start);
     window.addEventListener("keydown", start, { once: true });
+    window.addEventListener("vortex:pulse", onPulse);
 
     return () => {
       window.removeEventListener("pointerdown", start);
       window.removeEventListener("keydown", start);
+      window.removeEventListener("vortex:pulse", onPulse);
       audio.pause();
       audio.removeAttribute("src");
       audio.load();
@@ -95,6 +167,12 @@ export function AmbientEngine() {
 
       if (graphRef.current) {
         window.cancelAnimationFrame(graphRef.current.raf);
+        try {
+          graphRef.current.synthOscA.stop();
+          graphRef.current.synthOscB.stop();
+        } catch {
+          // ignore
+        }
         void graphRef.current.context.close().catch(() => undefined);
         graphRef.current = null;
       }
@@ -106,6 +184,12 @@ export function AmbientEngine() {
     const audio = audioRef.current;
     if (!audio) return;
     audio.volume = on ? volume : 0;
+    if (graphRef.current) {
+      graphRef.current.synthGain.gain.setValueAtTime(
+        on ? volume * 0.08 : 0,
+        graphRef.current.context.currentTime,
+      );
+    }
     if (on && volume > 0) {
       void audio.play().catch(() => undefined);
     } else {

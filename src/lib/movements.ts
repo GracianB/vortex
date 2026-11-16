@@ -2,7 +2,7 @@ import type { FieldMode, Preset } from "./settings.ts";
 
 export type Movement = {
   id: FieldMode;
-  roman: "I" | "II" | "III" | "IV" | "V";
+  roman: "I" | "II" | "III" | "IV" | "V" | "VI" | "VII";
   name: string;
   verb: string;
   description: string;
@@ -43,6 +43,20 @@ export const MOVEMENTS: Movement[] = [
     name: "CAOS",
     verb: "COLAPSAR",
     description: "Turbulencia browniana: repulsión, colisión y entropía total.",
+  },
+  {
+    id: "singularity",
+    roman: "VI",
+    name: "SINGULARIDAD",
+    verb: "ABSORBER",
+    description: "Atracción hiperbólica con chorros cuánticos relativistas.",
+  },
+  {
+    id: "supernova",
+    roman: "VII",
+    name: "SUPERNOVA",
+    verb: "DETONAR",
+    description: "Expansión estelar supersónica y dispersión magnética.",
   },
 ];
 
@@ -143,6 +157,42 @@ export const MASTER_SCENES: Array<
     bg: "void",
     count: 16000,
     force: 1.0,
+    trail: 0.96,
+  },
+  {
+    id: "singularity-v8",
+    code: "08",
+    label: "SINGULARITY",
+    note: "singularidad / horizonte",
+    mode: "singularity",
+    palette: "nebula",
+    bg: "void",
+    count: 24000,
+    force: 1.85,
+    trail: 0.97,
+  },
+  {
+    id: "supernova-v8",
+    code: "09",
+    label: "SUPERNOVA",
+    note: "supernova / estallido",
+    mode: "supernova",
+    palette: "solar",
+    bg: "ink",
+    count: 28000,
+    force: 2.3,
+    trail: 0.9,
+  },
+  {
+    id: "celestial-v8",
+    code: "10",
+    label: "CELESTIAL",
+    note: "celestial / etéreo",
+    mode: "flow",
+    palette: "celestial",
+    bg: "abyss",
+    count: 20000,
+    force: 1.25,
     trail: 0.96,
   },
 ];

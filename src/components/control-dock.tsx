@@ -8,6 +8,7 @@ import {
   RotateCcw,
   Share2,
   SlidersHorizontal,
+  Video,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,8 @@ type Props = {
 
 function fmt(n: number, digits = 0, language = "es") {
   return n.toLocaleString(language === "en" ? "en-US" : "es-ES", {
-    minimumFractionDigits: digits, maximumFractionDigits: digits,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   });
 }
 
@@ -67,8 +69,8 @@ export function ControlDock({ canvas }: Props) {
 
   const [panelOpen, setPanelOpen] = useState(false);
   const [chromeHidden, setChromeHidden] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [shared, setShared] = useState(false);
+  const [toastText, setToastText] = useState<string | null>(null);
+  const [recording, setRecording] = useState(false);
 
   const movement = movementFor(mode);
   const paletteLabel = PALETTES.find((item) => item.id === palette)?.label ?? "";
@@ -81,6 +83,11 @@ export function ControlDock({ canvas }: Props) {
       scene.force === force &&
       scene.trail === trail,
   );
+
+  const showToast = useCallback((msg: string, duration = 1600) => {
+    setToastText(msg);
+    window.setTimeout(() => setToastText((curr) => (curr === msg ? null : curr)), duration);
+  }, []);
 
   const currentSnapshot = (): SettingsSnapshot => {
     const state = useSettings.getState();
@@ -112,8 +119,7 @@ export function ControlDock({ canvas }: Props) {
         await navigator.share(data);
       } else if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        setShared(true);
-        window.setTimeout(() => setShared(false), 1500);
+        showToast(t("ESCENA · COPIADA"));
       }
     } catch {
       // Native share cancellation is not an error state for the experience.
@@ -123,35 +129,59 @@ export function ControlDock({ canvas }: Props) {
   const setMovement = useCallback(
     (next: FieldMode) => {
       useSettings.getState().setMode(next);
-      window.setTimeout(() => canvas.current?.pulse(), 30);
+      window.setTimeout(() => {
+        canvas.current?.pulse();
+        window.dispatchEvent(new CustomEvent("vortex:pulse"));
+      }, 30);
     },
     [canvas],
   );
 
-  const applyMasterScene = useCallback((id: string) => {
-    const scene = MASTER_SCENES.find((item) => item.id === id);
-    if (!scene) return;
-    useSettings.getState().applyScene({
-      mode: scene.mode,
-      palette: scene.palette,
-      bg: scene.bg,
-      count: scene.count,
-      force: scene.force,
-      trail: scene.trail,
+  const applyMasterScene = useCallback(
+    (id: string) => {
+      const scene = MASTER_SCENES.find((item) => item.id === id);
+      if (!scene) return;
+      useSettings.getState().applyScene({
+        mode: scene.mode,
+        palette: scene.palette,
+        bg: scene.bg,
+        count: scene.count,
+        force: scene.force,
+        trail: scene.trail,
+      });
+      window.setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent("vortex:scene", {
+            detail: {
+              code: scene.code,
+              label: scene.label,
+              note: scene.note,
+            },
+          }),
+        );
+        canvas.current?.pulse();
+        window.dispatchEvent(new CustomEvent("vortex:pulse"));
+      }, 40);
+    },
+    [canvas],
+  );
+
+  const capture = useCallback(() => {
+    canvas.current?.capturePng();
+    showToast(t("CAPTURA · LISTA"));
+  }, [canvas, showToast, t]);
+
+  const captureVideo = useCallback(() => {
+    if (recording) return;
+    setRecording(true);
+    showToast(t("GRABANDO (5S)..."), 5000);
+    canvas.current?.captureVideo(5000, (status) => {
+      if (status === "ready") {
+        setRecording(false);
+        showToast(t("VÍDEO · LISTO"), 1800);
+      }
     });
-    window.setTimeout(() => {
-      window.dispatchEvent(
-        new CustomEvent("vortex:scene", {
-          detail: {
-            code: scene.code,
-            label: scene.label,
-            note: scene.note,
-          },
-        }),
-      );
-      canvas.current?.pulse();
-    }, 40);
-  }, [canvas]);
+  }, [canvas, recording, showToast, t]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -171,10 +201,14 @@ export function ControlDock({ canvas }: Props) {
         canvas.current?.clearTrails();
       } else if (event.code === "KeyS" && !event.metaKey && !event.ctrlKey) {
         event.preventDefault();
-        canvas.current?.capturePng();
+        capture();
+      } else if (event.code === "KeyV" && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        captureVideo();
       } else if (event.code === "Space") {
         event.preventDefault();
         canvas.current?.pulse();
+        window.dispatchEvent(new CustomEvent("vortex:pulse"));
       } else if (event.code === "Digit1") {
         setMovement("vortex");
       } else if (event.code === "Digit2") {
@@ -185,6 +219,10 @@ export function ControlDock({ canvas }: Props) {
         setMovement("wave");
       } else if (event.code === "Digit5") {
         setMovement("chaos");
+      } else if (event.code === "Digit6") {
+        setMovement("singularity");
+      } else if (event.code === "Digit7") {
+        setMovement("supernova");
       } else if (event.code === "KeyP" && !event.metaKey && !event.ctrlKey) {
         event.preventDefault();
         const randScene = MASTER_SCENES[Math.floor(Math.random() * MASTER_SCENES.length)];
@@ -209,13 +247,7 @@ export function ControlDock({ canvas }: Props) {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [canvas, setMovement, applyMasterScene]);
-
-  const capture = () => {
-    canvas.current?.capturePng();
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1400);
-  };
+  }, [canvas, setMovement, applyMasterScene, capture, captureVideo]);
 
   if (chromeHidden) {
     return (
@@ -242,7 +274,8 @@ export function ControlDock({ canvas }: Props) {
           className="v6-signature pointer-events-auto"
           aria-label="Gracián Baena"
         >
-          <img className="v6-brand-icon" src="/favicon.svg" alt="" width="28" height="28" /><span className="v6-signature__name">VØRTICE</span>
+          <img className="v6-brand-icon" src="/favicon.svg" alt="" width="28" height="28" />
+          <span className="v6-signature__name">VØRTICE</span>
           <span className="v6-signature__line" aria-hidden="true" />
           <span className="v6-signature__movement">
             {movement.roman} · {t(movement.name)}
@@ -302,14 +335,14 @@ export function ControlDock({ canvas }: Props) {
         })}
       </nav>
 
-      {saved || shared ? (
+      {toastText ? (
         <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center">
           <p
             role="status"
             aria-live="polite"
             className="v6-toast"
           >
-            {t(saved ? "CAPTURA · LISTA" : "ESCENA · COPIADA")}
+            {toastText}
           </p>
         </div>
       ) : null}
@@ -339,11 +372,42 @@ export function ControlDock({ canvas }: Props) {
           <div className="v6-display-settings">
             <span>{language === "es" ? "Idioma" : "Language"}</span>
             <div role="group" aria-label={language === "es" ? "Idioma" : "Language"}>
-              {(["es", "en"] as const).map(value => <button key={value} type="button" aria-pressed={language === value} onClick={() => useUiPreferences.getState().setLanguage(value)}>{value.toUpperCase()}</button>)}
+              {(["es", "en"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={language === value}
+                  onClick={() => useUiPreferences.getState().setLanguage(value)}
+                >
+                  {value.toUpperCase()}
+                </button>
+              ))}
             </div>
             <span>{language === "es" ? "Apariencia" : "Appearance"}</span>
-            <div role="group" aria-label={language === "es" ? "Apariencia del instrumento" : "Instrument appearance"}>
-              {(["dark", "light"] as const).map(value => <button key={value} type="button" aria-pressed={theme === value} onClick={() => useUiPreferences.getState().setTheme(value)}>{language === "es" ? (value === "dark" ? "Oscuro" : "Claro") : (value === "dark" ? "Dark" : "Light")}</button>)}
+            <div
+              role="group"
+              aria-label={
+                language === "es"
+                  ? "Apariencia del instrumento"
+                  : "Instrument appearance"
+              }
+            >
+              {(["dark", "light"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={theme === value}
+                  onClick={() => useUiPreferences.getState().setTheme(value)}
+                >
+                  {language === "es"
+                    ? value === "dark"
+                      ? "Oscuro"
+                      : "Claro"
+                    : value === "dark"
+                      ? "Dark"
+                      : "Light"}
+                </button>
+              ))}
             </div>
           </div>
           <div className="v6-instrument__scroll">
@@ -461,8 +525,9 @@ export function ControlDock({ canvas }: Props) {
                 <div className="v6-tune-row">
                   <span>{t("Fondo")}</span>
                   <strong>
-                    {t(FIELD_BG_OPTIONS.find((item) => item.id === bg)?.label ??
-                      (bg === "custom" ? "Personalizado" : bg)
+                    {t(
+                      FIELD_BG_OPTIONS.find((item) => item.id === bg)?.label ??
+                        (bg === "custom" ? "Personalizado" : bg),
                     ).toUpperCase()}
                   </strong>
                 </div>
@@ -473,10 +538,7 @@ export function ControlDock({ canvas }: Props) {
                       type="button"
                       aria-label={`${t("Fondo")} ${t(item.label)}`}
                       title={t(item.label)}
-                      className={cn(
-                        "v6-bg",
-                        bg === item.id && "is-active",
-                      )}
+                      className={cn("v6-bg", bg === item.id && "is-active")}
                       style={{
                         background:
                           item.id === "void"
@@ -496,7 +558,12 @@ export function ControlDock({ canvas }: Props) {
                       }
                     />
                   ))}
-                  <label className={cn("v6-bg v6-bg--custom", bg === "custom" && "is-active")}>
+                  <label
+                    className={cn(
+                      "v6-bg v6-bg--custom",
+                      bg === "custom" && "is-active",
+                    )}
+                  >
                     <input
                       type="color"
                       value={customBg}
@@ -540,6 +607,13 @@ export function ControlDock({ canvas }: Props) {
                   shortcut="S"
                   icon={<Download />}
                   onClick={capture}
+                />
+                <Utility
+                  testId="btn-video"
+                  label={t("Vídeo")}
+                  shortcut="V"
+                  icon={<Video />}
+                  onClick={captureVideo}
                 />
                 <Utility
                   label={t("Pantalla")}

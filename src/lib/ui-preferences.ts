@@ -3,20 +3,40 @@ import { create } from "zustand";
 type Language = "es" | "en";
 type Theme = "dark" | "light";
 function preference(key: string): string | null {
-  try { return typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get(key) || localStorage.getItem(`vortex-ui-${key}`); } catch { return null; }
+  try {
+    return typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get(key) ||
+          localStorage.getItem(`vortex-ui-${key}`);
+  } catch {
+    return null;
+  }
 }
 function save(key: string, value: string) {
-  try { localStorage.setItem(`vortex-ui-${key}`, value); } catch { /* Preferences still work without storage. */ }
+  try {
+    localStorage.setItem(`vortex-ui-${key}`, value);
+  } catch {
+    /* Preferences still work without storage. */
+  }
 }
 export const useUiPreferences = create<{
-  language: Language; theme: Theme;
-  setLanguage: (value: Language) => void; setTheme: (value: Theme) => void;
+  language: Language;
+  theme: Theme;
+  setLanguage: (value: Language) => void;
+  setTheme: (value: Theme) => void;
 }>((set) => ({
   language: preference("lang") === "en" ? "en" : "es",
   theme: preference("theme") === "light" ? "light" : "dark",
-  setLanguage: (language) => { save("lang", language); set({language}); },
-  setTheme: (theme) => { save("theme", theme); set({theme}); },
+  setLanguage: (language) => {
+    save("lang", language);
+    set({ language });
+  },
+  setTheme: (theme) => {
+    save("theme", theme);
+    set({ theme });
+  },
 }));
+
 const dictionary: Record<string, string> = {
   "Mostrar interfaz": "Show interface",
   "Mostrar interfaz (H)": "Show interface (H)",
@@ -28,6 +48,9 @@ const dictionary: Record<string, string> = {
   "Movimientos de Vórtice": "Vórtice movements",
   "CAPTURA · LISTA": "CAPTURE · READY",
   "ESCENA · COPIADA": "SCENE · COPIED",
+  "GRABANDO (5S)...": "RECORDING (5S)...",
+  "VÍDEO · LISTO": "VIDEO · READY",
+  "FONDO 4K · LISTO": "4K WALLPAPER · READY",
   "Instrumento de Vórtice": "Vórtice instrument",
   "Cerrar instrumento": "Close instrument",
   "Muestras": "Samples",
@@ -40,6 +63,7 @@ const dictionary: Record<string, string> = {
   "Borrar": "Clear",
   "Reiniciar": "Reset",
   "Captura": "Capture",
+  "Vídeo": "Video",
   "Pantalla": "Fullscreen",
   "Lienzo": "Canvas",
   "Otros universos de Gracián Baena": "Other universes by Gracián Baena",
@@ -50,22 +74,36 @@ const dictionary: Record<string, string> = {
   "Sonido (M)": "Sound (M)",
   "Volumen": "Volume",
   "Campo de datos WebGL": "WebGL particle field",
-  "Vórtice — instrumento visual generativo WebGL": "Vórtice — generative WebGL visual instrument",
+  "Vórtice — instrumento visual generativo WebGL":
+    "Vórtice — generative WebGL visual instrument",
   "VÓRTICE": "VORTEX",
   "FLUJO": "FLOW",
   "ÓRBITA": "ORBIT",
   "ONDA": "WAVE",
   "CAOS": "CHAOS",
+  "SINGULARIDAD": "SINGULARITY",
+  "SUPERNOVA": "SUPERNOVA",
   "ATRAER": "ATTRACT",
   "DERIVAR": "DRIFT",
   "GRAVITAR": "GRAVITATE",
   "RESONAR": "RESONATE",
   "COLAPSAR": "COLLAPSE",
-  "Atracción, torsión y densidad alrededor de tu gesto.": "Attraction, twist and density around your gesture.",
-  "Una corriente continua que se pliega alrededor del movimiento.": "A continuous current folding around movement.",
-  "Cuerpos, radios y gravedad en torno a un centro inestable.": "Bodies, radii and gravity around an unstable centre.",
-  "Impulsos que atraviesan el campo y vuelven convertidos en forma.": "Impulses crossing the field and returning as form.",
-  "Turbulencia browniana: repulsión, colisión y entropía total.": "Brownian turbulence: repulsion, collision and total entropy.",
+  "ABSORBER": "ABSORB",
+  "DETONAR": "DETONATE",
+  "Atracción, torsión y densidad alrededor de tu gesto.":
+    "Attraction, twist and density around your gesture.",
+  "Una corriente continua que se pliega alrededor del movimiento.":
+    "A continuous current folding around movement.",
+  "Cuerpos, radios y gravedad en torno a un centro inestable.":
+    "Bodies, radii and gravity around an unstable centre.",
+  "Impulsos que atraviesan el campo y vuelven convertidos en forma.":
+    "Impulses crossing the field and returning as form.",
+  "Turbulencia browniana: repulsión, colisión y entropía total.":
+    "Brownian turbulence: repulsion, collision and total entropy.",
+  "Atracción hiperbólica con chorros cuánticos relativistas.":
+    "Hyperbolic attraction with relativistic quantum jets.",
+  "Expansión estelar supersónica y dispersión magnética.":
+    "Supersonic stellar expansion and magnetic dispersion.",
   "silencio / atracción": "silence / attraction",
   "deriva / respiración": "drift / breath",
   "gravedad / calor": "gravity / warmth",
@@ -74,6 +112,9 @@ const dictionary: Record<string, string> = {
   "materia / calma": "matter / calm",
   "caos / tormenta": "chaos / storm",
   "nebulosa / infinito": "nebula / infinity",
+  "singularidad / horizonte": "singularity / horizon",
+  "supernova / estallido": "supernova / burst",
+  "celestial / etéreo": "celestial / ethereal",
   "Espectro": "Spectrum",
   "Aurora": "Aurora",
   "Brasa": "Ember",
@@ -81,6 +122,7 @@ const dictionary: Record<string, string> = {
   "Plata": "Silver",
   "Solar": "Solar",
   "Nebulosa": "Nebula",
+  "Celestial": "Celestial",
   "Vacío": "Void",
   "Tinta": "Ink",
   "Abismo": "Abyss",
@@ -95,12 +137,34 @@ const dictionary: Record<string, string> = {
   "INSTRUMENT / 06": "Instrumento / 06",
   "GENERATIVE FIELD / 2026": "Campo generativo / 2026",
   "MOVE TO DISTURB THE FIELD": "Mueve para transformar el campo",
-  "A VISUAL INSTRUMENT BY GRACIÁN BAENA": "Un instrumento visual de Gracián Baena",
+  "A VISUAL INSTRUMENT BY GRACIÁN BAENA":
+    "Un instrumento visual de Gracián Baena",
   "BY GRACIÁN BAENA": "Por Gracián Baena",
-  "MOVE · HOLD · DISTURB · SPACE TO PULSE": "MUEVE · MANTÉN · TRANSFORMA · ESPACIO PARA PULSAR"
+  "MOVE · HOLD · DISTURB · SPACE TO PULSE":
+    "MUEVE · MANTÉN · TRANSFORMA · ESPACIO PARA PULSAR",
 };
-const englishKeys = new Set(["MOVEMENTS", "STATES", "TUNE", "FIELD", "INSTRUMENT / 06", "GENERATIVE FIELD / 2026", "MOVE TO DISTURB THE FIELD", "A VISUAL INSTRUMENT BY GRACI\u00c1N BAENA", "BY GRACI\u00c1N BAENA", "MOVE \u00b7 HOLD \u00b7 DISTURB \u00b7 SPACE TO PULSE"]);
+
+const englishKeys = new Set([
+  "MOVEMENTS",
+  "STATES",
+  "TUNE",
+  "FIELD",
+  "INSTRUMENT / 06",
+  "GENERATIVE FIELD / 2026",
+  "MOVE TO DISTURB THE FIELD",
+  "A VISUAL INSTRUMENT BY GRACI\u00c1N BAENA",
+  "BY GRACI\u00c1N BAENA",
+  "MOVE \u00b7 HOLD \u00b7 DISTURB \u00b7 SPACE TO PULSE",
+]);
+
 export function useUiText() {
   const language = useUiPreferences((state) => state.language);
-  return (text: string) => englishKeys.has(text) ? (language === "es" ? dictionary[text] : text) : (language === "en" ? dictionary[text] || text : text);
+  return (text: string) =>
+    englishKeys.has(text)
+      ? language === "es"
+        ? dictionary[text]
+        : text
+      : language === "en"
+        ? dictionary[text] || text
+        : text;
 }

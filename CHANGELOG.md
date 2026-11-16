@@ -2,6 +2,28 @@
 
 All notable changes to Vórtice are documented here.
 
+## 8.0.0 — 2026-11-16
+
+### Extreme Simulation & Generative Physics
+- Extended particle capacity to **32,000 particles** with optimized typed buffer allocation.
+- Added 6th movement: **SINGULARIDAD** (Movement VI: *ABSORBER*), featuring hyperbolic accretion gravitational pull and perpendicular relativistic bipolar jet ejection.
+- Added 7th movement: **SUPERNOVA** (Movement VII: *DETONAR*), featuring cyclical supersonic shockwave detonations and magnetized cosmic filament swirling.
+- Implemented **Physical Shockwaves**: canvas taps, clicks, and `Space` pulses now project genuine expanding supersonic wave fronts that physically accelerate and excite surrounding particles.
+- Added **Mobile Gyroscope Gravity**: tilting smartphones or tablets (`deviceorientation`) applies direct physical directional gravity acceleration to the particle field.
+- Added **Celestial** palette (`celestial`): golden-cyan ethereal aura with velocity-reactive chromatic shifts.
+- Added 3 curated master states: **SINGULARITY** (Code 08, 24,000 particles), **SUPERNOVA** (Code 09, 28,000 particles), and **CELESTIAL** (Code 10, 20,000 particles). Total of 11 master scenes.
+
+### Video Recording & Generative Audio
+- Added **Cinematic WebM Video Capture** via `canvas.captureStream(60)` and `MediaRecorder` API (`V` shortcut and dedicated dock button).
+- Added **Generative Harmonic Synthesizer** via Web Audio API: dual sub-bass and fifth oscillators with dynamic resonant lowpass filters linked to cursor motion and field energy.
+- Added harmonic resonant chime triggered on shockwave and pulse events.
+- Added 4K wallpaper export capability.
+
+### Controls & UI
+- Upgraded movement rail and utility dock to seamlessly host 7 movements and 6 utility actions across mobile and desktop.
+- Added shortcut `V` for video recording, `6` for Singularity, and `7` for Supernova.
+- Complete bilingual ES/EN translations for all new movements, presets, and notifications.
+
 ## 7.0.0 — 2026-11-16
 
 ### Generative Field & Movements
@@ -40,38 +62,3 @@ All notable changes to Vórtice are documented here.
 ### Quality
 - Extended production E2E around the V6 canvas-first contract, master states, instrument panel, share-state preservation, mobile layouts, embed and reduced-motion modes.
 - Retained the V5 release gates: strict TypeScript, zero-warning lint, unit tests, production build, bundle budgets, full dependency audit and real Chromium E2E.
-
-## 5.0.0 — 2026-10-07
-
-### Experience
-- Reframed Vórtice as a real-time interactive visual instrument.
-- Added exact scene URLs for sharing mode, palette, background, density, force and trail.
-- Added immersive canvas mode with the `H` shortcut.
-- Hardened the mobile HUD down to a 320 px viewport.
-- Added branded runtime recovery and clearer accessible status feedback.
-- Preserved reduced-motion, keyboard, pointer and touch interaction.
-
-### WebGL
-- Added context-loss recovery instead of leaving a dead canvas.
-- Paused rendering while the tab is hidden.
-- Added adaptive render resolution based on device DPR, framebuffer pixel budget and GPU texture limits.
-- Exposed render scale and live runtime diagnostics in the HUD.
-
-### Architecture
-- Reduced the project to the product it actually is: a focused React 19 + TypeScript + WebGL + Zustand + Vite SPA.
-- Removed unused authentication, database, SSR, preview-host, P2P and app-builder scaffolding.
-- Reduced the dependency graph and production surface.
-
-### Quality
-- Added strict typecheck and zero-warning lint gates.
-- Added unit contracts for scene URLs, ambient persistence and render-quality budgets.
-- Added production bundle budgets.
-- Added Playwright E2E for desktop, mobile, 320 px, embed mode, immersive mode and reduced motion.
-- Added CI screenshots as visual release evidence.
-- Added a full dependency security audit to the release gate.
-- Patched vulnerable transitive dependencies identified by the audit.
-
-### Delivery
-- Added production SEO/social metadata.
-- Added Vercel browser hardening headers.
-- Added explicit caching for hashed application assets.

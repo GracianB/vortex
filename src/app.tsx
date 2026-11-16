@@ -169,6 +169,8 @@ export function App() {
         Boolean(event.target.closest("[data-ui]"));
       if (onUi) return;
 
+      canvasRef.current?.shockwave(event.clientX, event.clientY, 0.75);
+
       const id = Date.now() + Math.random();
       setRipples((current) => [
         ...current.slice(-4),
